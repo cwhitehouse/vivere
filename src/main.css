@@ -1,3 +1,11 @@
 .hidden {
   display: none;
 }
+
+[v-text]:empty:before {
+  content: "⚭♏︎♎︎♌︎⚙︎❄︎✕";
+}
+
+.section.selected > button {
+  color: blue;
+}

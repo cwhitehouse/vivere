@@ -3,6 +3,7 @@ import Elements from '../lib/elements.js';
 
 export default {
   Display: [
+    'v-class',
     'v-if',
     'v-text',
   ],

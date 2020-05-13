@@ -1,0 +1,17 @@
+<div v-component="inline-form">
+  <div v-if="isShowing">
+    <p>Showing the record</p>
+    <button v-click="startEditing">Edit</button>
+    <button v-click="confirmDelete">Delete</button>
+  </div>
+  <div v-if="isEditing">
+    <p>Editing the record</p>
+    <button v-click="edit">Done</button>
+    <button v-click="reset">Cancel</button>
+  </div>
+  <div v-if="isDeleting">
+    <p>Are you sure you want to delete this?</p>
+    <button v-click="delete">Confirm</button>
+    <button v-click="reset">Cancel</button>
+  </div>
+</div>

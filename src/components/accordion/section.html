@@ -2,6 +2,8 @@
   v-component="accordion-section"
   v-data:value="{{ value }}"
   v-pass:active-section
+  v-bind:select="selectSection"
+  v-class='{ "selected": "isActive" }'
   class="section"
 >
   <button

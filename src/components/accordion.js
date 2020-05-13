@@ -5,13 +5,12 @@ export default {
 
   callbacks: {
     beforeConnected() {
-      console.log("Accordion : beforeConnected");
       this.activeSection = this.$children[0].value;
     },
   },
 
   methods: {
-    select(value) {
+    selectSection(value) {
       this.$set('activeSection', value);
     },
   },

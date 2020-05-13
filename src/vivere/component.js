@@ -12,9 +12,11 @@ export class Component {
     // Load the component definition
     const normalizedName = Attributes.normalize(name)
     const definition = Vivere.definitions[normalizedName];
+    if (definition == null) throw `Tried to instantiate unknown component ${normalizedName}`;
 
     // Initialize the component data
     Object.assign(this, {
+      $bindings: {},
       $children: [],
       $element: element,
       $livingElements: {},
@@ -81,9 +83,21 @@ export class Component {
   }
 
   $emit(event, args) {
-    // Pass a message to parent
-    this.$parent?.[event]?.(args);
-    this.$parent?.render();
+    // Check bindings
+    const method = this.$bindings[event];
+    if (method != null) {
+      // Pass a message to parent
+      this.$parent?.[method]?.(args);
+
+      // Parent may need to re-render
+      this.$parent?.render();
+    }
+    }
+
+  $invokeBinding(event, args) {
+    const method = this.$bindings[event];
+    this[method]?.(args);
+    this.render();
   }
 
   $handleEvent(e, value) {
@@ -100,6 +114,9 @@ export class Component {
   // ----------------------------------
 
   render() {
+    // Before callback
+    this.beforeRendered?.();
+
     // Find display directives
     Directives.Display.forEach((directive) => {
       this.$livingElements[directive]?.forEach(({ element, value }) => {
@@ -116,9 +133,47 @@ export class Component {
             const text = this[value]?.();
             element.textContent = text;
             break;
+          case 'v-class':
+            JSON.parse(value).forEach((klass, val) => {
+              let result;
+              if (typeof this[val] === 'function') result = this[val]();
+              else result = this[val];
+
+              const method = result ? 'add' : 'remove';
+              element.classList[method](klass);
+            });
+
+            break;
         };
-      });
+    });
     });
     this.$children.forEach(child => child.render());
+
+    // Post callback
+    this.rendered?.();
+  }
+
+  unmount() {
+    // Before callback
+    this.beforeUnmounted?.();
+
+    // Unmount all children (recursively)
+    this.$children.forEach((child) => {
+      child.unmount();
+    });
+
+    // Remove from parent's children
+    if (this.$parent != null) {
+      this.$parent.$children = this.$parent.$children.filter(c => c !== this);
+    }
+
+    // Remove from global component list
+    Vivere.components = Vivere.components.filter(c => c !== this);
+
+    // Remove from DOM
+    this.$element.parentNode.removeChild(this.$element);
+
+    // Final callback
+    this.unmounted?.();
   }
 };

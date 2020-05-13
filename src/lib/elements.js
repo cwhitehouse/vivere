@@ -22,12 +22,22 @@ export default {
           const dataName = name.split(':')[1];
           const dataValue = attribute.value;
           component.$set(dataName, dataValue);
+          element.removeAttribute(name);
+        }
+        if (name.startsWith('v-bind:')) {
+          const bindingName = name.split(':')[1];
+          const bindingValue = attribute.value;
+          component.$bindings[bindingName] = bindingValue;
+          element.removeAttribute(name);
         }
         if (parent != null && name.startsWith('v-pass')) {
           const dataName = name.split(':')[1].replace(/-([a-z])/g, g => g[1].toUpperCase());
           component.$pass(dataName, parent.$reactives[dataName]);
+          element.removeAttribute(name);
         }
       });
+
+      element.removeAttribute('v-component');
     }
 
     // If we have a component, look for directives
@@ -41,12 +51,15 @@ export default {
           const event = directive.split('-')[1];
           element.addEventListener(event, e => component.$handleEvent(e, value));
         }
+        element.removeAttribute(directive);
       });
 
       // Track display directives
       Directives.Display.forEach((directive) => {
-        // Setup array of elements for the directive
-        component.$livingElements[directive] = [];
+        // Setup array of elements for the directive, if needed
+        if (component.$livingElements[directive] == null) {
+          component.$livingElements[directive] = [];
+        }
 
         const value = attributes[directive]?.value;
         if (value != null) {
@@ -54,6 +67,7 @@ export default {
           // elements dictionary for rendering
           component.$livingElements[directive].push({ element, value });
         }
+        element.removeAttribute(directive);
       });
     }
 
