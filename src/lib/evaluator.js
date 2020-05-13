@@ -1,5 +1,5 @@
 export default {
-  evaluate(source, expression) {
+  evalExpression(source, expression) {
     let $expression = expression;
     let invert = false;
     if ($expression.startsWith('!')) {

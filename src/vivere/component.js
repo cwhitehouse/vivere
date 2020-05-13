@@ -19,8 +19,8 @@ export class Component {
     Object.assign(this, {
       $bindings: {},
       $children: [],
+      $directives: {},
       $element: element,
-      $livingElements: {},
       $name: normalizedName,
       $parent: parent,
       $reactives: {},
@@ -131,24 +131,24 @@ export class Component {
 
     // Find display directives
     Directives.Display.forEach((directive) => {
-      this.$livingElements[directive]?.forEach(({ element, value }) => {
+      this.$directives[directive]?.forEach(({ element, expression }) => {
         switch (directive) {
           case 'v-if':
-            const ifResult = Evaluator.evaluate(this, value);
+            const ifResult = Evaluator.evalExpression(this, expression);
             const ifMethod = ifResult ? 'remove' : 'add';
             element.classList[ifMethod]('hidden');
             break;
           case 'v-disabled':
-            const disabledResult = Evaluator.evaluate(this, value);
+            const disabledResult = Evaluator.evalExpression(this, expression);
             element.disabled = disabledResult;
             break;
           case 'v-text':
-            const textResult = Evaluator.evaluate(this, value);
+            const textResult = Evaluator.evalExpression(this, expression);
             element.textContent = textResult;
             break;
           case 'v-class':
-            JSON.parse(value).forEach((klass, val) => {
-              const classResult = Evaluator.evaluate(this, val);
+            JSON.parse(expression).forEach((klass, val) => {
+              const classResult = Evaluator.evalExpression(this, val);
               const classMethod = classResult ? 'add' : 'remove';
               element.classList[classMethod](klass);
             });

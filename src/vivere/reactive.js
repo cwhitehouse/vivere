@@ -1,9 +1,8 @@
+// Class definition
+
 export class Reactive {
   constructor(value, hook) {
-    Object.assign(this, {
-      hook,
-      value,
-    });
+    Object.assign(this, { hook, value });
   }
 
   get() {
@@ -18,6 +17,9 @@ export class Reactive {
     }
   }
 }
+
+
+// Property assignment with reactivity
 
 Reactive.set = (object, key, value, hook) => {
   // Ensure $reactives exists
@@ -39,6 +41,9 @@ Reactive.set = (object, key, value, hook) => {
     object[key] = value;
   }
 };
+
+
+// Reactivity handoff for passed proeprties
 
 Reactive.pass = (object, key, reactive) => {
   // Ensure $reactives exists

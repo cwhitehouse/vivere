@@ -10,35 +10,27 @@ export default {
     if (attributes['v-static'] != null) return;
 
     // If the element is a component, initialize it
-    const componentName = attributes['v-component']?.value;
-    if (componentName != null) {
+    Directives.parse('v-component', element, (_, name) => {
       const parent = component;
-      component = new Component(element, componentName, parent);
+      component = new Component(element, name, parent);
       Vivere.components.push(component);
 
-      attributes.forEach((idx,attribute) => {
-        const name = attribute.name;
-        if (name.startsWith('v-data:')) {
-          const dataName = name.split(':')[1];
-          const dataValue = JSON.parse(attribute.value);
-          component.$set(dataName, dataValue);
-          element.removeAttribute(name);
-        }
-        if (name.startsWith('v-bind:')) {
-          const bindingName = name.split(':')[1];
-          const bindingValue = attribute.value;
-          component.$bindings[bindingName] = bindingValue;
-          element.removeAttribute(name);
-        }
-        if (parent != null && name.startsWith('v-pass')) {
-          const dataName = name.split(':')[1].replace(/-([a-z])/g, g => g[1].toUpperCase());
-          component.$pass(dataName, parent.$reactives[dataName]);
-          element.removeAttribute(name);
-        }
+      // Pass data to the component
+      Directives.parse('v-data', element, (key, value) => {
+        component.$set(key, value);
       });
 
-      element.removeAttribute('v-component');
-    }
+      // Bind event listeners
+      Directives.parse('v-bind', element, (key, value) => {
+        component.$bindings[key] = value;
+      });
+
+      // Pass properties from parent
+      Directives.parse('v-pass', element, (key, _) => {
+        if (parent == null) throw "Cannot pass properties to a parentless component";
+        component.$pass(key, parent.$reactives[key]);
+      });
+    });
 
     // If we have a component, look for directives
     if (component != null) {
@@ -57,15 +49,15 @@ export default {
       // Track display directives
       Directives.Display.forEach((directive) => {
         // Setup array of elements for the directive, if needed
-        if (component.$livingElements[directive] == null) {
-          component.$livingElements[directive] = [];
+        if (component.$directives[directive] == null) {
+          component.$directives[directive] = [];
         }
 
         const value = attributes[directive]?.value;
         if (value != null) {
           // Track the element in the living
           // elements dictionary for rendering
-          component.$livingElements[directive].push({ element, value });
+          component.$directives[directive].push({ element, value });
         }
         element.removeAttribute(directive);
       });

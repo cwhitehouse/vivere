@@ -1,6 +1,3 @@
-import Attributes from '../lib/attributes.js';
-import Elements from '../lib/elements.js';
-
 export default {
   Display: [
     'v-class',
@@ -15,10 +12,19 @@ export default {
     'v-mouseleave',
   ],
 
-  queryElement(element, name, func) {
-    Elements.queryAttribute(element, name, (el) => {
-      const value = Attributes.value(el, name)
-      func(el, value);
+  parse(directive, element, func) {
+    element.attributes.forEach((_, attr) => {
+      const name = attr.name;
+      if (name.startsWith(directive)) {
+        const [_, key] = name.split(':');
+        let expression;
+        try { expression = JSON.parse(attr.value); }
+        catch (err) { expression = attr.value; }
+
+        func(key, expression);
+
+        element.removeAttribute(attr);
+      }
     });
   },
 }
