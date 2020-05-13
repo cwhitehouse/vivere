@@ -7,3 +7,6 @@ dist
 node_modules
 yarn.lock
 yarn-error.log
+
+# Mac FS
+*.DS_STORE

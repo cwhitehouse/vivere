@@ -1,18 +1,22 @@
-import { Component } from './component.js';
 import Elements from '../lib/elements.js';
 import Polyfills from '../lib/polyfills.js';
 
 export default {
-  components: {},
+  components: [],
+  definitions: {},
 
   register(name, component) {
-    this.components[name] = component;
+    this.definitions[name] = component;
   },
 
   setup() {
+    // Establish required Polyfills
     Polyfills.setup();
-    Elements.queryAttribute(document, 'v-component', (el) => {
-      Component.setup(el, this);
-    });
+
+    // Walk the tree to initialize components
+    Elements.walkTree(document.body);
+
+    // Activate our components
+    this.components.forEach(c => c.$connected());
   },
 };
