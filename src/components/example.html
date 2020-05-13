@@ -1,5 +1,8 @@
 <div v-component="example">
-  <button v-click="toggleShow">Toggle Visibility</button>
+  <button
+    class="rounded p-2 border border-solid border-indigo-500 hover:border-indigo-900"
+    v-click="toggleShow"
+  >Toggle Visibility</button>
   <button v-click="toggleText">Toggle Text</button>
   <h1 v-if="show" v-text="headerText"></h1>
 </div>

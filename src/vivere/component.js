@@ -92,7 +92,7 @@ export class Component {
       // Parent may need to re-render
       this.$parent?.render();
     }
-    }
+  }
 
   $invokeBinding(event, args) {
     const method = this.$bindings[event];
@@ -105,6 +105,21 @@ export class Component {
     this[value]?.(e);
     // Always render when
     // events are triggered
+    this.render();
+  }
+
+  $sync(e, element, syncValue) {
+    const parts = syncValue.split(".");
+    let node = this;
+    parts.slice(0,- 1).forEach((part) => {
+      node = node[part];
+    });
+
+    let newValue;
+    if (element.type === 'checkbox') newValue = element.checked;
+    else newValue = element.value;
+    node[parts[parts.length - 1]] = newValue;
+
     this.render();
   }
 
@@ -122,25 +137,58 @@ export class Component {
       this.$livingElements[directive]?.forEach(({ element, value }) => {
         switch (directive) {
           case 'v-if':
-            let result;
-            if (typeof this[value] === 'function') result = this[value]();
-            else result = this[value];
+            let ifValue = value;
+            let invertIf = false;
+            if (ifValue.startsWith('!')) {
+              ifValue = ifValue.slice(1);
+              invertIf = true;
+            }
 
-            const method = result ? 'remove' : 'add';
-            element.classList[method]('hidden');
+            let ifNode = this;
+            ifValue.split('.').forEach((part) => {
+              if (typeof ifNode[part] === 'function') ifNode = ifNode[part]();
+              else ifNode = ifNode[part];
+            });
+            if (invertIf) ifNode = !ifNode;
+
+            const ifMethod = ifNode ? 'remove' : 'add';
+            element.classList[ifMethod]('hidden');
+            break;
+          case 'v-disabled':
+            let disabledValue = value;
+            let invertDisabled = false;
+            if (disabledValue.startsWith('!')) {
+              disabledValue = booleanValue.slice(1);
+              invertDisabled = true;
+            }
+
+            let disabledNode = this;
+            disabledValue.split('.').forEach((part) => {
+              if (typeof disabledNode[part] === 'function') disabledNode = disabledNode[part]();
+              else disabledNode = disabledNode[part];
+            });
+            if (invertDisabled) disabledNode = !disabledNode;
+
+            element.disabled = disabledNode;
             break;
           case 'v-text':
-            const text = this[value]?.();
-            element.textContent = text;
+            let textNode = this;
+            value.split('.').forEach((part) => {
+              if (typeof textNode[part] === 'function') textNode = textNode[part]();
+              else textNode = textNode[part];
+            });
+            element.textContent = textNode;
             break;
           case 'v-class':
             JSON.parse(value).forEach((klass, val) => {
-              let result;
-              if (typeof this[val] === 'function') result = this[val]();
-              else result = this[val];
+              let classNode = this;
+              val.split('.').forEach((part) => {
+                if (typeof classNode[part] === 'function') classNode = classNode[part]();
+                else classNode = classNode[part];
+              });
 
-              const method = result ? 'add' : 'remove';
-              element.classList[method](klass);
+              const classMethod = classNode ? 'add' : 'remove';
+              element.classList[classMethod](klass);
             });
 
             break;

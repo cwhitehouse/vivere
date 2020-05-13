@@ -1,9 +1,11 @@
 <div
   v-component="accordion-section"
-  v-data:value="{{ value }}"
+  v-data:value='"{{ value }}"'
   v-pass:active-section
   v-bind:select="selectSection"
-  v-class='{ "selected": "isActive" }'
+  v-mouseenter="onMouseEnter"
+  v-mouseleave="onMouseLeave"
+  v-class='{ "selected": "isActive", "hovering": "hovering" }'
   class="section"
 >
   <button

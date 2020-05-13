@@ -1,0 +1,19 @@
+<div
+  v-component="to-do-new-item"
+  v-bind:cancel="stopCreating"
+  class="flex items-stretch h-10 mt-4"
+>
+  <input
+    type="text"
+    class="flex-1 border-2 border-solid border-gray-300 rounded px-3"
+    v-sync="title"
+  ></input>
+  <button
+    class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mx-2"
+    v-click="create"
+  >Create</button>
+  <button
+    class="bg-gray-400 px-3 py-2 rounded hover:shadow-md active:shadow-none"
+    v-click="reset"
+  >Cancel</button>
+</div>

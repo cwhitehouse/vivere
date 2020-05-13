@@ -20,7 +20,7 @@ export default {
         const name = attribute.name;
         if (name.startsWith('v-data:')) {
           const dataName = name.split(':')[1];
-          const dataValue = attribute.value;
+          const dataValue = JSON.parse(attribute.value);
           component.$set(dataName, dataValue);
           element.removeAttribute(name);
         }
@@ -69,6 +69,13 @@ export default {
         }
         element.removeAttribute(directive);
       });
+
+      // Set up syncing if it's for a special element
+      const syncValue = attributes['v-sync']?.value;
+      if (syncValue != null) {
+        if (element.nodeName !== 'INPUT') throw 'Sync directives only work on inputs';
+        element.addEventListener('input', e => component.$sync(e, element, syncValue));
+      }
     }
 
     element.children.forEach((_,el) => {
