@@ -1,4 +1,5 @@
 import Attributes from '../lib/attributes.js';
+import Evaluator from '../lib/evaluator.js';
 import Directives from './directives.js';
 import Vivere from './vivere.js';
 import { Reactive } from './reactive.js';
@@ -45,35 +46,9 @@ export class Component {
   // INTERNAL METHODS
   // ----------------------------------
 
-  $set(name, value) {
-    // Check if we've already set this proeprty
-    if (this[name] == null) {
-      // Sets up a reactive hook for a given value
-      this.$reactives[name] = new Reactive(value, (was, is) => { this.$react(name, was, is); });
-      Object.defineProperty(this, name, {
-        get() { return this.$reactives[name]?.value; },
-        set(newValue) { this.$reactives[name].set(newValue) },
-      });
-    } else {
-      this[name] = value;
-    }
-  }
+  // Initialization
 
-  $pass(name, reactive) {
-    // Handles handing off a passed value from a parent
-    this.$reactives[name] = reactive;
-    Object.defineProperty(this, name, {
-      get() { return this.$reactives[name]?.value; },
-      set(_) { throw "Cannot update passed values from the child"; },
-    });
-  }
-
-  $react(name, was, is) {
-    // Watches for changes to any reactive properties
-    //TODO: Do something about values changing
-  }
-
-  $connected() {
+  $connect() {
     // Call first lifecycle method
     this.beforeConnected?.();
     // First render pass
@@ -81,6 +56,26 @@ export class Component {
     // Call first lifecycle method
     this.connected?.();
   }
+
+  // Reactivity management
+
+  $set(key, value) {
+    // Turn on reactivity for properties
+    Reactive.set(this, key, value, (was, is) => {
+      this.$react(key, was, is);
+    });
+  }
+
+  $pass(key, reactive) {
+    Reactive.pass(this, key, reactive);
+  }
+
+  $react(key, was, is) {
+    // Watches for changes to any reactive properties
+    //TODO: Do something about values changing
+  }
+
+  // Component event passing
 
   $emit(event, args) {
     // Check bindings
@@ -96,9 +91,11 @@ export class Component {
 
   $invokeBinding(event, args) {
     const method = this.$bindings[event];
-    this[method]?.(args);
+    this[method](args);
     this.render();
   }
+
+  // DOM event handling
 
   $handleEvent(e, value) {
     // Generic event handler
@@ -137,63 +134,28 @@ export class Component {
       this.$livingElements[directive]?.forEach(({ element, value }) => {
         switch (directive) {
           case 'v-if':
-            let ifValue = value;
-            let invertIf = false;
-            if (ifValue.startsWith('!')) {
-              ifValue = ifValue.slice(1);
-              invertIf = true;
-            }
-
-            let ifNode = this;
-            ifValue.split('.').forEach((part) => {
-              if (typeof ifNode[part] === 'function') ifNode = ifNode[part]();
-              else ifNode = ifNode[part];
-            });
-            if (invertIf) ifNode = !ifNode;
-
-            const ifMethod = ifNode ? 'remove' : 'add';
+            const ifResult = Evaluator.evaluate(this, value);
+            const ifMethod = ifResult ? 'remove' : 'add';
             element.classList[ifMethod]('hidden');
             break;
           case 'v-disabled':
-            let disabledValue = value;
-            let invertDisabled = false;
-            if (disabledValue.startsWith('!')) {
-              disabledValue = booleanValue.slice(1);
-              invertDisabled = true;
-            }
-
-            let disabledNode = this;
-            disabledValue.split('.').forEach((part) => {
-              if (typeof disabledNode[part] === 'function') disabledNode = disabledNode[part]();
-              else disabledNode = disabledNode[part];
-            });
-            if (invertDisabled) disabledNode = !disabledNode;
-
-            element.disabled = disabledNode;
+            const disabledResult = Evaluator.evaluate(this, value);
+            element.disabled = disabledResult;
             break;
           case 'v-text':
-            let textNode = this;
-            value.split('.').forEach((part) => {
-              if (typeof textNode[part] === 'function') textNode = textNode[part]();
-              else textNode = textNode[part];
-            });
-            element.textContent = textNode;
+            const textResult = Evaluator.evaluate(this, value);
+            element.textContent = textResult;
             break;
           case 'v-class':
             JSON.parse(value).forEach((klass, val) => {
-              let classNode = this;
-              val.split('.').forEach((part) => {
-                if (typeof classNode[part] === 'function') classNode = classNode[part]();
-                else classNode = classNode[part];
-              });
-
-              const classMethod = classNode ? 'add' : 'remove';
+              const classResult = Evaluator.evaluate(this, val);
+              const classMethod = classResult ? 'add' : 'remove';
               element.classList[classMethod](klass);
             });
 
             break;
         };
-    });
+      });
     });
     this.$children.forEach(child => child.render());
 

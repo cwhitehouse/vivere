@@ -16,7 +16,7 @@ export default {
     // Walk the tree to initialize components
     Elements.walkTree(document.body);
 
-    // Activate our components
-    this.components.forEach(c => c.$connected());
+    // Finalize connecting our components
+    this.components.forEach(c => c.$connect());
   },
 };
