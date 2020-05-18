@@ -14,7 +14,8 @@
     ></input>
     <p
       class="flex-1"
-      v-class='{ "line-through": "to-do.checked" }'
+      v-class:line-through="to-do.checked"
+      v-class:italic="to-do.checked"
       v-text="to-do.label"
     ></p>
     <button

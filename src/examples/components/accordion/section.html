@@ -5,7 +5,8 @@
   v-bind:select="selectSection"
   v-mouseenter="onMouseEnter"
   v-mouseleave="onMouseLeave"
-  v-class='{ "selected": "isActive", "hovering": "hovering" }'
+  v-class:selected="isActive"
+  v-class:hovering="hovering"
   class="section"
 >
   <button

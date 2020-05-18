@@ -1,6 +1,6 @@
 export default {
   data: {
-    title: null,
+    label: null,
   },
 
   methods: {
@@ -9,12 +9,13 @@ export default {
     },
 
     create() {
+      this.$emit('create', this.label);
       this.close();
     },
 
     close() {
       this.$emit('cancel');
-      this.title = null;
+      this.label = null;
     },
   }
 };

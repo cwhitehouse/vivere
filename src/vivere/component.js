@@ -1,29 +1,27 @@
-import Attributes from '../lib/attributes.js';
-import Evaluator from '../lib/evaluator.js';
-import Directives from './directives.js';
+import Utility from './lib/utility.js';
 import Vivere from './vivere.js';
-import { Reactive } from './reactive.js';
+import { Reactive } from './lib/reactive.js';
+import Walk from './lib/walk.js';
 
 export class Component {
-  // ----------------------------------
-  // CONSTRUCTOR
-  // ----------------------------------
+  // Constructor
 
   constructor(element, name, parent) {
     // Load the component definition
-    const normalizedName = Attributes.normalize(name)
-    const definition = Vivere.definitions[normalizedName];
-    if (definition == null) throw `Tried to instantiate unknown component ${normalizedName}`;
+    const compName = Utility.camelCase(name)
+    const definition = Vivere.definitions[compName];
+    if (definition == null) throw `Tried to instantiate unknown component ${compName}`;
 
     // Initialize the component data
     Object.assign(this, {
       $bindings: {},
       $children: [],
-      $directives: {},
+      $directives: [],
       $element: element,
-      $name: normalizedName,
+      $name: compName,
       $parent: parent,
       $reactives: {},
+      $refs: {},
       ...definition.callbacks,
       ...definition.methods,
     });
@@ -42,22 +40,7 @@ export class Component {
   }
 
 
-  // ----------------------------------
-  // INTERNAL METHODS
-  // ----------------------------------
-
-  // Initialization
-
-  $connect() {
-    // Call first lifecycle method
-    this.beforeConnected?.();
-    // First render pass
-    this.render();
-    // Call first lifecycle method
-    this.connected?.();
-  }
-
-  // Reactivity management
+  // Reactivity
 
   $set(key, value) {
     // Turn on reactivity for properties
@@ -75,7 +58,8 @@ export class Component {
     //TODO: Do something about values changing
   }
 
-  // Component event passing
+
+  // Event passing
 
   $emit(event, args) {
     // Check bindings
@@ -95,72 +79,44 @@ export class Component {
     this.render();
   }
 
-  // DOM event handling
 
-  $handleEvent(e, value) {
-    // Generic event handler
-    this[value]?.(e);
-    // Always render when
-    // events are triggered
-    this.render();
-  }
+   // Append DOM
 
-  $sync(e, element, syncValue) {
-    const parts = syncValue.split(".");
-    let node = this;
-    parts.slice(0,- 1).forEach((part) => {
-      node = node[part];
-    });
+   $attach(html, ref) {
+    const element = this.$refs[ref];
+    if (element == null) throw `No reference named ${ref} found`;
 
-    let newValue;
-    if (element.type === 'checkbox') newValue = element.checked;
-    else newValue = element.value;
-    node[parts[parts.length - 1]] = newValue;
-
-    this.render();
-  }
+     element.innerHTML = `${element.innerHTML}${html}`;
+     Walk.children(element, this);
+   }
 
 
-  // ----------------------------------
-  // RENDERING
-  // ----------------------------------
+  // Rendering
 
   render() {
     // Before callback
     this.beforeRendered?.();
 
-    // Find display directives
-    Directives.Display.forEach((directive) => {
-      this.$directives[directive]?.forEach(({ element, expression }) => {
-        switch (directive) {
-          case 'v-if':
-            const ifResult = Evaluator.evalExpression(this, expression);
-            const ifMethod = ifResult ? 'remove' : 'add';
-            element.classList[ifMethod]('hidden');
-            break;
-          case 'v-disabled':
-            const disabledResult = Evaluator.evalExpression(this, expression);
-            element.disabled = disabledResult;
-            break;
-          case 'v-text':
-            const textResult = Evaluator.evalExpression(this, expression);
-            element.textContent = textResult;
-            break;
-          case 'v-class':
-            JSON.parse(expression).forEach((klass, val) => {
-              const classResult = Evaluator.evalExpression(this, val);
-              const classMethod = classResult ? 'add' : 'remove';
-              element.classList[classMethod](klass);
-            });
+    // Evaluate all the directives
+    this.$directives.forEach(d => d.evaluate());
 
-            break;
-        };
-      });
-    });
+    // Render all children
     this.$children.forEach(child => child.render());
 
     // Post callback
     this.rendered?.();
+  }
+
+
+  // Life cycle
+
+  $connect() {
+    // Call first lifecycle method
+    this.beforeConnected?.();
+    // First render pass
+    this.render();
+    // Call first lifecycle method
+    this.connected?.();
   }
 
   unmount() {
@@ -168,14 +124,11 @@ export class Component {
     this.beforeUnmounted?.();
 
     // Unmount all children (recursively)
-    this.$children.forEach((child) => {
-      child.unmount();
-    });
+    this.$children.forEach(c => c.unmount());
 
     // Remove from parent's children
-    if (this.$parent != null) {
+    if (this.$parent != null)
       this.$parent.$children = this.$parent.$children.filter(c => c !== this);
-    }
 
     // Remove from global component list
     Vivere.components = Vivere.components.filter(c => c !== this);

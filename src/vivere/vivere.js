@@ -1,5 +1,5 @@
-import Elements from '../lib/elements.js';
-import Polyfills from '../lib/polyfills.js';
+import Polyfills from './lib/polyfills.js';
+import Walk from './lib/walk.js';
 
 export default {
   components: [],
@@ -14,7 +14,7 @@ export default {
     Polyfills.setup();
 
     // Walk the tree to initialize components
-    Elements.walkTree(document.body);
+    Walk.tree(document.body);
 
     // Finalize connecting our components
     this.components.forEach(c => c.$connect());

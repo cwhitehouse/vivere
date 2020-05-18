@@ -1,12 +1,12 @@
 import Vivere from './vivere/vivere.js';
 
-import Accordion from './components/accordion.js';
-import AccordionSection from './components/accordion/section.js';
-import Example from './components/example.js';
-import InlineForm from './components/inline-form.js';
-import ToDoItem from './components/to-do/item.js';
-import ToDoList from './components/to-do/list.js';
-import ToDoNewItem from './components/to-do/new-item.js';
+import Accordion from './examples/components/accordion.js';
+import AccordionSection from './examples/components/accordion/section.js';
+import Example from './examples/components/example.js';
+import InlineForm from './examples/components/inline-form.js';
+import ToDoItem from './examples/components/to-do/item.js';
+import ToDoList from './examples/components/to-do/list.js';
+import ToDoNewItem from './examples/components/to-do/new-item.js';
 
 Vivere.register('Accordion', Accordion);
 Vivere.register('AccordionSection', AccordionSection);
