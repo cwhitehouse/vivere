@@ -6,29 +6,34 @@ const State = {
 export default {
   data: {
     state: State.Show,
+    states: [State.Show],
   },
 
   computed: {
+    fauxState() {
+      return this.states[0];
+    },
+
     isShowing() {
-      return this.state === State.Show;
+      return this.fauxState === State.Show;
     },
 
     isDeleting() {
-      return this.state === State.Delete;
+      return this.fauxState === State.Delete;
     },
   },
 
   methods: {
     confirmDelete() {
-      this.state = State.Delete;
+      this.states.unshift(State.Delete);
     },
 
     delete() {
-      this.unmount();
+      this.$destroy();
     },
 
     reset() {
-      this.state = State.Show;
+      this.states.unshift(State.Show);
     },
   },
 };

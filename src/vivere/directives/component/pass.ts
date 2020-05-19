@@ -1,4 +1,5 @@
 import { Directive } from '../directive';
+import { Reactive } from '../../reactivity/reactive';
 
 export class PassDirective extends Directive {
  static id: string            = 'v-pass';
@@ -19,10 +20,11 @@ export class PassDirective extends Directive {
     else
       readKey = this.key;
 
-    const reactive = parent.$reactives[readKey];
-    reactive.hooks.push((was, is) => {
+    const reactive: Reactive = parent.$reactives[readKey];
+    reactive.registerHook(this, (was: any, is: any) => {
       this.component.$react(this.key, was, is);
     });
+
     this.component.$pass(this.key, reactive);
   }
 };

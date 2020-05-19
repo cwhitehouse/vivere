@@ -32,7 +32,7 @@ export class Directive {
 
     // Register directive on the component (if necessary)
     if (!this.forComponent())
-      this.component?.$directives.push(this);
+      this.component?.$directives.add(this);
 
     // Finish parsing directive
     this.parse();
@@ -46,6 +46,7 @@ export class Directive {
 
   parse() {}
   evaluate() {}
+  destroy() {}
 
 
   // Utiility methods

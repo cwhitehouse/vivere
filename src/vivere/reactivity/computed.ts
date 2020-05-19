@@ -1,42 +1,42 @@
+import { Reactive } from "./reactive";
 import { Component } from "../component";
+import { Watcher } from "../lib/watcher";
 
-export class Computed<T> {
-  static context?: Computed<any>;
-
+export class Computed extends Reactive {
   $dirty:     Boolean     = false;
+  context:    Component;
   evaluator:  Function;
-  value:      T;
 
   constructor(context: Component, evaluator: Function) {
+    super(null);
+
+    this.context = context;
     this.evaluator = evaluator;
-    this.updateValue(context);
+    this.computeValue();
   }
 
 
-  // Value computation
+  // Value management
 
-  dirty() {
-    this.$dirty = true;
-  }
+  computeValue() {
+    Watcher.assign(this, () => { this.computeValue(); });
 
-  updateValue(context: Component) {
-    this.constructor.context = this;
-
-    this.value = this.evaluator.call(context);
+    const newValue = this.evaluator.call(this.context);
+    this.set(newValue);
     this.$dirty = false;
 
-    this.constructor.context = null;
+    Watcher.clear();
   }
 
-  getValue(context: Component) {
+  getValue() {
     if (this.$dirty)
-      this.updateValue(context);
+      this.computeValue();
 
     return this.value;
   }
 
 
-  // Class level helpers
+  // Static helpers
 
   static set(component: Component, key: string, evaluator: Function) {
     // Check if we've already set up computedness
@@ -46,7 +46,7 @@ export class Computed<T> {
       // a reactive value under the hood
       component.$computeds[key] = new Computed(component, evaluator);
       Object.defineProperty(component, key, {
-        get() { return component.$computeds[key].getValue(component); },
+        get() { return component.$computeds[key].get(); },
         set() { throw `Cannot assign to computed property ${key}`; },
       });
     } else {
@@ -54,4 +54,4 @@ export class Computed<T> {
       throw `Cannot assign to computed property ${key}`;
     }
   }
-}
+};

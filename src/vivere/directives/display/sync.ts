@@ -4,6 +4,9 @@ import Evaluator from '../../lib/evaluator';
 export class SyncDirective extends DisplayDirective {
   static id: string = 'v-sync';
 
+  event:    string;
+  binding:  Function;
+
 
   // Parsing
 
@@ -13,17 +16,32 @@ export class SyncDirective extends DisplayDirective {
       throw 'Sync directives only work on input elements';
     }
 
+    // Bind the sync function
+    this.event = 'input';
+    this.binding = this.sync.bind(this);
+
     // Listen for input changes
-    this.element.addEventListener('input', (e) => this.sync(e));
+    this.element.addEventListener(this.event, this.binding);
+
+    // Run an initial sync
+    this.sync();
   }
 
 
   // Evaluation
 
-  evaluateValue(value) {
+  evaluateValue(value: any) {
     // Push our new value to the element
     if (this.element.type === 'checkbox') this.element.checked = value;
     this.element.value = value;
+  }
+
+
+  // Destruction
+  // - detach the event listener
+
+  destroy() {
+    this.element.removeEventListener(this.event, this.binding);
   }
 
 
@@ -34,12 +52,9 @@ export class SyncDirective extends DisplayDirective {
     return this.element.value;
   }
 
-  sync(e: Event) {
+  sync() {
     // Assign the value to the synced expression
     const inputValue = this.value();
     Evaluator.assign(this.component, this.expression, inputValue);
-
-    // Render after synced values update
-    this.component.render();
   }
 };

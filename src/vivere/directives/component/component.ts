@@ -15,6 +15,6 @@ export class ComponentDirective extends Directive {
 
     // Instantiate the new component
     this.component = new Component(this.element, this.expression, parent);
-    Vivere.components.push(this.component);
+    Vivere.$track(this.component);
   }
 };

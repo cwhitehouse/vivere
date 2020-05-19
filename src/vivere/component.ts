@@ -1,23 +1,24 @@
 import Utility from './lib/utility';
 import Vivere from './vivere';
-import { Reactive } from './lib/reactive';
+import { Reactive } from './reactivity/reactive';
 import Walk from './lib/walk';
 import { Directive } from './directives/directive';
-import { Computed } from './lib/computed';
+import { Computed } from './reactivity/computed';
+import Callbacks from './lib/callbacks';
 
 export class Component {
   $bindings:    object;
-  $callbacks:   object;
-  $children:    Array<Component>;
+  $callbacks:   Callbacks;
+  $children:    Set<Component>;
   $computeds:   object;
-  $directives:  Array<Directive>;
+  $directives:  Set<Directive>;
+  $dirty:       boolean;
   $element:     HTMLElement;
   $name:        string;
   $parent?:     Component;
   $passed:      object;
   $reactives:   object;
   $refs:        object;
-  $ticks:       Array<Function>;
   $watchers:    object;
 
 
@@ -25,52 +26,58 @@ export class Component {
 
   constructor(element: HTMLElement, name: string, parent?: Component) {
     // Load the component definition
-    const compName = Utility.pascalCase(name)
-    const definition = Vivere.definitions[compName];
-    if (definition == null) throw `Tried to instantiate unknown component ${compName}`;
+    const componentName = Utility.pascalCase(name)
+    const definition    = Vivere.$getDefinition(componentName);
 
-    // Initialize the component data
-    Object.assign(this, {
-      $bindings: {},
-      $callbacks: { ...definition.callbacks },
-      $children: [],
-      $computeds: {},
-      $directives: [],
-      $element: element,
-      $name: compName,
-      $parent: parent,
-      $passed: { ...definition.passed },
-      $reactives: {},
-      $refs: {},
-      $ticks: [],
-      $watchers: { ...definition.watch },
-      ...definition.methods,
-    });
+    if (definition == null)
+      throw `Tried to instantiate unknown component ${componentName}`;
 
-    if (definition.data != null) {
-      definition.data.forEach((key: string, value: any) => {
-        this.$set(key, value);
-      });
-    }
-    if (definition.computed != null) {
-      definition.computed.forEach((key: string, value: any) => {
-        Computed.set(this, key, value);
-      });
-    }
+    // Initialize component data
+    this.$bindings    = {};
+    this.$callbacks   = new Callbacks(definition);
+    this.$children    = new Set();
+    this.$computeds   = new Set();
+    this.$directives  = new Set();
+    this.$dirty       = false;
+    this.$element     = element;
+    this.$name        = componentName;
+    this.$parent      = parent;
+    this.$passed      = { ...definition.passed };
+    this.$reactives   = {};
+    this.$refs        = {};
+    this.$watchers    = { ...definition.watch };
+
+    // Pass through methods
+    Object.assign(this, { ...definition.methods });
+
+    // Setup reactive data
+    definition.data?.forEach((k,v) => this.$set(k, v));
+    definition.computed?.forEach((k,v) => Computed.set(this, k, v));
 
     // Attach the component to the DOM
     element.$component = this;
 
     // Track this component as a child of its parent
-    parent?.$children.push(this);
+    parent?.$children.add(this);
   }
 
 
   // Reactivity
 
   $set(key: string, value: any) {
+    if (key === 'states') {
+      console.log('--------------------');
+      console.log('Reactivizing states!')
+      console.log('-')
+      console.log(value);
+      console.log(typeof value);
+      console.log(value instanceof Array);
+      console.log(Array.isArray(value));
+      console.log('--------------------');
+    }
     // Turn on reactivity for properties
-    Reactive.set(this, key, value, (was: any, is: any) => {
+    const reactive = Reactive.set(this, key, value);
+    reactive.registerHook(this, (was: any, is: any) => {
       this.$react(key, was, is);
     });
   }
@@ -90,19 +97,12 @@ export class Component {
   $emit(event: string, args: any) {
     // Check bindings
     const method = this.$bindings[event];
-    if (method != null) {
-      // Pass a message to parent
-      this.$parent?.[method]?.(args);
-
-      // Parent may need to re-render
-      this.$parent?.render();
-    }
+    this.$parent[method](args);
   }
 
   $invokeBinding(event: string, args: any) {
     const method = this.$bindings[event];
     this[method](args);
-    this.render();
   }
 
 
@@ -119,64 +119,61 @@ export class Component {
       element.appendChild(child);
       Walk.tree(child, this);
     });
+
+    // Force a render for children
+    this.forceRender();
    }
 
 
   // Rendering
 
-  $nextRender(func: Function) {
-    this.$ticks.push(func);
+  $queueRender(directive: Directive) {
+    Vivere.$queueRender(directive);
   }
 
-  render() {
-    // Before callback
-    this.beforeRendered?.();
+  $nextRender(func: Function) {
+    Vivere.$nextRender(func);
+  }
 
-    // Evaluate all the directives
-    this.$directives.forEach(d => d.evaluate());
-
-    // Render all children
-    this.$children.forEach(child => child.render());
-
-    // Run through queued method calls
-    while (this.$ticks.length > 0) {
-      this.$ticks.pop()();
-    }
-
-    // Post callback
-    this.rendered?.();
+  forceRender() {
+    this.$directives.forEach(d => Vivere.$queueRender(d));
+    this.$children.forEach(child => child.forceRender());
   }
 
 
   // Life cycle
 
   $connect() {
-    // Call first lifecycle method
-    this.beforeConnected?.();
-    // First render pass
-    this.render();
-    // Call first lifecycle method
-    this.connected?.();
+    // Callback hook
+    this.$callbacks.beforeConnected?.call(this);
+
+    // Force initial render
+    this.forceRender();
+
+    // Callback hook
+    this.$callbacks.connected?.call(this);
   }
 
-  unmount() {
-    // Before callback
-    this.beforeUnmounted?.();
+  $destroy() {
+    // Callback hook
+    this.$callbacks.beforeDestroyed?.call(this);
 
-    // Unmount all children (recursively)
-    this.$children.forEach(c => c.unmount());
+    // Destroy directives
+    this.$directives.forEach(d => d.destroy());
+
+    // Destroy all children (recusive)
+    this.$children.forEach(c => c.$destroy());
 
     // Remove from parent's children
-    if (this.$parent != null)
-      this.$parent.$children = this.$parent.$children.filter(c => c !== this);
+    this.$parent?.$children.delete(this);
 
-    // Remove from global component list
-    Vivere.components = Vivere.components.filter(c => c !== this);
+    // Remove from global component registry
+    Vivere.$untrack(this);
 
     // Remove from DOM
     this.$element.parentNode.removeChild(this.$element);
 
-    // Final callback
-    this.unmounted?.();
+    // Callback hook
+    this.$callbacks.destroyed?.call(this);
   }
 };
