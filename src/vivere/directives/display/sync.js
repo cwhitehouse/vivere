@@ -35,7 +35,8 @@ export class SyncDirective extends DisplayDirective {
 
   sync(e) {
     // Assign the value to the synced expression
-    Evaluator.assign(this.component, this.expression, this.value());
+    const inputValue = this.value();
+    Evaluator.assign(this.component, this.expression, inputValue);
 
     // Render after synced values update
     this.component.render();

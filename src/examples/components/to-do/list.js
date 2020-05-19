@@ -26,16 +26,16 @@ export default {
             <input
               type="checkbox"
               class="mr-2"
-              v-sync="to-do.checked"
+              v-sync="toDo.checked"
             ></input>
             <p
               class="flex-1"
-              v-class:line-through="to-do.checked"
-              v-class:italic="to-do.checked"
-              v-text="to-do.label"
+              v-class:line-through="toDo.checked"
+              v-class:italic="toDo.checked"
+              v-text="toDo.label"
             ></p>
             <button
-              v-disabled="to-do.checked"
+              v-disabled="toDo.checked"
               class="text-white bg-pink-600 px-3 py-2 rounded hover:shadow-md active:shadow-none disabled:opacity-50"
               v-click="confirmDelete"
             >Delete</button>

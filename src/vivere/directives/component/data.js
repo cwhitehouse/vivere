@@ -1,4 +1,5 @@
 import { Directive } from '../directive.js';
+import Utility from '../../lib/utility.js';
 
 export class DataDirective extends Directive {
   static name = 'v-data';
@@ -11,6 +12,7 @@ export class DataDirective extends Directive {
     try { expression = JSON.parse(this.expression); }
     catch (err) { expression = this.expression; }
 
-    this.component.$set(this.key, expression);
+    const camelKey = Utility.camelCase(this.key);
+    this.component.$set(camelKey, expression);
   }
 };

@@ -8,7 +8,7 @@ export class Component {
 
   constructor(element, name, parent) {
     // Load the component definition
-    const compName = Utility.camelCase(name)
+    const compName = Utility.pascalCase(name)
     const definition = Vivere.definitions[compName];
     if (definition == null) throw `Tried to instantiate unknown component ${compName}`;
 
@@ -22,6 +22,8 @@ export class Component {
       $parent: parent,
       $reactives: {},
       $refs: {},
+      $ticks: [],
+      $watchers: { ...definition.watch },
       ...definition.callbacks,
       ...definition.methods,
     });
@@ -33,7 +35,7 @@ export class Component {
     }
 
     // Attach the component to the DOM
-    element.$vivere = this;
+    element.$component = this;
 
     // Track this component as a child of its parent
     parent?.$children.push(this);
@@ -55,7 +57,7 @@ export class Component {
 
   $react(key, was, is) {
     // Watches for changes to any reactive properties
-    //TODO: Do something about values changing
+    this.$watchers[key]?.call(this, was, is);
   }
 
 
@@ -86,12 +88,17 @@ export class Component {
     const element = this.$refs[ref];
     if (element == null) throw `No reference named ${ref} found`;
 
+    // TODO: Re-evaluate how innerHTML is handled here
      element.innerHTML = `${element.innerHTML}${html}`;
      Walk.children(element, this);
    }
 
 
   // Rendering
+
+  $nextRender(func) {
+    this.$ticks.push(func);
+  }
 
   render() {
     // Before callback
@@ -102,6 +109,11 @@ export class Component {
 
     // Render all children
     this.$children.forEach(child => child.render());
+
+    // Run through queued method calls
+    while (this.$ticks.length > 0) {
+      this.$ticks.pop()();
+    }
 
     // Post callback
     this.rendered?.();

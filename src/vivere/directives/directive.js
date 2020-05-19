@@ -17,15 +17,15 @@ export class Directive {
     });
 
     // Check the directive if it's valid
-    if (this.constructor.name == null)
+    if (this.name() == null)
       throw 'Directives must be named';
-    if (this.constructor.forComponent && !this.onComponent())
+    if (this.forComponent() && !this.onComponent())
       throw `${name} only applies to components`;
     if (this.needsComponent && this.component == null)
       throw `${name} created without a component`;
 
     // Register directive on the component (if necessary)
-    if (!this.constructor.forComponent)
+    if (!this.forComponent())
       this.component?.$directives.push(this);
 
     // Finish parsing directive
@@ -41,8 +41,16 @@ export class Directive {
 
   // Utiility methods
 
+  name() {
+    return this.constructor.name;
+  }
+
+  forComponent() {
+    return this.constructor.forComponent;
+  }
+
   onComponent() {
     // Check if component is registered to element
-    return this.element.$vivere === this.component;
+    return this.element.$component === this.component;
   }
 };

@@ -1,7 +1,10 @@
 export default {
   camelCase(name) {
-    return name.split("-")
-               .map((p) => `${p[0].toUpperCase()}${p.substring(1)}`)
-               .join("");
+    return name.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+  },
+
+  pascalCase(name) {
+    const camel = this.camelCase(name);
+    return `${camel[0].toUpperCase()}${camel.slice(1)}`;
   },
 };

@@ -1,19 +1,24 @@
 // Class definition
 
 export class Reactive {
-  constructor(value, hook) {
-    Object.assign(this, { hook, value });
-  }
+  constructor(value, hooks) {
+    // Recursively setup reactivity
+    if (value != null && typeof value === 'object')
+      value.forEach((k,v) => Reactive.set(value, k, v));
 
-  get() {
-    return value;
+    Object.assign(this, {
+      value,
+      hooks,
+    });
   }
 
   set(value) {
     if (value !== this.value) {
       const oldValue = this.value;
       this.value = value;
-      this.hook?.(oldValue, value);
+      this.hooks?.forEach((hook) => {
+        hook(oldValue, value);
+      });
     }
   }
 }
@@ -30,7 +35,7 @@ Reactive.set = (object, key, value, hook) => {
   if (object.$reactives[key] == null) {
     // Set up this property to use
     // a reactive value under the hood
-    object.$reactives[key] = new Reactive(value, hook);
+    object.$reactives[key] = new Reactive(value, hook ? [hook] : []);
     Object.defineProperty(object, key, {
       get() { return object.$reactives[key]?.value; },
       set(newValue) { object.$reactives[key].set(newValue) },

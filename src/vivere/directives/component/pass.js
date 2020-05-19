@@ -7,12 +7,21 @@ export class PassDirective extends Directive {
   // Parsing
 
   parse() {
-    const parent = this.component.parent;
-    if (this.parent == null) {
+    const parent = this.component.$parent;
+    if (parent == null) {
       throw "Cannot pass properties to a parentless component";
     }
 
-    const parentValue = parent.$reactives[this.key];
-    this.component.$pass(this.key, parentValue);
+    let readKey;
+    if (this.expression != null)
+      readKey = this.expression;
+    else
+      readKey = this.key;
+
+    const reactive = parent.$reactives[readKey];
+    reactive.hooks.push((was, is) => {
+      this.component.$react(this.key, was, is);
+    });
+    this.component.$pass(this.key, reactive);
   }
 };

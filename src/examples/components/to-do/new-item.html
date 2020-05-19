@@ -2,16 +2,22 @@
   v-component="to-do-new-item"
   v-bind:cancel="stopCreating"
   v-bind:create="create"
+  v-pass:showing="creating"
+  v-ref="newItem"
   class="flex items-stretch h-10 mt-4"
 >
   <input
     type="text"
     class="flex-1 border-2 border-solid border-gray-300 rounded px-3"
     v-sync="label"
+    v-ref="input"
+    v-keydown:enter="create"
+    v-keydown:escape="reset"
   ></input>
   <button
-    class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mx-2"
+    class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mx-2 disabled:opacity-50"
     v-click="create"
+    v-disabled="!hasLabel()"
   >Create</button>
   <button
     class="bg-gray-400 px-3 py-2 rounded hover:shadow-md active:shadow-none"

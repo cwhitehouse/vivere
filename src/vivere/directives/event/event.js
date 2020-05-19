@@ -5,7 +5,7 @@ export class EventDirective extends Directive {
   // Parsing
 
   parse() {
-    const [_, event] = this.constructor.name.split('-');
+    const [_, event] = this.name().split('-');
     this.element.addEventListener(event, (e) => this.execute(e));
   }
 

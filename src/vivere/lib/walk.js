@@ -8,6 +8,7 @@ import { IfDirective } from '../directives/display/if.js';
 import { SyncDirective } from '../directives/display/sync.js';
 import { TextDirective } from '../directives/display/text.js';
 import { ClickDirective } from '../directives/event/click.js';
+import { KeydownDirective } from '../directives/event/keydown.js';
 import { MouseenterDirective } from '../directives/event/mouseenter.js';
 import { MouseleaveDirective } from '../directives/event/mouseleave.js';
 import { MouseoverDirective } from '../directives/event/mouseover.js';
@@ -25,6 +26,7 @@ export default {
     SyncDirective,
     TextDirective,
     ClickDirective,
+    KeydownDirective,
     MouseenterDirective,
     MouseleaveDirective,
     MouseoverDirective,
