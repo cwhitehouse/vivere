@@ -18,7 +18,7 @@ import { RefDirective } from '../directives/ref';
 
 import { Component } from '../component';
 
-export default {
+const Walk = {
   directives: [
     ComponentDirective,
     BindDirective,
@@ -59,7 +59,7 @@ export default {
       });
     });
 
-    this.children(element, component);
+    Walk.children(element, component);
   },
 
   children(element: HTMLElement, component: Component) {
@@ -68,8 +68,10 @@ export default {
       // element's children
       if (typeof el === 'object') {
         // Only check nodes
-        this.tree(el, component);
+        Walk.tree(el, component);
       }
     });
   }
 };
+
+export default Walk;

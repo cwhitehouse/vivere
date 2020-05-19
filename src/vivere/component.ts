@@ -5,6 +5,7 @@ import Walk from './lib/walk';
 import { Directive } from './directives/directive';
 import { Computed } from './reactivity/computed';
 import Callbacks from './lib/callbacks';
+import Renderer from './renderer';
 
 export class Component {
   $bindings:    object;
@@ -118,16 +119,17 @@ export class Component {
   // Rendering
 
   $queueRender(directive: Directive) {
-    Vivere.$queueRender(directive);
+    Renderer.$queueRender(directive);
   }
 
   $nextRender(func: Function) {
-    Vivere.$nextRender(func);
+    Renderer.$nextRender(func);
   }
 
-  forceRender() {
-    this.$directives.forEach(d => Vivere.$queueRender(d));
-    this.$children.forEach(child => child.forceRender());
+  forceRender(shallow: boolean = false) {
+    this.$directives.forEach(d => Renderer.$queueRender(d));
+    if (!shallow)
+      this.$children.forEach(child => child.forceRender());
   }
 
 
@@ -138,7 +140,7 @@ export class Component {
     this.$callbacks.beforeConnected?.call(this);
 
     // Force initial render
-    this.forceRender();
+    this.forceRender(true);
 
     // Callback hook
     this.$callbacks.connected?.call(this);

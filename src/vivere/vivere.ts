@@ -4,31 +4,10 @@ import { Component } from './component';
 import { Directive } from './directives/directive';
 import { Registry } from './reactivity/registry';
 
-let   $dirty:       Boolean         = false;
-
 const $components:  Set<Component>      = new Set();
 const $definitions: Registry<object>    = new Registry();
-const $directives:  Set<Directive>      = new Set();
-const $ticks:       Set<Function>       = new Set();
 
-const tick = () => {
-  $ticks.forEach(t => t());
-  $ticks.clear();
-};
-
-const render = () => {
-  // Evaluate all directives queued for a render
-  $directives.forEach(d => d.evaluate());
-
-  // Reset system so we're not waiting on anything
-  $directives.clear();
-  $dirty = false;
-
-  // Run all waiting ticks
-  tick();
-};
-
-const module = {
+const Vivere = {
   // Track components and definitions
 
   register(name: string, definition: object) {
@@ -48,26 +27,6 @@ const module = {
   },
 
 
-  // Render management
-
-  $queueRender(directive: Directive) {
-    // Add directives to set of directives that
-    // will require an update next frame
-    $directives.add(directive);
-
-    // Reqeust animation frame if we aren't
-    // currently waiting on one
-    if (!$dirty) {
-      window.requestAnimationFrame(render);
-      $dirty = true;
-    }
-  },
-
-  $nextRender(func: Function) {
-    $ticks.add(func);
-  },
-
-
   // Initialization
 
   setup() {
@@ -79,7 +38,15 @@ const module = {
 
     // Finalize connecting our components
     $components.forEach((c: Component) => c.$connect());
+
+    // Expose the system during development
+    if (process.env.NODE_ENV === 'development') {
+      Vivere.$components = $components;
+      Vivere.$definitions = $definitions;
+
+      window.$vivere = Vivere;
+    }
   },
 };
 
-export default module;
+export default Vivere;

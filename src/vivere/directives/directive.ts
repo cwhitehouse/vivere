@@ -65,6 +65,6 @@ export class Directive {
 
   onComponent(): Boolean {
     // Check if component is registered to element
-    return this.element.$component === this.component;
+    return this.element === this.component?.$element;
   }
 };
