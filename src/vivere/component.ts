@@ -65,21 +65,11 @@ export class Component {
   // Reactivity
 
   $set(key: string, value: any) {
-    if (key === 'states') {
-      console.log('--------------------');
-      console.log('Reactivizing states!')
-      console.log('-')
-      console.log(value);
-      console.log(typeof value);
-      console.log(value instanceof Array);
-      console.log(Array.isArray(value));
-      console.log('--------------------');
-    }
     // Turn on reactivity for properties
     const reactive = Reactive.set(this, key, value);
-    reactive.registerHook(this, (was: any, is: any) => {
-      this.$react(key, was, is);
-    });
+
+    // Listen for changes to this reactive property
+    reactive.registerHook(this, (was, is) => this.$react(key, was, is));
   }
 
   $pass(key: string, reactive: Reactive) {
@@ -87,7 +77,7 @@ export class Component {
   }
 
   $react(key: string, was: any, is: any) {
-    // Watches for changes to any reactive properties
+    // Invoke any watchers for this property
     this.$watchers[key]?.call(this, was, is);
   }
 
