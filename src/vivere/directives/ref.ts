@@ -1,7 +1,8 @@
-import { Directive } from './directive.js';
+import { Directive } from './directive';
 
 export class RefDirective extends Directive {
-  static name = 'v-ref';
+  static id: string = 'v-ref';
+
 
   // Parsing
 

@@ -1,10 +1,11 @@
-import { Directive } from '../directive.js';
-import Vivere from '../../vivere.js';
-import { Component } from '../../component.js';
+import { Directive } from '../directive';
+import Vivere from '../../vivere';
+import { Component } from '../../component';
 
 export class ComponentDirective extends Directive {
-  static name = 'v-component';
-  static needsComponent = false;
+  static id: string               = 'v-component';
+  static needsComponent: boolean  = false;
+
 
   // Parsing
 

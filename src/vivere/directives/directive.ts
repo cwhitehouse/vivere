@@ -1,27 +1,33 @@
+import { Component } from "../component";
+
 export class Directive {
-  static needsComponent = true;
-  static forComponent = false;
+  static id:              string;
+  static forComponent:    Boolean;
+  static needsComponent:  Boolean;
+
+  component?: Component;
+  element:    HTMLElement;
+  expression: string;
+  key?:       string;
 
   // Constructor
 
-  constructor(element, name, expression, component) {
+  constructor(element: HTMLElement, name: string, expression: string, component?: Component) {
     // Extract key from name
     const [_, key] = name.split(':');
     // TODO: Extract modifiers from key
 
-    Object.assign(this, {
-      element,
-      component,
-      key,
-      expression,
-    });
+    this.component    = component;
+    this.element      = element;
+    this.key          = key;
+    this.expression   = expression;
 
     // Check the directive if it's valid
-    if (this.name() == null)
-      throw 'Directives must be named';
+    if (this.id() == null)
+      throw 'Directives must have an identifier';
     if (this.forComponent() && !this.onComponent())
       throw `${name} only applies to components`;
-    if (this.needsComponent && this.component == null)
+    if (this.needsComponent() && this.component == null)
       throw `${name} created without a component`;
 
     // Register directive on the component (if necessary)
@@ -44,15 +50,19 @@ export class Directive {
 
   // Utiility methods
 
-  name() {
-    return this.constructor.name;
+  id(): string {
+    return this.constructor.id;
   }
 
-  forComponent() {
+  forComponent(): Boolean {
     return this.constructor.forComponent;
   }
 
-  onComponent() {
+  needsComponent(): Boolean {
+    return this.constructor.needsComponent;
+  }
+
+  onComponent(): Boolean {
     // Check if component is registered to element
     return this.element.$component === this.component;
   }

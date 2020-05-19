@@ -1,21 +1,23 @@
-import { Directive } from '../directive.js';
-import Evaluator from '../../lib/evaluator.js';
+import { Directive } from '../directive';
+import Evaluator from '../../lib/evaluator';
 
 export class EventDirective extends Directive {
   // Parsing
 
   parse() {
-    const [_, event] = this.name().split('-');
+    const [_, event] = this.id().split('-');
     this.element.addEventListener(event, (e) => this.execute(e));
   }
 
 
-  // Evaluation
+  // Evaluation (not needed on event directives)
 
-  // Event directives do not evaluate on render
   evaluate() {}
 
-  execute(e) {
+
+  // Execution
+
+  execute(e: Event) {
     // Execute the method defined in the evaluator
     Evaluator.execute(this.component, this.expression, e);
 

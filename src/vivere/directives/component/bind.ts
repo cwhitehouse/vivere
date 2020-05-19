@@ -1,8 +1,8 @@
-import { Directive } from '../directive.js';
+import { Directive } from '../directive';
 
 export class BindDirective extends Directive {
-  static name = 'v-bind';
-  static forComponent = true;
+  static id: string             = 'v-bind';
+  static forComponent: boolean  = true;
 
   // Parsing
 

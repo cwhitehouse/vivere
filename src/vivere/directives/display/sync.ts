@@ -1,8 +1,9 @@
-import { DisplayDirective } from './display.js';
-import Evaluator from '../../lib/evaluator.js';
+import { DisplayDirective } from './display';
+import Evaluator from '../../lib/evaluator';
 
 export class SyncDirective extends DisplayDirective {
-  static name = 'v-sync';
+  static id: string = 'v-sync';
+
 
   // Parsing
 
@@ -33,7 +34,7 @@ export class SyncDirective extends DisplayDirective {
     return this.element.value;
   }
 
-  sync(e) {
+  sync(e: Event) {
     // Assign the value to the synced expression
     const inputValue = this.value();
     Evaluator.assign(this.component, this.expression, inputValue);

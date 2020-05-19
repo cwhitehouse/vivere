@@ -1,12 +1,26 @@
-import Utility from './lib/utility.js';
-import Vivere from './vivere.js';
-import { Reactive } from './lib/reactive.js';
-import Walk from './lib/walk.js';
+import Utility from './lib/utility';
+import Vivere from './vivere';
+import { Reactive } from './lib/reactive';
+import Walk from './lib/walk';
+import { Directive } from './directives/directive';
 
 export class Component {
+  $bindings:    object;
+  $callbacks:   object;
+  $children:    Array<Component>;
+  $directives:  Array<Directive>;
+  $element:     HTMLElement;
+  $name:        string;
+  $parent?:     Component;
+  $reactives:   object;
+  $refs:        object;
+  $ticks:       Array<Function>;
+  $watchers:    object;
+
+
   // Constructor
 
-  constructor(element, name, parent) {
+  constructor(element: HTMLElement, name: string, parent?: Component) {
     // Load the component definition
     const compName = Utility.pascalCase(name)
     const definition = Vivere.definitions[compName];
@@ -15,6 +29,7 @@ export class Component {
     // Initialize the component data
     Object.assign(this, {
       $bindings: {},
+      $callbacks: { ...definition.callbacks },
       $children: [],
       $directives: [],
       $element: element,
@@ -24,13 +39,17 @@ export class Component {
       $refs: {},
       $ticks: [],
       $watchers: { ...definition.watch },
-      ...definition.callbacks,
       ...definition.methods,
     });
 
     if (definition.data != null) {
-      definition.data.forEach((key,value) => {
+      definition.data.forEach((key, value) => {
         this.$set(key, value);
+      });
+    }
+    if (definition.computed != null) {
+      definition.computed.forEach((key, value) => {
+
       });
     }
 
@@ -44,18 +63,18 @@ export class Component {
 
   // Reactivity
 
-  $set(key, value) {
+  $set(key: string, value: any) {
     // Turn on reactivity for properties
-    Reactive.set(this, key, value, (was, is) => {
+    Reactive.set(this, key, value, (was: any, is: any) => {
       this.$react(key, was, is);
     });
   }
 
-  $pass(key, reactive) {
+  $pass(key: string, reactive: Reactive) {
     Reactive.pass(this, key, reactive);
   }
 
-  $react(key, was, is) {
+  $react(key: string, was: any, is: any) {
     // Watches for changes to any reactive properties
     this.$watchers[key]?.call(this, was, is);
   }
@@ -63,7 +82,7 @@ export class Component {
 
   // Event passing
 
-  $emit(event, args) {
+  $emit(event: string, args: any) {
     // Check bindings
     const method = this.$bindings[event];
     if (method != null) {
@@ -75,7 +94,7 @@ export class Component {
     }
   }
 
-  $invokeBinding(event, args) {
+  $invokeBinding(event: string, args: any) {
     const method = this.$bindings[event];
     this[method](args);
     this.render();
@@ -84,7 +103,7 @@ export class Component {
 
    // Append DOM
 
-   $attach(html, ref) {
+   $attach(html: string, ref: string) {
     const element = this.$refs[ref];
     if (element == null) throw `No reference named ${ref} found`;
 
@@ -96,7 +115,7 @@ export class Component {
 
   // Rendering
 
-  $nextRender(func) {
+  $nextRender(func: Function) {
     this.$ticks.push(func);
   }
 

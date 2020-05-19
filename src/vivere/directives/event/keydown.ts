@@ -1,11 +1,11 @@
-import { EventDirective } from './event.js';
+import { EventDirective } from './event';
 
 export class KeydownDirective extends EventDirective {
-  static name = 'v-keydown';
+  static id: string = 'v-keydown';
 
   // Execution
 
-  execute(e) {
+  execute(e: Event) {
     // Scope to a particular keycode if
     // a key parameter was provided
     if (this.key != null && !this.matchesKeycode(e.key || e.keyCode))
@@ -17,7 +17,7 @@ export class KeydownDirective extends EventDirective {
 
   // Key matching
 
-  matchesKeycode(keyCode) {
+  matchesKeycode(keyCode: string | number) {
     switch (this.key) {
       case 'enter':
         return keyCode === 'Enter'
@@ -26,8 +26,12 @@ export class KeydownDirective extends EventDirective {
         return keyCode === 'Escape'
           || keyCode === 27;
       default:
-        return this.key === keyCode.toLowercase();
     };
+
+    if (typeof keyCode === 'string')
+      return this.key === keyCode.toLowerCase();
+    else
+      return this.key === keyCode.toString();
   }
 
 };

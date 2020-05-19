@@ -1,5 +1,5 @@
-import { Directive } from '../directive.js';
-import Evaluator from '../../lib/evaluator.js';
+import { Directive } from '../directive';
+import Evaluator from '../../lib/evaluator';
 
 export class DisplayDirective extends Directive {
   // Evaluation
@@ -9,7 +9,7 @@ export class DisplayDirective extends Directive {
     this.evaluateValue(value);
   }
 
-  evaluateValue(value) {
+  evaluateValue(value: any) {
     throw "Directives must implement `evaluateValue`";
   }
 }

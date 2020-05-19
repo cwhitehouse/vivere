@@ -1,5 +1,5 @@
 export default {
-  read(object, expression) {
+  read(object: object, expression: string): any {
     let $expression = expression;
     let invert = false;
     if ($expression.startsWith('!')) {
@@ -20,7 +20,7 @@ export default {
     return result;
   },
 
-  assign(object, expression, value) {
+  assign(object: object, expression: string, value: any) {
     const parts = expression.split('.');
 
     let $object = object;
@@ -32,7 +32,7 @@ export default {
     $object[key] = value;
   },
 
-  execute(object, expression, args) {
+  execute(object: object, expression: string, args: any) {
     const parts = expression.split('.');
 
     let $object = object;

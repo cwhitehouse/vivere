@@ -1,11 +1,12 @@
-import { DisplayDirective } from './display.js';
+import { DisplayDirective } from './display';
 
 export class TextDirective extends DisplayDirective {
-  static name = 'v-text';
+  static id: string = 'v-text';
+
 
   // Evaluation
 
-  evaluateValue(value) {
+  evaluateValue(value: any) {
     this.element.textContent = value;
   }
 };

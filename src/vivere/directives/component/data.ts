@@ -1,9 +1,10 @@
-import { Directive } from '../directive.js';
-import Utility from '../../lib/utility.js';
+import { Directive } from '../directive';
+import Utility from '../../lib/utility';
 
 export class DataDirective extends Directive {
-  static name = 'v-data';
-  static forComponent = true;
+  static id: string             = 'v-data';
+  static forComponent: boolean  = true;
+
 
   // Parsing
 

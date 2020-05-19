@@ -1,4 +1,4 @@
-import Vivere from './vivere/vivere.js';
+import Vivere from './vivere/vivere';
 
 import Accordion from './examples/components/accordion/accordion.js';
 import AccordionSection from './examples/components/accordion/section.js';

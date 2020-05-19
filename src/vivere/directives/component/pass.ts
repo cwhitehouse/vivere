@@ -1,8 +1,9 @@
-import { Directive } from '../directive.js';
+import { Directive } from '../directive';
 
 export class PassDirective extends Directive {
- static name = 'v-pass';
- static forComponent = true;
+ static id: string            = 'v-pass';
+ static forComponent: boolean = true;
+
 
   // Parsing
 
