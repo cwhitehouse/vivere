@@ -30,6 +30,9 @@ export class Directive {
 
     // Finish parsing directive
     this.parse();
+
+    // Strip the attribute once it's been processed
+    this.element.removeAttribute(name);
   }
 
 
