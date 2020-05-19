@@ -16,7 +16,7 @@ import { MouseleaveDirective } from '../directives/event/mouseleave';
 import { MouseoverDirective } from '../directives/event/mouseover';
 import { RefDirective } from '../directives/ref';
 
-import { Component } from '../component';
+import { Component } from '../components/component';
 
 const Walk = {
   directives: [

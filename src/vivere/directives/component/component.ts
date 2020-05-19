@@ -1,6 +1,6 @@
 import { Directive } from '../directive';
 import Vivere from '../../vivere';
-import { Component } from '../../component';
+import { Component } from '../../components/component';
 
 export class ComponentDirective extends Directive {
   static id: string               = 'v-component';

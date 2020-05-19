@@ -1,9 +1,9 @@
 import { Directive } from "./directives/directive";
 
-let   $dirty:       Boolean         = false;
+let $dirty: Boolean = false;
 
-const $directives:  Set<Directive>      = new Set();
-const $ticks:       Set<Function>       = new Set();
+const $directives:  Set<Directive>  = new Set();
+const $ticks:       Set<Function>   = new Set();
 
 const tick = () => {
   $ticks.forEach(t => t());
@@ -25,7 +25,7 @@ const render = () => {
 const Renderer = {
   $queueRender(directive: Directive) {
     // Add directives to set of directives that
-    // will require an update next frame
+    // will require an update next render
     $directives.add(directive);
 
     // Reqeust animation frame if we aren't

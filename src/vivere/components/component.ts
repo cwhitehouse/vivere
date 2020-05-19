@@ -1,11 +1,11 @@
-import Utility from './lib/utility';
-import Vivere from './vivere';
-import { Reactive } from './reactivity/reactive';
-import Walk from './lib/walk';
-import { Directive } from './directives/directive';
-import { Computed } from './reactivity/computed';
-import Callbacks from './lib/callbacks';
-import Renderer from './renderer';
+import Utility from '../lib/utility';
+import Vivere from '../vivere';
+import { Reactive } from '../reactivity/reactive';
+import Walk from '../lib/walk';
+import { Directive } from '../directives/directive';
+import { Computed } from '../reactivity/computed';
+import Callbacks from './callbacks';
+import Renderer from '../renderer';
 
 export class Component {
   $bindings:    object;

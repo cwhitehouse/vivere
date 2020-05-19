@@ -1,5 +1,5 @@
-import { Component } from "../component";
-import { Watcher } from "../lib/watcher";
+import { Component } from "../components/component";
+import { Watcher } from "./watcher";
 import { Registry } from "./registry";
 import { ReactiveArray } from "./array";
 import { ReactiveObject } from "./object";

@@ -1,6 +1,6 @@
 import Polyfills from './lib/polyfills';
 import Walk from './lib/walk';
-import { Component } from './component';
+import { Component } from './components/component';
 import { Directive } from './directives/directive';
 import { Registry } from './reactivity/registry';
 

@@ -1,6 +1,6 @@
 import { Directive } from '../directive';
 import Evaluator from '../../lib/evaluator';
-import { Watcher } from '../../lib/watcher';
+import { Watcher } from '../../reactivity/watcher';
 
 export class DisplayDirective extends Directive {
   // Evaluation

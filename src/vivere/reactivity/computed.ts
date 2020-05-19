@@ -1,6 +1,6 @@
 import { Reactive } from "./reactive";
-import { Component } from "../component";
-import { Watcher } from "../lib/watcher";
+import { Component } from "../components/component";
+import { Watcher } from "./watcher";
 
 export class Computed extends Reactive {
   $dirty:     Boolean     = false;
