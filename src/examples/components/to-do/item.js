@@ -8,17 +8,19 @@ export default {
     state: State.Show,
   },
 
-  methods: {
+  computed: {
     isShowing() {
       return this.state === State.Show;
     },
 
-    confirmDelete() {
-      this.state = State.Delete;
-    },
-
     isDeleting() {
       return this.state === State.Delete;
+    },
+  },
+
+  methods: {
+    confirmDelete() {
+      this.state = State.Delete;
     },
 
     delete() {

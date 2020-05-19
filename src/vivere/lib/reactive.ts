@@ -1,4 +1,5 @@
 import { Component } from "../component";
+import { Computed } from "./computed";
 
 export class Reactive {
   value: any;
@@ -11,6 +12,17 @@ export class Reactive {
 
     this.value = value;
     this.hooks = hooks;
+  }
+
+
+  // Accessing the value, and tracking updates
+
+  get(): any {
+    const watcher: Computed<any> = Computed.context;
+    if (watcher != null)
+      this.hooks.push(() => watcher.dirty());
+
+    return this.value;
   }
 
 
@@ -27,7 +39,7 @@ export class Reactive {
   }
 
 
-  // Class level methods
+  // Class level helpers
 
   static set(host: object, key: string, value: any, hook?: Function) {
     // Ensure $reactives exists
@@ -40,7 +52,7 @@ export class Reactive {
       // a reactive value under the hood
       host.$reactives[key] = new Reactive(value, hook ? [hook] : []);
       Object.defineProperty(host, key, {
-        get() { return host.$reactives[key]?.value; },
+        get() { return host.$reactives[key]?.get(); },
         set(newValue) { host.$reactives[key].set(newValue) },
       });
     } else {
@@ -51,12 +63,26 @@ export class Reactive {
   }
 
   static pass(component: Component, key: string, reactive: Reactive) {
+    const passed = component.$passed[key];
+    passed.$reactive = reactive;
+
     // Pass off a Reactive property managed
     // by a different object
-    component.$reactives[key] = reactive;
     Object.defineProperty(component, key, {
-      get() { return component.$reactives[key]?.value; },
-      set(_) { throw "Cannot update passed values from a child"; },
+      get() {
+        if (passed == null)
+          throw `Value passed to component for unknown key ${key}`;
+
+        let value = reactive.get();
+        if (value == null) {
+          if (passed.required) throw `${key} is required to be passed`;
+          value = passed.default;
+        }
+
+        return value;
+      },
+      set() { throw "Cannot update passed values from a child"; },
     });
+    component[key];
   }
 };

@@ -1,6 +1,20 @@
 export default {
+  passed: {
+    showing: {
+      type: Boolean,
+      default: true,
+    },
+  },
+
   data: {
     label: null,
+  },
+
+  computed: {
+    hasLabel() {
+      return this.label != null
+        && this.label.length > 0;
+    },
   },
 
   watch: {
@@ -11,17 +25,12 @@ export default {
   },
 
   methods: {
-    hasLabel() {
-      return this.label != null
-        && this.label.length > 0;
-    },
-
     reset() {
       this.close();
     },
 
     create() {
-      if (this.hasLabel())
+      if (this.hasLabel)
         this.$emit('create', this.label);
       this.close();
     },

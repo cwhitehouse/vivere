@@ -3,15 +3,18 @@ import Vivere from './vivere';
 import { Reactive } from './lib/reactive';
 import Walk from './lib/walk';
 import { Directive } from './directives/directive';
+import { Computed } from './lib/computed';
 
 export class Component {
   $bindings:    object;
   $callbacks:   object;
   $children:    Array<Component>;
+  $computeds:   object;
   $directives:  Array<Directive>;
   $element:     HTMLElement;
   $name:        string;
   $parent?:     Component;
+  $passed:      object;
   $reactives:   object;
   $refs:        object;
   $ticks:       Array<Function>;
@@ -31,10 +34,12 @@ export class Component {
       $bindings: {},
       $callbacks: { ...definition.callbacks },
       $children: [],
+      $computeds: {},
       $directives: [],
       $element: element,
       $name: compName,
       $parent: parent,
+      $passed: { ...definition.passed },
       $reactives: {},
       $refs: {},
       $ticks: [],
@@ -43,13 +48,13 @@ export class Component {
     });
 
     if (definition.data != null) {
-      definition.data.forEach((key, value) => {
+      definition.data.forEach((key: string, value: any) => {
         this.$set(key, value);
       });
     }
     if (definition.computed != null) {
-      definition.computed.forEach((key, value) => {
-
+      definition.computed.forEach((key: string, value: any) => {
+        Computed.set(this, key, value);
       });
     }
 
@@ -107,9 +112,13 @@ export class Component {
     const element = this.$refs[ref];
     if (element == null) throw `No reference named ${ref} found`;
 
-    // TODO: Re-evaluate how innerHTML is handled here
-     element.innerHTML = `${element.innerHTML}${html}`;
-     Walk.children(element, this);
+    const tempNode = document.createElement('div');
+    tempNode.innerHTML = html;
+
+    tempNode.children.forEach((_, child: HTMLElement) => {
+      element.appendChild(child);
+      Walk.tree(child, this);
+    });
    }
 
 
