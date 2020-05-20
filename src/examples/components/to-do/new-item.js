@@ -6,8 +6,10 @@ export default {
     },
   },
 
-  data: {
-    label: null,
+  data() {
+    return {
+      label: null,
+    };
   },
 
   computed: {

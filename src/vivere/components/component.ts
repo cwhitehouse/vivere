@@ -59,7 +59,7 @@ export default class Component {
 
     // Setup reactive data
     if (definition.data != null)
-      Object.entries(definition.data).forEach(([k, v]) => this.$set(k, v));
+      Object.entries(definition.data()).forEach(([k, v]) => this.$set(k, v));
     if (definition.computed != null)
       Object.entries(definition.computed).forEach(([k, v]) => Computed.set(this, k, v));
 

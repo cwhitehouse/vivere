@@ -1,5 +1,5 @@
+import Component from '../components/component';
 import Directive from '../directives/directive';
-
 import ComponentDirective from '../directives/component/component';
 import BindDirective from '../directives/component/bind';
 import DataDirective from '../directives/component/data';
@@ -8,6 +8,7 @@ import ClassDirective from '../directives/display/class';
 import DisabledDirective from '../directives/display/disabled';
 import IfDirective from '../directives/display/if';
 import ShowDirective from '../directives/display/show';
+import SortDirective from '../directives/display/sort';
 import SyncDirective from '../directives/display/sync';
 import TextDirective from '../directives/display/text';
 import ClickDirective from '../directives/event/click';
@@ -16,8 +17,6 @@ import MouseenterDirective from '../directives/event/mouseenter';
 import MouseleaveDirective from '../directives/event/mouseleave';
 import MouseoverDirective from '../directives/event/mouseover';
 import RefDirective from '../directives/ref';
-
-import Component from '../components/component';
 
 const directives: (typeof Directive)[] = [
   ComponentDirective,
@@ -28,6 +27,7 @@ const directives: (typeof Directive)[] = [
   DisabledDirective,
   IfDirective,
   ShowDirective,
+  SortDirective,
   SyncDirective,
   TextDirective,
   ClickDirective,

@@ -18,16 +18,17 @@
         class="flex-1 h-8 border-2 border-solid border-gray-300 rounded text-sm text-black ml-1"
         v-sync="sort"
       >
-        <option value="">No sorting...</option>
-        <option value="alphaDesc">Alphabetical (A-Z)</option>
-        <option value="alphaAsc">Alphabetical (Z-A)</option>
+        <option value="">Default order</option>
+        <option value="alphaAsc">Alphabetical (A-Z)</option>
+        <option value="alphaDesc">Alphabetical (Z-A)</option>
       </select>
     </div>
     <div class="flex-1"></div>
   </div>
   <div
-    v-ref="list"
     class="mt-4"
+    v-sort='sortOrder'
+    v-ref="list"
   >
     <include
       src="examples/components/to-do/item.html"
@@ -43,7 +44,7 @@
     ></include>
     <include
       src="examples/components/to-do/item.html"
-      locals='{ "toDo": { "id": 3, "label": "Spin up an example app" }, "tags": ["notifies"] }'
+      locals='{ "toDo": { "id": 4, "label": "Spin up an example app" }, "tags": ["notifies"] }'
     ></include>
   </div>
   <button

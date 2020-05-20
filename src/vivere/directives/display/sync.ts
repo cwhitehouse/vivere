@@ -36,7 +36,7 @@ export default class SyncDirective extends DisplayDirective {
     if (this.element.type === 'checkbox')
       this.element.checked = !!value;
     else
-      this.element.value = value?.toString();
+      this.element.value = value as string;
   }
 
 

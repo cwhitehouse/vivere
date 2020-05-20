@@ -1,6 +1,8 @@
 export default {
-  data: {
-    hovering: false,
+  data() {
+    return {
+      hovering: false,
+    };
   },
 
   methods: {

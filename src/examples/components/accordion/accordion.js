@@ -1,6 +1,8 @@
 export default {
-  data: {
-    activeSection: null,
+  data() {
+    return {
+      activeSection: null,
+    };
   },
 
   callbacks: {

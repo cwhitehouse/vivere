@@ -4,9 +4,11 @@ const State = {
 };
 
 export default {
-  data: {
-    state: State.Show,
-    states: [State.Show],
+  data() {
+    return {
+      state: State.Show,
+      states: [State.Show],
+    };
   },
 
   computed: {
