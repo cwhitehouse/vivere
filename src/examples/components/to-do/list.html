@@ -47,11 +47,11 @@
     ></include>
   </div>
   <button
-    v-show="!creating"
+    v-if="!creating"
     class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mt-4"
     v-click="startCreating"
   >New To-Do</button>
-  <div v-show="creating">
+  <div v-if="creating">
     <include src="examples/components/to-do/new-item.html"></include>
   </div>
 </div>

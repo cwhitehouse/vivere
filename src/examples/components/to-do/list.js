@@ -22,7 +22,7 @@ export default {
           class="to-do-item h-12 flex items-stretch"
         >
           <div
-            v-show="isShowing"
+            v-if="isShowing"
             class="flex items-center w-full"
           >
             <input
@@ -43,7 +43,7 @@ export default {
             >Delete</button>
           </div>
           <div
-            v-show="isDeleting"
+            v-if="isDeleting"
             class="flex items-center w-full"
           >
             <p class="flex-1 text-red-600">Are you sure you want to delete this?</p>
