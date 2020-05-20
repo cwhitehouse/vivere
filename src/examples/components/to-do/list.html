@@ -2,23 +2,38 @@
   v-component="to-do-list"
   class="p-8"
 >
-  <p class="text-sm text-gray-700 font-semibold uppercase ml-2 pb-2">List of To-Dos</p>
-  <div v-ref="list">
+  <div class="flex items-center">
+    <p class="text-sm text-gray-700 font-semibold uppercase ml-2 flex-2">List of To-Dos</p>
+    <select
+      class="flex-1 h-8 border-2 border-solid border-gray-300 rounded text-sm text-black"
+      v-sync="filter"
+    >
+      <option value="">All tags...</option>
+      <option value="urgent">URGENT</option>
+      <option value="blocked">BLOCKED</option>
+      <option value="notifies">NOTIFIES</option>
+    </select>
+    <div class="flex-1"></div>
+  </div>
+  <div
+    v-ref="list"
+    class="mt-4"
+  >
     <include
       src="examples/components/to-do/item.html"
-      locals='{ "toDo": { "id": 1, "label": "Spec out a high level pan of attack" }}'
+      locals='{ "toDo": { "id": 1, "label": "Spec out a high level pan of attack" }, "tags": ["urgent", "blocked"] }'
     ></include>
     <include
       src="examples/components/to-do/item.html"
-      locals='{ "toDo": { "id": 2, "label": "Add time estimates to the various parts of the project" }}'
+      locals='{ "toDo": { "id": 2, "label": "Add time estimates to the various parts of the project" }, "tags": ["blocked", "notifies"] }'
     ></include>
     <include
       src="examples/components/to-do/item.html"
-      locals='{ "toDo": { "id": 3, "label": "Choose a technical infrastructure for the project" }}'
+      locals='{ "toDo": { "id": 3, "label": "Choose a technical infrastructure for the project" }, "tags": ["urgent", "notifies"] }'
     ></include>
     <include
       src="examples/components/to-do/item.html"
-      locals='{ "toDo": { "id": 3, "label": "Spin up an example app" }}'
+      locals='{ "toDo": { "id": 3, "label": "Spin up an example app" }, "tags": ["notifies"] }'
     ></include>
   </div>
   <button

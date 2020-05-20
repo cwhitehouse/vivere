@@ -15,7 +15,9 @@ interface VivereInterface {
 }
 
 declare global {
-  interface Window { $vivere: VivereInterface }
+  interface Window {
+    $vivere: VivereInterface;
+  }
 }
 
 const $components: Set<Component> = new Set();

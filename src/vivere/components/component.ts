@@ -8,6 +8,12 @@ import Callbacks from './callbacks';
 import Renderer from '../renderer';
 import VivereError from '../error';
 
+declare global {
+  interface Element {
+    $component: Component;
+  }
+}
+
 export default class Component {
   $bindings: object;
   $callbacks: Callbacks;
@@ -56,6 +62,10 @@ export default class Component {
       Object.entries(definition.data).forEach(([k, v]) => this.$set(k, v));
     if (definition.computed != null)
       Object.entries(definition.computed).forEach(([k, v]) => Computed.set(this, k, v));
+
+    // Attach the component to the DOM (dev only)
+    if (process.env.NODE_ENV === 'development')
+      element.$component = this;
 
     // Track this component as a child of its parent
     parent?.$children.add(this);
