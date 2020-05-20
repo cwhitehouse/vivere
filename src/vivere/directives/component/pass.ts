@@ -1,5 +1,5 @@
 import Directive from '../directive';
-import { Reactive } from '../../reactivity/reactive';
+import Reactive from '../../reactivity/reactive';
 import VivereError from '../../lib/error';
 
 export default class PassDirective extends Directive {

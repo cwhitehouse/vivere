@@ -1,4 +1,4 @@
-import { Reactive } from './reactive';
+import Reactive from './reactive';
 import Component from '../components/component';
 import Watcher from './watcher';
 import VivereError from '../lib/error';
@@ -8,9 +8,9 @@ export default class Computed extends Reactive {
 
   context: Component;
 
-  evaluator: () => any;
+  evaluator: () => unknown;
 
-  constructor(context: Component, evaluator: () => any) {
+  constructor(context: Component, evaluator: () => unknown) {
     super(null);
 
     this.context = context;
@@ -31,7 +31,7 @@ export default class Computed extends Reactive {
     Watcher.clear();
   }
 
-  getValue(): any {
+  getValue(): unknown {
     if (this.$dirty)
       this.computeValue();
 
@@ -41,7 +41,7 @@ export default class Computed extends Reactive {
 
   // Static helpers
 
-  static set(component: Component, key: string, evaluator: () => any): Computed {
+  static set(component: Component, key: string, evaluator: () => unknown): Computed {
     let computed: Computed;
 
     // Check if we've already set up computedness

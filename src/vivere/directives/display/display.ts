@@ -3,11 +3,7 @@ import Evaluator from '../../lib/evaluator';
 import Watcher from '../../reactivity/watcher';
 import VivereError from '../../lib/error';
 
-interface DisplayDirectiveInterface {
-  evaluateValue: (value: any) => void;
-}
-
-export default class DisplayDirective extends Directive implements DisplayDirectiveInterface {
+export default class DisplayDirective extends Directive {
   // Evaluation
 
   evaluate(): void {
@@ -20,7 +16,7 @@ export default class DisplayDirective extends Directive implements DisplayDirect
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  evaluateValue(value: any): void {
+  evaluateValue(value: unknown): void {
     throw new VivereError('Directives must implement `evaluateValue`');
   }
 }

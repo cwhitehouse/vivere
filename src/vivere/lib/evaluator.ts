@@ -1,5 +1,5 @@
 export default {
-  read(object: object, expression: string): any {
+  read(object: object, expression: string): unknown {
     let $expression = expression;
     let invert = false;
     if ($expression.startsWith('!')) {
@@ -7,13 +7,13 @@ export default {
       invert = true;
     }
 
-    let result: any = object;
+    let result: unknown = object;
     $expression.split('.').forEach((exp) => { result = result[exp]; });
     if (invert) result = !result;
     return result;
   },
 
-  assign(object: object, expression: string, value: any): void {
+  assign(object: object, expression: string, value: unknown): void {
     const parts = expression.split('.');
 
     let $object = object;
@@ -23,7 +23,7 @@ export default {
     $object[key] = value;
   },
 
-  execute(object: object, expression: string, ...args: any[]): void {
+  execute(object: object, expression: string, ...args: unknown[]): void {
     const parts = expression.split('.');
 
     let $object = object;

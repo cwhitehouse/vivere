@@ -7,7 +7,7 @@ export default class IfDirective extends DisplayDirective {
 
   // Evaluation
 
-  evaluateValue(value: any): void {
+  evaluateValue(value: unknown): void {
     if (value) this.element.classList.remove(ifClass);
     else this.element.classList.add(ifClass);
   }

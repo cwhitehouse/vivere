@@ -5,16 +5,12 @@ import ReactiveArray from './array';
 import ReactiveObject from './object';
 import VivereError from '../lib/error';
 
-export interface Reactable {
-  $reactives: { prop?: Reactive };
-}
-
-export class Reactive implements Reactable {
+export default class Reactive {
   $reactives: { prop: Reactive };
-  value: any;
+  value: unknown;
   registry: Registry<object, () => void>;
 
-  constructor(value: any) {
+  constructor(value: unknown) {
     this.registry = new Registry();
     this.updateValue(value);
   }
@@ -22,11 +18,11 @@ export class Reactive implements Reactable {
 
   // Accessing the value, and tracking updates
 
-  getValue(): any {
+  getValue(): unknown {
     return this.value;
   }
 
-  get(): any {
+  get(): unknown {
     const watcher = Watcher.current;
     if (watcher != null) {
       const { context, callback } = watcher;
@@ -39,18 +35,18 @@ export class Reactive implements Reactable {
 
   // Assigning values, and reacting
 
-  set(value: any): void {
+  set(value: unknown): void {
     if (value !== this.value) {
       this.updateValue(value);
       this.report();
     }
   }
 
-  updateValue(value: any): void {
+  updateValue(value: unknown): void {
     this.value = this.reactiveValue(value);
   }
 
-  reactiveValue(value: any): any {
+  reactiveValue(value: unknown): unknown {
     if (value == null)
       return null;
 
@@ -59,7 +55,7 @@ export class Reactive implements Reactable {
 
     if (typeof value === 'object') {
       Object.entries(value).forEach(([k, v]) => Reactive.set(value, k, v));
-      return new ReactiveObject(value, this);
+      return new ReactiveObject(value);
     }
 
     return value;
@@ -79,7 +75,7 @@ export class Reactive implements Reactable {
 
   // Helper method for automatically making a property reactive
 
-  static set(host: Reactable, key: string | number | symbol, value: any): Reactive {
+  static set(host: unknown, key: string | number | symbol, value: unknown): Reactive {
     // Ensure $reactives property exists
     if (host.$reactives == null)
       host.$reactives = {};

@@ -1,16 +1,16 @@
-import { Reactive } from './reactive';
+import Reactive from './reactive';
 
 export default class ReactiveArray {
-  constructor(array: any[], host: Reactive) {
+  constructor(array: unknown[], host: Reactive) {
     return new Proxy(array, {
-      get(target, propKey): any {
+      get(target, propKey): unknown {
         const value = target[propKey];
         switch (propKey) {
           case 'push':
           case 'splice':
           case 'unshift':
             // Mutating methods should force a report
-            return (...args: any[]): any => {
+            return (...args: unknown[]): unknown => {
               const result = value.apply(target, args);
               host.report();
               return result;

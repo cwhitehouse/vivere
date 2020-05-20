@@ -5,7 +5,7 @@ export default class TextDirective extends DisplayDirective {
 
   // Evaluation
 
-  evaluateValue(value: any): void {
-    this.element.textContent = value;
+  evaluateValue(value: unknown): void {
+    this.element.textContent = value.toString();
   }
 }

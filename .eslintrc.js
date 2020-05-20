@@ -19,7 +19,6 @@ module.exports = {
     'no-param-reassign': ['error', { 'props': false }],
 
     // Disabled rules
-    '@typescript-eslint/no-explicit-any': 'off',
     'import/no-cycle': 'off',
     'max-len': 'off',
     'lines-between-class-members': 'off',

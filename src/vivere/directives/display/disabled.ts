@@ -16,7 +16,7 @@ export default class DisabledDirective extends DisplayDirective {
 
   // Evaluation
 
-  evaluateValue(value: any): void {
+  evaluateValue(value: unknown): void {
     this.element.disabled = !!value;
   }
 }

@@ -29,12 +29,12 @@ export default class SyncDirective extends DisplayDirective {
 
   // Evaluation
 
-  evaluateValue(value: any): void {
+  evaluateValue(value: unknown): void {
     // Push our new value to the element
     if (this.element.type === 'checkbox')
-      this.element.checked = value;
+      this.element.checked = !!value;
     else
-      this.element.value = value;
+      this.element.value = value.toString();
   }
 
 

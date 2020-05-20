@@ -1,5 +1,5 @@
 export interface PassedInterface {
   type: 'Boolean' | 'Object' | 'String' | 'Number';
-  default?: any;
+  default?: unknown;
   required?: boolean;
 }

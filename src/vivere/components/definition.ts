@@ -3,8 +3,8 @@ import { CallbacksInterface } from './definition/callbacks-interface';
 
 export interface ComponentDefintion extends CallbacksInterface {
   passed?: { prop: PassedInterface };
-  data?: { prop: any };
-  computed?: { prop: () => any };
-  methods?: { prop: (...args: any[]) => any[] };
+  data?: { prop: unknown };
+  computed?: { prop: () => unknown };
+  methods?: { prop: (...args: unknown[]) => unknown[] };
   watch?: { prop: () => void };
 }

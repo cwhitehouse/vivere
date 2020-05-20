@@ -1,6 +1,6 @@
 import Utility from '../lib/utility';
 import Vivere from '../vivere';
-import { Reactive, Reactable } from '../reactivity/reactive';
+import Reactive from '../reactivity/reactive';
 import Walk from '../lib/walk';
 import Directive from '../directives/directive';
 import Computed from '../reactivity/computed';
@@ -8,7 +8,7 @@ import Callbacks from './callbacks';
 import Renderer from '../renderer';
 import VivereError from '../lib/error';
 
-export default class Component implements Reactable {
+export default class Component {
   $bindings: object;
   $callbacks: Callbacks;
   $children: Set<Component>;
@@ -66,7 +66,7 @@ export default class Component implements Reactable {
 
   // Reactivity
 
-  $set(key: string, value: any): void {
+  $set(key: string, value: unknown): void {
     // Turn on reactivity for properties
     const reactive = Reactive.set(this, key, value);
 
@@ -86,15 +86,15 @@ export default class Component implements Reactable {
 
   // Event passing
 
-  $emit(event: string, args: any): void {
+  $emit(event: string, arg: unknown): void {
     // Check bindings
     const method = this.$bindings[event];
-    this.$parent[method](args);
+    this.$parent[method](arg);
   }
 
-  $invokeBinding(event: string, args: any): void {
+  $invokeBinding(event: string, arg: unknown): void {
     const method = this.$bindings[event];
-    this[method](args);
+    this[method](arg);
   }
 
 

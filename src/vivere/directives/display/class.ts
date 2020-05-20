@@ -13,7 +13,7 @@ export default class ClassDirective extends DisplayDirective {
 
   // Evaluation
 
-  evaluateValue(value: any): void {
+  evaluateValue(value: unknown): void {
     if (value) this.element.classList.add(this.key);
     else this.element.classList.remove(this.key);
   }
