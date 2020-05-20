@@ -30,7 +30,8 @@ export default class Component {
     const componentName = Utility.pascalCase(name);
     const definition = Vivere.$getDefinition(componentName);
 
-    if (definition == null) throw new VivereError(`Tried to instantiate unknown component ${componentName}`);
+    if (definition == null)
+      throw new VivereError(`Tried to instantiate unknown component ${componentName}`);
 
     // Initialize component data
     this.$bindings = {};
@@ -99,7 +100,8 @@ export default class Component {
 
   $attach(html: string, ref: string): void {
     const element = this.$refs[ref];
-    if (element == null) throw new VivereError(`No reference named ${ref} found`);
+    if (element == null)
+      throw new VivereError(`No reference named ${ref} found`);
 
     const tempNode = document.createElement('div');
     tempNode.innerHTML = html;
