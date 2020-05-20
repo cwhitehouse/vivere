@@ -18,34 +18,34 @@ import { RefDirective } from '../directives/ref';
 
 import { Component } from '../components/component';
 
-const Walk = {
-  directives: [
-    ComponentDirective,
-    BindDirective,
-    DataDirective,
-    PassDirective,
-    ClassDirective,
-    DisabledDirective,
-    IfDirective,
-    SyncDirective,
-    TextDirective,
-    ClickDirective,
-    KeydownDirective,
-    MouseenterDirective,
-    MouseleaveDirective,
-    MouseoverDirective,
-    RefDirective,
-  ],
+const directives: (typeof Directive)[] = [
+  ComponentDirective,
+  BindDirective,
+  DataDirective,
+  PassDirective,
+  ClassDirective,
+  DisabledDirective,
+  IfDirective,
+  SyncDirective,
+  TextDirective,
+  ClickDirective,
+  KeydownDirective,
+  MouseenterDirective,
+  MouseleaveDirective,
+  MouseoverDirective,
+  RefDirective,
+];
 
-  tree(element: HTMLElement, component?: Component) {
+const Walk = {
+  tree(element: Element, component?: Component) {
     const attributes = element.attributes;
 
     // v-static stops tree walking for improved performance
     if (attributes['v-static'] != null) return;
 
     // Loop through directives (so we can control parse order)
-    this.directives.forEach((d) => {
-      element.attributes.forEach((_, attr) => {
+    directives.forEach((d) => {
+      Object.values(element.attributes).forEach((attr) => {
         const name = attr.name;
         const value = attr.value;
 
@@ -62,13 +62,13 @@ const Walk = {
     Walk.children(element, component);
   },
 
-  children(element: HTMLElement, component: Component) {
-    element.children.forEach((_, el) => {
+  children(element: Element, component: Component) {
+    Object.values(element.children).forEach((child) => {
       // Continue checking the
       // element's children
-      if (typeof el === 'object') {
+      if (typeof child === 'object') {
         // Only check nodes
-        Walk.tree(el, component);
+        Walk.tree(child, component);
       }
     });
   }

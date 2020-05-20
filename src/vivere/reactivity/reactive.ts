@@ -4,9 +4,14 @@ import { Registry } from "./registry";
 import { ReactiveArray } from "./array";
 import { ReactiveObject } from "./object";
 
-export class Reactive {
-  value:    any;
-  registry: Registry<Function>;
+export interface Reactable {
+  $reactives: { prop?: Reactive };
+}
+
+export class Reactive implements Reactable {
+  $reactives:   { prop: Reactive };
+  value:        any;
+  registry:     Registry<object, () => void>;
 
   constructor(value: any) {
     this.registry = new Registry();
@@ -21,7 +26,7 @@ export class Reactive {
   }
 
   get(): any {
-    const watcher: Watcher = Watcher.current;
+    const watcher = Watcher.current;
     if (watcher != null) {
       const { context, callback } = watcher;
       this.registerHook(context, callback);
@@ -52,7 +57,7 @@ export class Reactive {
       return new ReactiveArray(value, this);
 
     if (typeof value === 'object') {
-      value.forEach((k: string, v: any) => Reactive.set(value, k, v));
+      Object.entries(value).forEach(([k, v]) => Reactive.set(value, k, v));
       return new ReactiveObject(value, this);
     }
 
@@ -62,18 +67,18 @@ export class Reactive {
 
   // Reporting
 
-  registerHook(object: object, hook: Function) {
+  registerHook(object: object, hook: () => void) {
     this.registry.register(object, hook);
   }
 
   report() {
-    this.registry.forEach((_: any, hook: Function) => hook());
+    this.registry.forEach((_, hook) => hook());
   }
 
 
   // Helper method for automatically making a property reactive
 
-  static set(host: object, key: string | number | symbol, value: any): Reactive {
+  static set(host: Reactable, key: string | number | symbol, value: any): Reactive {
     // Ensure $reactives property exists
     if (host.$reactives == null) host.$reactives = {};
 

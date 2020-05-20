@@ -1,31 +1,31 @@
 import Utility from '../lib/utility';
 import Vivere from '../vivere';
-import { Reactive } from '../reactivity/reactive';
+import { Reactive, Reactable } from '../reactivity/reactive';
 import Walk from '../lib/walk';
 import { Directive } from '../directives/directive';
 import { Computed } from '../reactivity/computed';
 import Callbacks from './callbacks';
 import Renderer from '../renderer';
 
-export class Component {
+export class Component implements Reactable {
   $bindings:    object;
   $callbacks:   Callbacks;
   $children:    Set<Component>;
   $computeds:   object;
   $directives:  Set<Directive>;
   $dirty:       boolean;
-  $element:     HTMLElement;
+  $element:     Element;
   $name:        string;
   $parent?:     Component;
   $passed:      object;
-  $reactives:   object;
+  $reactives:   { prop?: Reactive };
   $refs:        object;
   $watchers:    object;
 
 
   // Constructor
 
-  constructor(element: HTMLElement, name: string, parent?: Component) {
+  constructor(element: Element, name: string, parent?: Component) {
     // Load the component definition
     const componentName = Utility.pascalCase(name)
     const definition    = Vivere.$getDefinition(componentName);
@@ -52,12 +52,15 @@ export class Component {
     Object.assign(this, { ...definition.methods });
 
     // Setup reactive data
-    definition.data?.forEach((k,v) => this.$set(k, v));
-    definition.computed?.forEach((k,v) => Computed.set(this, k, v));
+    if (definition.data != null)
+      Object.entries(definition.data).forEach(([k,v]) => this.$set(k, v));
+
+    if (definition.computed != null)
+      Object.entries(definition.computed).forEach(([k,v]) => Computed.set(this, k, v));
 
     // Attach the component to the DOM (dev only)
     if (process.env.NODE_ENV === 'development')
-      element.$component = this;
+      element['$component'] = this;
 
     // Track this component as a child of its parent
     parent?.$children.add(this);
@@ -71,16 +74,16 @@ export class Component {
     const reactive = Reactive.set(this, key, value);
 
     // Listen for changes to this reactive property
-    reactive.registerHook(this, (was, is) => this.$react(key, was, is));
+    reactive.registerHook(this, () => this.$react(key));
   }
 
   $pass(key: string, reactive: Reactive) {
     Reactive.pass(this, key, reactive);
   }
 
-  $react(key: string, was: any, is: any) {
+  $react(key: string) {
     // Invoke any watchers for this property
-    this.$watchers[key]?.call(this, was, is);
+    this.$watchers[key]?.call(this);
   }
 
 
@@ -107,7 +110,7 @@ export class Component {
     const tempNode = document.createElement('div');
     tempNode.innerHTML = html;
 
-    tempNode.children.forEach((_, child: HTMLElement) => {
+    Object.values(tempNode.children).forEach((child) => {
       element.appendChild(child);
       Walk.tree(child, this);
     });
@@ -123,7 +126,7 @@ export class Component {
     Renderer.$queueRender(directive);
   }
 
-  $nextRender(func: Function) {
+  $nextRender(func: () => void) {
     Renderer.$nextRender(func);
   }
 

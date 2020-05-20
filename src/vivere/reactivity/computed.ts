@@ -5,9 +5,9 @@ import { Watcher } from "./watcher";
 export class Computed extends Reactive {
   $dirty:     Boolean     = false;
   context:    Component;
-  evaluator:  Function;
+  evaluator:  () => any;
 
-  constructor(context: Component, evaluator: Function) {
+  constructor(context: Component, evaluator: () => any) {
     super(null);
 
     this.context = context;
@@ -38,13 +38,17 @@ export class Computed extends Reactive {
 
   // Static helpers
 
-  static set(component: Component, key: string, evaluator: Function) {
+  static set(component: Component, key: string, evaluator: () => any): Computed {
+    let computed: Computed;
+
     // Check if we've already set up computedness
     // for this property and object
     if (component.$computeds[key] == null) {
       // Set up this property to use
       // a reactive value under the hood
-      component.$computeds[key] = new Computed(component, evaluator);
+      computed = new Computed(component, evaluator);
+      component.$computeds[key] = computed;
+
       Object.defineProperty(component, key, {
         get() { return component.$computeds[key].get(); },
         set() { throw `Cannot assign to computed property ${key}`; },
@@ -53,5 +57,7 @@ export class Computed extends Reactive {
       // Property is already computed
       throw `Cannot assign to computed property ${key}`;
     }
+
+    return computed;
   }
 };

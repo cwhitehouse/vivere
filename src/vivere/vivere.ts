@@ -1,16 +1,16 @@
-import Polyfills from './lib/polyfills';
 import Walk from './lib/walk';
 import { Component } from './components/component';
 import { Directive } from './directives/directive';
 import { Registry } from './reactivity/registry';
+import { ComponentDefintion } from './components/definition';
 
-const $components:  Set<Component>      = new Set();
-const $definitions: Registry<object>    = new Registry();
+const $components:  Set<Component>                      = new Set();
+const $definitions: Registry<string,ComponentDefintion> = new Registry();
 
 const Vivere = {
   // Track components and definitions
 
-  register(name: string, definition: object) {
+  register(name: string, definition: ComponentDefintion) {
     $definitions[name] = definition;
   },
 
@@ -22,7 +22,7 @@ const Vivere = {
     $components.delete(component);
   },
 
-  $getDefinition(name: string): object {
+  $getDefinition(name: string): ComponentDefintion {
     return $definitions[name];
   },
 
@@ -30,9 +30,6 @@ const Vivere = {
   // Initialization
 
   setup() {
-    // Establish required Polyfills
-    Polyfills.setup();
-
     // Walk the tree to initialize components
     Walk.tree(document.body);
 
@@ -41,10 +38,10 @@ const Vivere = {
 
     // Expose the system during development
     if (process.env.NODE_ENV === 'development') {
-      Vivere.$components = $components;
-      Vivere.$definitions = $definitions;
+      Vivere['$components'] = $components;
+      Vivere['$definitions'] = $definitions;
 
-      window.$vivere = Vivere;
+      window['$vivere'] = Vivere;
     }
   },
 };

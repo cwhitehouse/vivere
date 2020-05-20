@@ -1,9 +1,11 @@
-export default class Callbacks {
-  beforeConnected:  Function;
-  connected:        Function;
+import { CallbacksInterface } from "./definition/callbacks-interface";
 
-  beforeDestroyed:  Function;
-  destroyed:        Function;
+export default class Callbacks implements CallbacksInterface {
+  beforeConnected:  () => void;
+  connected:        () => void;
+
+  beforeDestroyed:  () => void;
+  destroyed:        () => void;
 
   constructor({ beforeConnected, connected, beforeDestroyed, destroyed }) {
     // Track connect callbacks

@@ -4,17 +4,17 @@ import Evaluator from '../../lib/evaluator';
 export class SyncDirective extends DisplayDirective {
   static id: string = 'v-sync';
 
+  element:  HTMLInputElement;
   event:    string;
-  binding:  Function;
+  binding:  (event: Event) => boolean;
 
 
   // Parsing
 
   parse() {
     // Validate our element node
-    if (this.element.nodeName !== 'INPUT') {
+    if (this.element.nodeName !== 'INPUT')
       throw 'Sync directives only work on input elements';
-    }
 
     // Bind the sync function
     this.event = 'input';

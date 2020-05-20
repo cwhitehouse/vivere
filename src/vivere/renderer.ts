@@ -3,7 +3,7 @@ import { Directive } from "./directives/directive";
 let $dirty: Boolean = false;
 
 const $directives:  Set<Directive>  = new Set();
-const $ticks:       Set<Function>   = new Set();
+const $ticks:       Set<() => void> = new Set();
 
 const tick = () => {
   $ticks.forEach(t => t());
@@ -36,7 +36,7 @@ const Renderer = {
     }
   },
 
-  $nextRender(func: Function) {
+  $nextRender(func: () => void) {
     $ticks.add(func);
   },
 };

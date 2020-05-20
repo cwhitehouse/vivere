@@ -2,13 +2,13 @@ import { Directive } from '../directive';
 import Evaluator from '../../lib/evaluator';
 
 export class EventDirective extends Directive {
-  event:    string;
-  binding:  Function;
+  event:    'click' | 'keydown' | 'mouseenter' | 'mouseleave' | 'mouseover';
+  binding:  (event: Event) => boolean;
 
   // Parsing
 
   parse() {
-    this.event = this.id().split('-')[1];
+    this.event = this.id().split('-')[1] as 'click' | 'keydown' | 'mouseenter' | 'mouseleave' | 'mouseover';
     this.binding = this.execute.bind(this);
     this.element.addEventListener(this.event, this.binding);
   }

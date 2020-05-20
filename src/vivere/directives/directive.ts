@@ -6,13 +6,13 @@ export class Directive {
   static needsComponent:  Boolean;
 
   component?: Component;
-  element:    HTMLElement;
+  element:    Element;
   expression: string;
   key?:       string;
 
   // Constructor
 
-  constructor(element: HTMLElement, name: string, expression: string, component?: Component) {
+  constructor(element: Element, name: string, expression: string, component?: Component) {
     // Extract key from name
     const [_, key] = name.split(':');
     // TODO: Extract modifiers from key
@@ -52,15 +52,15 @@ export class Directive {
   // Utiility methods
 
   id(): string {
-    return this.constructor.id;
+    return (this.constructor as typeof Directive).id;
   }
 
   forComponent(): Boolean {
-    return this.constructor.forComponent;
+    return (this.constructor as typeof Directive).forComponent;
   }
 
   needsComponent(): Boolean {
-    return this.constructor.needsComponent;
+    return (this.constructor as typeof Directive).needsComponent;
   }
 
   onComponent(): Boolean {

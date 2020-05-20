@@ -7,7 +7,7 @@ export default {
       invert = true;
     }
 
-    let result = object;
+    let result: any = object;
     $expression.split('.').forEach((exp) => {
       if (exp.endsWith('()')) {
         const fnc = exp.slice(0,-2);

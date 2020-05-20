@@ -1,8 +1,8 @@
 export class Watcher {
   context:  any;
-  callback: Function;
+  callback: () => void;
 
-  constructor(context: any, callback: Function) {
+  constructor(context: any, callback: () => void) {
     this.context = context;
     this.callback = callback;
   }
@@ -12,7 +12,7 @@ export class Watcher {
 
   static current?: Watcher;
 
-  static assign(context: any, callback: Function) {
+  static assign(context: any, callback: () => void) {
     Watcher.current = new Watcher(context, callback);
   }
 

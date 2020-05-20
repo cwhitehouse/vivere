@@ -1,6 +1,6 @@
-export class Registry<T> {
+export class Registry<T,V> {
   $array: Array<T>;
-  $map:   object;
+  $map:   { prop?: V };
 
   constructor() {
     this.$array = [];
@@ -10,7 +10,7 @@ export class Registry<T> {
 
   // Hook registration
 
-  register(key: any, value: T) {
+  register(key: T, value: V) {
     // Check if key already exists
     let index = this.$array.indexOf(key);
 
@@ -24,7 +24,7 @@ export class Registry<T> {
     this.$map[index] = value;
   }
 
-  deregister(key: any) {
+  deregister(key: T) {
     const index = this.$array.indexOf(key);
     this.$map[index] = null;
     this.$array.splice(index, 1);
@@ -33,7 +33,7 @@ export class Registry<T> {
 
   // Retrieving hooks
 
-  get(key: any) {
+  get(key: T) {
     const index = this.$array.indexOf(key);
     return this.$map[index];
   }
@@ -41,14 +41,14 @@ export class Registry<T> {
 
   // Iterator
 
-  forEach(func: Function) {
+  forEach(func: (key: T, value: V) => void) {
     const { $array, $map } = this;
 
     for (var i = 0; i < $array.length ; i++) {
-      const key = $array[i];
-      if (key != null) {
+      const registryKey = $array[i];
+      if (registryKey != null) {
         const value = $map[i];
-        func(key, value);
+        func(registryKey, value);
       }
     }
   }
