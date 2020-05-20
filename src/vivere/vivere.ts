@@ -1,24 +1,23 @@
 import Walk from './lib/walk';
-import { Component } from './components/component';
-import { Directive } from './directives/directive';
-import { Registry } from './reactivity/registry';
+import Component from './components/component';
+import Registry from './reactivity/registry';
 import { ComponentDefintion } from './components/definition';
 
-const $components:  Set<Component>                      = new Set();
-const $definitions: Registry<string,ComponentDefintion> = new Registry();
+const $components: Set<Component> = new Set();
+const $definitions: Registry<string, ComponentDefintion> = new Registry();
 
 const Vivere = {
   // Track components and definitions
 
-  register(name: string, definition: ComponentDefintion) {
+  register(name: string, definition: ComponentDefintion): void {
     $definitions[name] = definition;
   },
 
-  $track(component: Component) {
+  $track(component: Component): void {
     $components.add(component);
   },
 
-  $untrack(component: Component) {
+  $untrack(component: Component): void {
     $components.delete(component);
   },
 
@@ -29,7 +28,7 @@ const Vivere = {
 
   // Initialization
 
-  setup() {
+  setup(): void {
     // Walk the tree to initialize components
     Walk.tree(document.body);
 
@@ -38,10 +37,10 @@ const Vivere = {
 
     // Expose the system during development
     if (process.env.NODE_ENV === 'development') {
-      Vivere['$components'] = $components;
-      Vivere['$definitions'] = $definitions;
+      Vivere.$components = $components;
+      Vivere.$definitions = $definitions;
 
-      window['$vivere'] = Vivere;
+      window.$vivere = Vivere;
     }
   },
 };

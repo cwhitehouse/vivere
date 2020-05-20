@@ -1,8 +1,11 @@
-export class Watcher {
-  context:  any;
+import Directive from '../directives/directive';
+import Computed from './computed';
+
+export default class Watcher {
+  context: Directive | Computed;
   callback: () => void;
 
-  constructor(context: any, callback: () => void) {
+  constructor(context: Directive | Computed, callback: () => void) {
     this.context = context;
     this.callback = callback;
   }
@@ -12,11 +15,11 @@ export class Watcher {
 
   static current?: Watcher;
 
-  static assign(context: any, callback: () => void) {
+  static assign(context: Directive | Computed, callback: () => void): void {
     Watcher.current = new Watcher(context, callback);
   }
 
-  static clear() {
+  static clear(): void {
     Watcher.current = null;
   }
 }

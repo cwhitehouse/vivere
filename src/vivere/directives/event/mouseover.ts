@@ -1,5 +1,5 @@
-import { EventDirective } from './event';
+import EventDirective from './event';
 
-export class MouseoverDirective extends EventDirective {
-  static id: string = 'v-mouseover';
-};
+export default class MouseoverDirective extends EventDirective {
+  static id = 'v-mouseover';
+}

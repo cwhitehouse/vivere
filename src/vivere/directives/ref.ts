@@ -1,18 +1,16 @@
-import { Directive } from './directive';
+import Directive from './directive';
 
-export class RefDirective extends Directive {
-  static id: string = 'v-ref';
-
+export default class RefDirective extends Directive {
+  static id = 'v-ref';
 
   // Parsing
 
-  parse() {
+  parse(): void {
     if (this.onComponent()) {
       const parent = this.component.$parent;
-      if (parent != null)
-        parent.$refs[this.expression] = this.component;
+      if (parent != null) parent.$refs[this.expression] = this.component;
     }
 
     this.component.$refs[this.expression] = this.element;
   }
-};
+}

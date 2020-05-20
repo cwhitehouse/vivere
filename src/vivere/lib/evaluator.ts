@@ -8,22 +8,22 @@ export default {
     }
 
     let result: any = object;
-    $expression.split('.').forEach(exp => result = result[exp]);
+    $expression.split('.').forEach((exp) => { result = result[exp]; });
     if (invert) result = !result;
     return result;
   },
 
-  assign(object: object, expression: string, value: any) {
+  assign(object: object, expression: string, value: any): void {
     const parts = expression.split('.');
 
     let $object = object;
-    parts.slice(0, -1).forEach(part => $object = $object[part]);
+    parts.slice(0, -1).forEach((part) => { $object = $object[part]; });
 
     const key = parts[parts.length - 1];
     $object[key] = value;
   },
 
-  execute(object: object, expression: string, ...args: any[]) {
+  execute(object: object, expression: string, ...args: any[]): void {
     const parts = expression.split('.');
 
     let $object = object;

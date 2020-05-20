@@ -1,17 +1,18 @@
-import { Component } from "../components/component";
-import { Watcher } from "./watcher";
-import { Registry } from "./registry";
-import { ReactiveArray } from "./array";
-import { ReactiveObject } from "./object";
+import Component from '../components/component';
+import Watcher from './watcher';
+import Registry from './registry';
+import ReactiveArray from './array';
+import ReactiveObject from './object';
+import VivereError from '../lib/error';
 
 export interface Reactable {
   $reactives: { prop?: Reactive };
 }
 
 export class Reactive implements Reactable {
-  $reactives:   { prop: Reactive };
-  value:        any;
-  registry:     Registry<object, () => void>;
+  $reactives: { prop: Reactive };
+  value: any;
+  registry: Registry<object, () => void>;
 
   constructor(value: any) {
     this.registry = new Registry();
@@ -38,18 +39,18 @@ export class Reactive implements Reactable {
 
   // Assigning values, and reacting
 
-  set(value: any) {
+  set(value: any): void {
     if (value !== this.value) {
       this.updateValue(value);
       this.report();
     }
   }
 
-  updateValue(value: any) {
+  updateValue(value: any): void {
     this.value = this.reactiveValue(value);
   }
 
-  reactiveValue(value: any) {
+  reactiveValue(value: any): any {
     if (value == null)
       return null;
 
@@ -67,11 +68,11 @@ export class Reactive implements Reactable {
 
   // Reporting
 
-  registerHook(object: object, hook: () => void) {
+  registerHook(object: object, hook: () => void): void {
     this.registry.register(object, hook);
   }
 
-  report() {
+  report(): void {
     this.registry.forEach((_, hook) => hook());
   }
 
@@ -80,7 +81,8 @@ export class Reactive implements Reactable {
 
   static set(host: Reactable, key: string | number | symbol, value: any): Reactive {
     // Ensure $reactives property exists
-    if (host.$reactives == null) host.$reactives = {};
+    if (host.$reactives == null)
+      host.$reactives = {};
 
     // Check if we've already set up reactivity
     // for this property and component
@@ -95,12 +97,12 @@ export class Reactive implements Reactable {
       // Override property definitions
       Object.defineProperty(host, key, {
         get() { return host.$reactives[key]?.get(); },
-        set(newValue) { host.$reactives[key].set(newValue) },
+        set(newValue) { host.$reactives[key].set(newValue); },
       });
-    } else {
+    } else
       // Simple assignment is sufficient
       host[key] = value;
-    }
+
 
     return reactive;
   }
@@ -108,7 +110,7 @@ export class Reactive implements Reactable {
 
   // Helper method for tracking passed properties
 
-  static pass(component: Component, key: string, reactive: Reactive) {
+  static pass(component: Component, key: string, reactive: Reactive): void {
     // Track the Reactive on the Passed info
     const passed = component.$passed[key];
     passed.$reactive = reactive;
@@ -117,20 +119,25 @@ export class Reactive implements Reactable {
     Object.defineProperty(component, key, {
       get() {
         if (passed == null)
-          throw `Value passed to component for unknown key ${key}`;
+          throw new VivereError(`Value passed to component for unknown key ${key}`);
 
         let value = reactive.get();
         if (value == null) {
-          if (passed.required) throw `${key} is required to be passed`;
+          if (passed.required)
+            throw new VivereError(`${key} is required to be passed`);
+
           value = passed.default;
         }
 
         return value;
       },
       set() {
-        throw "Cannot update passed values from a child";
+        throw new VivereError('Cannot update passed values from a child');
       },
     });
+
+    // Invoke once to ensure Watcher is initialized
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     component[key];
   }
-};
+}

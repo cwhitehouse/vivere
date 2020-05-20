@@ -1,11 +1,14 @@
-import { Reactive } from "./reactive";
-import { Component } from "../components/component";
-import { Watcher } from "./watcher";
+import { Reactive } from './reactive';
+import Component from '../components/component';
+import Watcher from './watcher';
+import VivereError from '../lib/error';
 
-export class Computed extends Reactive {
-  $dirty:     Boolean     = false;
-  context:    Component;
-  evaluator:  () => any;
+export default class Computed extends Reactive {
+  $dirty = false;
+
+  context: Component;
+
+  evaluator: () => any;
 
   constructor(context: Component, evaluator: () => any) {
     super(null);
@@ -18,7 +21,7 @@ export class Computed extends Reactive {
 
   // Value management
 
-  computeValue() {
+  computeValue(): void {
     Watcher.assign(this, () => { this.computeValue(); });
 
     const newValue = this.evaluator.call(this.context);
@@ -28,7 +31,7 @@ export class Computed extends Reactive {
     Watcher.clear();
   }
 
-  getValue() {
+  getValue(): any {
     if (this.$dirty)
       this.computeValue();
 
@@ -51,13 +54,13 @@ export class Computed extends Reactive {
 
       Object.defineProperty(component, key, {
         get() { return component.$computeds[key].get(); },
-        set() { throw `Cannot assign to computed property ${key}`; },
+        set() { throw new VivereError(`Cannot assign to computed property ${key}`); },
       });
-    } else {
+    } else
       // Property is already computed
-      throw `Cannot assign to computed property ${key}`;
-    }
+      throw new VivereError(`Cannot assign to computed property ${key}`);
+
 
     return computed;
   }
-};
+}

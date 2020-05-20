@@ -1,15 +1,14 @@
-import { Directive } from '../directive';
+import Directive from '../directive';
 import Vivere from '../../vivere';
-import { Component } from '../../components/component';
+import Component from '../../components/component';
 
-export class ComponentDirective extends Directive {
-  static id: string               = 'v-component';
-  static needsComponent: boolean  = false;
-
+export default class ComponentDirective extends Directive {
+  static id = 'v-component';
+  static needsComponent = false;
 
   // Parsing
 
-  parse() {
+  parse(): void {
     // The previous component is now the parent
     const parent = this.component;
 
@@ -17,4 +16,4 @@ export class ComponentDirective extends Directive {
     this.component = new Component(this.element, this.expression, parent);
     Vivere.$track(this.component);
   }
-};
+}

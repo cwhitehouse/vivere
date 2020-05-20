@@ -1,13 +1,14 @@
-import { CallbacksInterface } from "./definition/callbacks-interface";
+import { CallbacksInterface } from './definition/callbacks-interface';
 
 export default class Callbacks implements CallbacksInterface {
-  beforeConnected:  () => void;
-  connected:        () => void;
+  beforeConnected: () => void;
+  connected: () => void;
+  beforeDestroyed: () => void;
+  destroyed: () => void;
 
-  beforeDestroyed:  () => void;
-  destroyed:        () => void;
-
-  constructor({ beforeConnected, connected, beforeDestroyed, destroyed }) {
+  constructor({
+    beforeConnected, connected, beforeDestroyed, destroyed,
+  }) {
     // Track connect callbacks
     this.beforeConnected = beforeConnected;
     this.connected = connected;
@@ -16,4 +17,4 @@ export default class Callbacks implements CallbacksInterface {
     this.beforeDestroyed = beforeDestroyed;
     this.destroyed = destroyed;
   }
-};
+}

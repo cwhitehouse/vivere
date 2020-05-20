@@ -1,20 +1,19 @@
-import { DisplayDirective } from './display';
+import DisplayDirective from './display';
 import Evaluator from '../../lib/evaluator';
+import VivereError from '../../lib/error';
 
-export class SyncDirective extends DisplayDirective {
-  static id: string = 'v-sync';
+export default class SyncDirective extends DisplayDirective {
+  static id = 'v-sync';
 
-  element:  HTMLInputElement;
-  event:    string;
-  binding:  (event: Event) => boolean;
-
+  element: HTMLInputElement;
+  event: string;
+  binding: (event: Event) => boolean;
 
   // Parsing
 
-  parse() {
+  parse(): void {
     // Validate our element node
-    if (this.element.nodeName !== 'INPUT')
-      throw 'Sync directives only work on input elements';
+    if (this.element.nodeName !== 'INPUT') throw new VivereError('Sync directives only work on input elements');
 
     // Bind the sync function
     this.event = 'input';
@@ -30,31 +29,35 @@ export class SyncDirective extends DisplayDirective {
 
   // Evaluation
 
-  evaluateValue(value: any) {
+  evaluateValue(value: any): void {
     // Push our new value to the element
-    if (this.element.type === 'checkbox') this.element.checked = value;
-    this.element.value = value;
+    if (this.element.type === 'checkbox')
+      this.element.checked = value;
+    else
+      this.element.value = value;
   }
 
 
   // Destruction
   // - detach the event listener
 
-  destroy() {
+  destroy(): void {
     this.element.removeEventListener(this.event, this.binding);
   }
 
 
   // Syncing
 
-  value() {
-    if (this.element.type === 'checkbox') return this.element.checked;
+  value(): string | boolean {
+    if (this.element.type === 'checkbox')
+      return this.element.checked;
+
     return this.element.value;
   }
 
-  sync() {
+  sync(): void {
     // Assign the value to the synced expression
     const inputValue = this.value();
     Evaluator.assign(this.component, this.expression, inputValue);
   }
-};
+}

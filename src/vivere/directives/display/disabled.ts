@@ -1,24 +1,22 @@
-import { DisplayDirective } from './display';
+import DisplayDirective from './display';
+import VivereError from '../../lib/error';
 
-export class DisabledDirective extends DisplayDirective {
-  static id: string = 'v-disabled';
-
+export default class DisabledDirective extends DisplayDirective {
+  static id = 'v-disabled';
   element: HTMLInputElement | HTMLButtonElement;
-
 
   // Parsing
 
-  parse() {
+  parse(): void {
     // Validate our element node
-    const nodeName = this.element.nodeName;
-    if (nodeName !== 'INPUT' && nodeName !== 'BUTTON')
-      throw 'Sync directives only work on input elements';
+    const { nodeName } = this.element;
+    if (nodeName !== 'INPUT' && nodeName !== 'BUTTON') throw new VivereError('Sync directives only work on input elements');
   }
 
 
   // Evaluation
 
-  evaluateValue(value: any) {
+  evaluateValue(value: any): void {
     this.element.disabled = !!value;
   }
-};
+}

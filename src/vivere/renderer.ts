@@ -1,18 +1,18 @@
-import { Directive } from "./directives/directive";
+import Directive from './directives/directive';
 
-let $dirty: Boolean = false;
+let $dirty = false;
 
-const $directives:  Set<Directive>  = new Set();
-const $ticks:       Set<() => void> = new Set();
+const $directives: Set<Directive> = new Set();
+const $ticks: Set<() => void> = new Set();
 
-const tick = () => {
-  $ticks.forEach(t => t());
+const tick: () => void = () => {
+  $ticks.forEach((t) => t());
   $ticks.clear();
 };
 
-const render = () => {
+const render: () => void = () => {
   // Evaluate all directives queued for a render
-  $directives.forEach(d => d.evaluate());
+  $directives.forEach((d) => d.evaluate());
 
   // Reset system so we're not waiting on anything
   $directives.clear();
@@ -23,7 +23,7 @@ const render = () => {
 };
 
 const Renderer = {
-  $queueRender(directive: Directive) {
+  $queueRender(directive: Directive): void {
     // Add directives to set of directives that
     // will require an update next render
     $directives.add(directive);
@@ -36,7 +36,7 @@ const Renderer = {
     }
   },
 
-  $nextRender(func: () => void) {
+  $nextRender(func: () => void): void {
     $ticks.add(func);
   },
 };

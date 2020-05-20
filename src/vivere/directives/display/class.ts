@@ -1,23 +1,20 @@
-import { DisplayDirective } from './display';
+import DisplayDirective from './display';
+import VivereError from '../../lib/error';
 
-export class ClassDirective extends DisplayDirective {
-  static id: string = 'v-class';
-
+export default class ClassDirective extends DisplayDirective {
+  static id = 'v-class';
 
   // Parsing
 
-  parse() {
-    if (this.key == null)
-      throw "Class directive requires a key";
+  parse(): void {
+    if (this.key == null) throw new VivereError('Class directive requires a key');
   }
 
 
   // Evaluation
 
-  evaluateValue(value: any) {
-    if (value)
-      this.element.classList.add(this.key);
-    else
-      this.element.classList.remove(this.key);
+  evaluateValue(value: any): void {
+    if (value) this.element.classList.add(this.key);
+    else this.element.classList.remove(this.key);
   }
-};
+}

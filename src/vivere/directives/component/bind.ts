@@ -1,12 +1,12 @@
-import { Directive } from '../directive';
+import Directive from '../directive';
 
-export class BindDirective extends Directive {
-  static id: string             = 'v-bind';
-  static forComponent: boolean  = true;
+export default class BindDirective extends Directive {
+  static id = 'v-bind';
+  static forComponent = true;
 
   // Parsing
 
-  parse() {
+  parse(): void {
     this.component.$bindings[this.key] = this.expression;
   }
-};
+}

@@ -1,11 +1,16 @@
-import { Directive } from '../directive';
+import Directive from '../directive';
 import Evaluator from '../../lib/evaluator';
-import { Watcher } from '../../reactivity/watcher';
+import Watcher from '../../reactivity/watcher';
+import VivereError from '../../lib/error';
 
-export class DisplayDirective extends Directive {
+interface DisplayDirectiveInterface {
+  evaluateValue: (value: any) => void;
+}
+
+export default class DisplayDirective extends Directive implements DisplayDirectiveInterface {
   // Evaluation
 
-  evaluate() {
+  evaluate(): void {
     Watcher.assign(this, () => { this.component.$queueRender(this); });
 
     const value = Evaluator.read(this.component, this.expression);
@@ -14,7 +19,8 @@ export class DisplayDirective extends Directive {
     Watcher.clear();
   }
 
-  evaluateValue(value: any) {
-    throw "Directives must implement `evaluateValue`";
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  evaluateValue(value: any): void {
+    throw new VivereError('Directives must implement `evaluateValue`');
   }
 }

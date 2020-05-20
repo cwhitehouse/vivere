@@ -1,5 +1,5 @@
-import { EventDirective } from './event';
+import EventDirective from './event';
 
-export class ClickDirective extends EventDirective {
-  static id: string = 'v-click';
-};
+export default class ClickDirective extends EventDirective {
+  static id = 'v-click';
+}

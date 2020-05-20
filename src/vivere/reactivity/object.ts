@@ -1,9 +1,9 @@
-import { Reactive, Reactable } from "./reactive";
+import { Reactive, Reactable } from './reactive';
 
-export class ReactiveObject {
-  constructor(object: Reactable, host: Reactive) {
+export default class ReactiveObject {
+  constructor(object: Reactable) {
     return new Proxy(object, {
-      set(target, p, value): any {
+      set(target, p, value): boolean {
         Reactive.set(target, p, value);
         return true;
       },
