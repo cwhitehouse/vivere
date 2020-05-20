@@ -8,14 +8,7 @@ export default {
     }
 
     let result: any = object;
-    $expression.split('.').forEach((exp) => {
-      if (exp.endsWith('()')) {
-        const fnc = exp.slice(0,-2);
-        result = result[fnc]();
-      } else {
-        result = result[exp];
-      }
-    });
+    $expression.split('.').forEach(exp => result = result[exp]);
     if (invert) result = !result;
     return result;
   },
@@ -24,15 +17,13 @@ export default {
     const parts = expression.split('.');
 
     let $object = object;
-    parts.slice(0, -1).forEach((part) => {
-      $object = $object[part];
-    });
+    parts.slice(0, -1).forEach(part => $object = $object[part]);
 
     const key = parts[parts.length - 1];
     $object[key] = value;
   },
 
-  execute(object: object, expression: string, args: any) {
+  execute(object: object, expression: string, ...args: any[]) {
     const parts = expression.split('.');
 
     let $object = object;
@@ -41,6 +32,6 @@ export default {
     });
 
     const key = parts[parts.length - 1];
-    $object[key](args);
+    $object[key](...args);
   },
 };

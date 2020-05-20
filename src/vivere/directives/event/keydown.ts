@@ -5,7 +5,7 @@ export class KeydownDirective extends EventDirective {
 
   // Execution
 
-  execute(e: Event) {
+  execute(e: KeyboardEvent) {
     // Scope to a particular keycode if
     // a key parameter was provided
     if (this.key != null && !this.matchesKeycode(e.key || e.keyCode))
