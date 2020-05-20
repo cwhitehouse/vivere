@@ -4,15 +4,25 @@
 >
   <div class="flex items-center">
     <p class="text-sm text-gray-700 font-semibold uppercase ml-2 flex-2">List of To-Dos</p>
-    <select
-      class="flex-1 h-8 border-2 border-solid border-gray-300 rounded text-sm text-black"
-      v-sync="filter"
-    >
-      <option value="">All tags...</option>
-      <option value="urgent">URGENT</option>
-      <option value="blocked">BLOCKED</option>
-      <option value="notifies">NOTIFIES</option>
-    </select>
+    <div class="flex-1 flex items-center">
+      <select
+        class="flex-1 h-8 border-2 border-solid border-gray-300 rounded text-sm text-black mr-1"
+        v-sync="filter"
+      >
+        <option value="">All tags...</option>
+        <option value="urgent">URGENT</option>
+        <option value="blocked">BLOCKED</option>
+        <option value="notifies">NOTIFIES</option>
+      </select>
+      <select
+        class="flex-1 h-8 border-2 border-solid border-gray-300 rounded text-sm text-black ml-1"
+        v-sync="sort"
+      >
+        <option value="">No sorting...</option>
+        <option value="alphaDesc">Alphabetical (A-Z)</option>
+        <option value="alphaAsc">Alphabetical (Z-A)</option>
+      </select>
+    </div>
     <div class="flex-1"></div>
   </div>
   <div
@@ -37,11 +47,11 @@
     ></include>
   </div>
   <button
-    v-if="!creating"
+    v-show="!creating"
     class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mt-4"
     v-click="startCreating"
   >New To-Do</button>
-  <div v-if="creating">
+  <div v-show="creating">
     <include src="examples/components/to-do/new-item.html"></include>
   </div>
 </div>

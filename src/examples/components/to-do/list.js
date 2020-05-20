@@ -2,6 +2,7 @@ export default {
   data: {
     creating: false,
     filter: null,
+    sort: null,
   },
 
   methods: {
@@ -21,7 +22,7 @@ export default {
           class="to-do-item h-12 flex items-stretch"
         >
           <div
-            v-if="isShowing"
+            v-show="isShowing"
             class="flex items-center w-full"
           >
             <input
@@ -42,7 +43,7 @@ export default {
             >Delete</button>
           </div>
           <div
-            v-if="isDeleting"
+            v-show="isDeleting"
             class="flex items-center w-full"
           >
             <p class="flex-1 text-red-600">Are you sure you want to delete this?</p>
