@@ -3,10 +3,25 @@ import Component from './components/component';
 import Registry from './reactivity/registry';
 import { ComponentDefintion } from './components/definition';
 
+interface VivereInterface {
+  $components?: Set<Component>;
+  $definitions?: Registry<string, ComponentDefintion>;
+
+  register: (name: string, definition: ComponentDefintion) => void;
+  $track: (component: Component) => void;
+  $untrack: (component: Component) => void;
+  $getDefinition: (name: string) => ComponentDefintion;
+  setup: () => void;
+}
+
+declare global {
+  interface Window { $vivere: VivereInterface }
+}
+
 const $components: Set<Component> = new Set();
 const $definitions: Registry<string, ComponentDefintion> = new Registry();
 
-const Vivere = {
+const Vivere: VivereInterface = {
   // Track components and definitions
 
   register(name: string, definition: ComponentDefintion): void {

@@ -5,7 +5,11 @@ import ReactiveArray from './array';
 import ReactiveObject from './object';
 import VivereError from '../lib/error';
 
-export default class Reactive {
+interface Reactable {
+  $reactives?: { prop?: Reactive };
+}
+
+export default class Reactive implements Reactable {
   $reactives: { prop: Reactive };
   value: unknown;
   registry: Registry<object, () => void>;
@@ -76,29 +80,30 @@ export default class Reactive {
   // Helper method for automatically making a property reactive
 
   static set(host: unknown, key: string | number | symbol, value: unknown): Reactive {
+    const $host = host as Reactable;
+
     // Ensure $reactives property exists
-    if (host.$reactives == null)
-      host.$reactives = {};
+    if ($host.$reactives == null)
+      $host.$reactives = {};
 
     // Check if we've already set up reactivity
     // for this property and component
-    let reactive: Reactive = host.$reactives[key];
+    let reactive: Reactive = $host.$reactives[key];
     if (reactive == null) {
       // Initialize a Reactive object
       reactive = new Reactive(value);
 
       // Track the reactive object on the host
-      host.$reactives[key] = reactive;
+      $host.$reactives[key] = reactive;
 
       // Override property definitions
-      Object.defineProperty(host, key, {
-        get() { return host.$reactives[key]?.get(); },
-        set(newValue) { host.$reactives[key].set(newValue); },
+      Object.defineProperty($host, key, {
+        get() { return $host.$reactives[key]?.get(); },
+        set(newValue) { $host.$reactives[key].set(newValue); },
       });
     } else
       // Simple assignment is sufficient
       host[key] = value;
-
 
     return reactive;
   }
