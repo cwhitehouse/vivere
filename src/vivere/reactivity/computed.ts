@@ -1,7 +1,7 @@
 import Reactive from './reactive';
 import Component from '../components/component';
 import Watcher from './watcher';
-import VivereError from '../lib/error';
+import VivereError from '../error';
 
 export default class Computed extends Reactive {
   $dirty = false;

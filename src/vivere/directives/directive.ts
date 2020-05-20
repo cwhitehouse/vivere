@@ -1,5 +1,5 @@
 import Component from '../components/component';
-import VivereError from '../lib/error';
+import VivereError from '../error';
 
 export default class Directive {
   static id: string;

@@ -1,6 +1,6 @@
 import Directive from '../directive';
 import Reactive from '../../reactivity/reactive';
-import VivereError from '../../lib/error';
+import VivereError from '../../error';
 
 export default class PassDirective extends Directive {
   static id = 'v-pass';

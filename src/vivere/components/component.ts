@@ -6,7 +6,7 @@ import Directive from '../directives/directive';
 import Computed from '../reactivity/computed';
 import Callbacks from './callbacks';
 import Renderer from '../renderer';
-import VivereError from '../lib/error';
+import VivereError from '../error';
 
 export default class Component {
   $bindings: object;

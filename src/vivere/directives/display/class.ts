@@ -1,5 +1,5 @@
 import DisplayDirective from './display';
-import VivereError from '../../lib/error';
+import VivereError from '../../error';
 
 export default class ClassDirective extends DisplayDirective {
   static id = 'v-class';

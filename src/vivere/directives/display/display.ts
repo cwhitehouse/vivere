@@ -1,7 +1,7 @@
 import Directive from '../directive';
 import Evaluator from '../../lib/evaluator';
 import Watcher from '../../reactivity/watcher';
-import VivereError from '../../lib/error';
+import VivereError from '../../error';
 
 export default class DisplayDirective extends Directive {
   // Evaluation

@@ -3,7 +3,7 @@ import Watcher from './watcher';
 import Registry from './registry';
 import ReactiveArray from './array';
 import ReactiveObject from './object';
-import VivereError from '../lib/error';
+import VivereError from '../error';
 
 interface Reactable {
   $reactives?: { prop?: Reactive };
