@@ -1,6 +1,7 @@
 import DisplayDirective from './display';
+import DOM, { NodeHost } from '../../lib/dom';
 
-export default class IfDirective extends DisplayDirective {
+export default class IfDirective extends DisplayDirective implements NodeHost {
   static id = 'v-if';
 
   container: Node;
@@ -19,13 +20,6 @@ export default class IfDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    let newNode: Node;
-    if (value) newNode = this.element;
-    else newNode = this.placeholder;
-
-    if (newNode !== this.current) {
-      this.container.replaceChild(newNode, this.current);
-      this.current = newNode;
-    }
+    DOM.conditionallyRender(this, !!value);
   }
 }

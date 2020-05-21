@@ -2,14 +2,32 @@ import DisplayDirective from './display';
 import Watcher from '../../reactivity/watcher';
 import Evaluator from '../../lib/evaluator';
 import VivereError from '../../error';
+import DOM, { NodeHost } from '../../lib/dom';
 
 interface Filtered {
-  element: Element;
+  host: NodeHost;
   filtered: boolean;
 }
 
 export default class FilterDirective extends DisplayDirective {
   static id = 'v-filter';
+
+  children: NodeHost[];
+
+  // Parsing
+
+  parse(): void {
+    this.children = [];
+    Object.values(this.element.children).forEach((element) => {
+      this.children.push({
+        element,
+        current: element,
+        container: this.element,
+        placeholder: document.createComment(''),
+      });
+    });
+  }
+
 
   // Evaluation
 
@@ -19,14 +37,10 @@ export default class FilterDirective extends DisplayDirective {
     if (value != null && typeof value !== 'string')
       throw new VivereError('Filter directive requires a string expression');
 
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    console.log('FilterDirective.evaluateValue');
-    console.log('-');
-    console.log(value);
-
     // Loop through and evaluate necessary information
-    const children: Filtered[] = [];
-    Object.values(this.element.children).forEach((element) => {
+    const filtereds: Filtered[] = [];
+    this.children.forEach((host) => {
+      const { element } = host;
       const { $component } = element;
 
       if ($component == null)
@@ -38,14 +52,11 @@ export default class FilterDirective extends DisplayDirective {
       else
         filtered = false;
 
-      children.push({ element, filtered });
+      filtereds.push({ host, filtered });
     });
 
-    console.log('-');
-    console.log(children);
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-
-    // TODO: Filter elements
+    // Filter elements
+    filtereds.forEach(({ host, filtered }) => { DOM.conditionallyRender(host, !filtered); });
 
     Watcher.clear();
   }
