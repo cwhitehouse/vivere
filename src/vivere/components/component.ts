@@ -7,6 +7,7 @@ import Computed from '../reactivity/computed';
 import Callbacks from './callbacks';
 import Renderer from '../renderer';
 import VivereError from '../error';
+import { ComponentDefintion } from './definition';
 
 declare global {
   interface Element {
@@ -19,6 +20,7 @@ export default class Component {
   $callbacks: Callbacks;
   $children: Set<Component>;
   $computeds: object;
+  $definition: ComponentDefintion;
   $directives: Set<Directive>;
   $dirty: boolean;
   $element: Element;
@@ -44,6 +46,7 @@ export default class Component {
     this.$callbacks = new Callbacks(definition);
     this.$children = new Set();
     this.$computeds = new Set();
+    this.$definition = definition;
     this.$directives = new Set();
     this.$dirty = false;
     this.$element = element;
@@ -58,10 +61,11 @@ export default class Component {
     Object.assign(this, { ...definition.methods });
 
     // Setup reactive data
-    if (definition.data != null)
-      Object.entries(definition.data()).forEach(([k, v]) => this.$set(k, v));
-    if (definition.computed != null)
-      Object.entries(definition.computed).forEach(([k, v]) => Computed.set(this, k, v));
+    const { computed, data } = definition;
+    if (data != null)
+      Object.entries(data()).forEach(([k, v]) => this.$set(k, v));
+    if (computed != null)
+      Object.entries(computed).forEach(([k, v]) => Computed.set(this, k, v));
 
     // Attach the component to the DOM (dev only)
     if (process.env.NODE_ENV === 'development')

@@ -20,7 +20,6 @@
     "typescript": "^3.9.2"
   },
   "dependencies": {
-    "lodash": "^4.17.15",
     "parcel-bundler": "^1.12.4",
     "postcss-modules": "^2.0.0",
     "posthtml-expressions": "^1.4.1",

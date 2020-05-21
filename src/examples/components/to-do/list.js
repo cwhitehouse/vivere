@@ -10,7 +10,7 @@ export default {
   },
 
   computed: {
-    sortOrder() {
+    orderBy() {
       const { sort } = this;
 
       switch (sort) {
@@ -20,6 +20,21 @@ export default {
           return [['toDo.label'], ['desc']];
         default:
           return [['toDo.id'], ['asc']];
+      };
+    },
+
+    filterBy() {
+      const { filter } = this;
+
+      switch (filter) {
+        case 'urgent':
+          return 'taggedUrgent';
+        case 'blocked':
+          return 'taggedBlocked';
+        case 'notifies':
+          return 'taggedNotifies';
+        default:
+          return null;
       };
     },
   },

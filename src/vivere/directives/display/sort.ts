@@ -1,8 +1,8 @@
-import { orderBy } from 'lodash';
 import DisplayDirective from './display';
 import Watcher from '../../reactivity/watcher';
 import Evaluator from '../../lib/evaluator';
 import VivereError from '../../error';
+import Utility from '../../lib/utility';
 
 interface Sorter {
   element: Element;
@@ -52,7 +52,7 @@ export default class SortDirective extends DisplayDirective {
 
     // Re-order child elements
     sortKeys = sortKeys.map((key) => this.finalPart(key));
-    orderBy(children, sortKeys, sortOrders).forEach((sorter) => {
+    Utility.orderBy(children, sortKeys, sortOrders).forEach((sorter) => {
       const { element } = sorter;
       this.element.removeChild(element);
       this.element.appendChild(element);
