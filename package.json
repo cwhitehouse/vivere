@@ -14,8 +14,8 @@
   "types": "src/vivere/vivere.d.ts",
   "license": "MIT",
   "scripts": {
-    "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html",
+    "dev": "parcel examples/index.html",
+    "build": "parcel build examples/index.html",
     "lint": "yarn eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "devDependencies": {

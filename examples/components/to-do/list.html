@@ -32,19 +32,19 @@
     v-ref="list"
   >
     <include
-      src="examples/components/to-do/item.html"
+      src="components/to-do/item.html"
       locals='{ "toDo": { "id": 1, "label": "Spec out a high level pan of attack" }, "tags": ["urgent", "blocked"] }'
     ></include>
     <include
-      src="examples/components/to-do/item.html"
+      src="components/to-do/item.html"
       locals='{ "toDo": { "id": 2, "label": "Add time estimates to the various parts of the project" }, "tags": ["blocked", "notifies"] }'
     ></include>
     <include
-      src="examples/components/to-do/item.html"
+      src="components/to-do/item.html"
       locals='{ "toDo": { "id": 3, "label": "Choose a technical infrastructure for the project" }, "tags": ["urgent", "notifies"] }'
     ></include>
     <include
-      src="examples/components/to-do/item.html"
+      src="components/to-do/item.html"
       locals='{ "toDo": { "id": 4, "label": "Spin up an example app" }, "tags": ["notifies"] }'
     ></include>
   </div>
@@ -54,6 +54,6 @@
     v-click="startCreating"
   >New To-Do</button>
   <div v-if="creating">
-    <include src="examples/components/to-do/new-item.html"></include>
+    <include src="components/to-do/new-item.html"></include>
   </div>
 </div>

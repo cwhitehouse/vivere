@@ -1,10 +1,10 @@
 module.exports = {
   plugins: {
     "posthtml-include": {
-      root: './src',
+      root: './examples',
     },
     "posthtml-expressions": {
-      root: './src',
+      root: './examples',
     },
   },
 };
