@@ -33,14 +33,6 @@ const $setup = (): void => {
   // Finalize connecting our components
   $components.forEach((c: Component) => c.$connect());
 
-  // Expose the system during development
-  if (process.env.NODE_ENV === 'development') {
-    this.default.$components = $components;
-    this.default.$definitions = $definitions;
-
-    window.$vivere = this.default;
-  }
-
   // Remove our even listeners
   document.removeEventListener('DOMContentLoaded', $setup);
 };

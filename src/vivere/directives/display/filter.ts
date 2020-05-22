@@ -37,6 +37,9 @@ export default class FilterDirective extends DisplayDirective {
     if (value != null && typeof value !== 'string')
       throw new VivereError('Filter directive requires a string expression');
 
+    // We know value is null or a string
+    const $value: string = value as string;
+
     // Loop through and evaluate necessary information
     const filtereds: Filtered[] = [];
     this.children.forEach((host) => {
@@ -47,8 +50,8 @@ export default class FilterDirective extends DisplayDirective {
         throw new VivereError('Filter directive requires all children to be components');
 
       let filtered: boolean;
-      if (value != null)
-        filtered = !Evaluator.read($component, value);
+      if ($value != null)
+        filtered = !Evaluator.read($component, $value);
       else
         filtered = false;
 

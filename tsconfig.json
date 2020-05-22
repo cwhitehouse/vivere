@@ -1,1 +1,13 @@
-{}
+{
+  "declaration": true,
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "esnext"
+    ]
+  },
+  "include": [
+    "src/vivere/*.ts",
+  ],
+}

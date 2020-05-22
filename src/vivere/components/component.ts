@@ -67,9 +67,8 @@ export default class Component {
     if (computed != null)
       Object.entries(computed).forEach(([k, v]) => Computed.set(this, k, v));
 
-    // Attach the component to the DOM (dev only)
-    if (process.env.NODE_ENV === 'development')
-      element.$component = this;
+    // Attach the component to the DOM
+    element.$component = this;
 
     // Track this component as a child of its parent
     parent?.$children.add(this);
