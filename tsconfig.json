@@ -6,9 +6,9 @@
       "dom",
       "esnext"
     ],
-    "outDir": "package/dist"
+    "outDir": "package/js"
   },
   "include": [
-    "src/vivere/*.ts",
+    "package/ts/*.ts",
   ],
 }

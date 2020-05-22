@@ -8,10 +8,10 @@
   },
   "repository": "github:cwhitehouse/vivere",
   "files": [
-    "src/vivere/*"
+    "package/js/*"
   ],
-  "main": "src/vivere/vivere.ts",
-  "types": "src/vivere/vivere.d.ts",
+  "main": "package/js/vivere.js",
+  "types": "package/js/vivere.d.ts",
   "license": "MIT",
   "scripts": {
     "dev": "parcel examples/index.html",
