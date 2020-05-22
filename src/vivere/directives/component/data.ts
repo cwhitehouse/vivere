@@ -10,8 +10,11 @@ export default class DataDirective extends Directive {
 
   parse(): void {
     let expression: unknown;
-    try { expression = JSON.parse(this.expression); }
-    catch (err) { expression = this.expression; }
+    try {
+      expression = JSON.parse(this.expression);
+    } catch (err) {
+      expression = this.expression;
+    }
 
     const { $definition } = this.component;
     const camelKey = Utility.camelCase(this.key);

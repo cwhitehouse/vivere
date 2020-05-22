@@ -23,6 +23,9 @@ declare global {
 const $components: Set<Component> = new Set();
 const $definitions: Registry<string, ComponentDefintion> = new Registry();
 
+
+// Initialize Vivere
+
 const $setup = (): void => {
   // Walk the tree to initialize components
   Walk.tree(document.body);
@@ -32,15 +35,19 @@ const $setup = (): void => {
 
   // Expose the system during development
   if (process.env.NODE_ENV === 'development') {
-    Vivere.$components = $components;
-    Vivere.$definitions = $definitions;
+    this.default.$components = $components;
+    this.default.$definitions = $definitions;
 
-    window.$vivere = Vivere;
+    window.$vivere = this.default;
   }
 
   // Remove our even listeners
   document.removeEventListener('DOMContentLoaded', $setup);
 };
+const $binding = $setup.bind(this);
+
+
+// Root logic
 
 const Vivere: VivereInterface = {
   // Track components and definitions
@@ -65,7 +72,7 @@ const Vivere: VivereInterface = {
   // Initialization
 
   setup(): void {
-    document.addEventListener('DOMContentLoaded', $setup);
+    document.addEventListener('DOMContentLoaded', $binding);
   },
 };
 
