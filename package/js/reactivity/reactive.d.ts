@@ -21,5 +21,6 @@ export default class Reactive implements Reactable {
     report(): void;
     static set(host: unknown, key: string | number | symbol, value: unknown): Reactive;
     static pass(component: Component, key: string, reactive: Reactive): void;
+    toJSON(): string;
 }
 export {};

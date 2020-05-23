@@ -22,6 +22,7 @@ let DataDirective = /** @class */ (() => {
     }
     DataDirective.id = 'v-data';
     DataDirective.forComponent = true;
+    DataDirective.shouldRehydrate = false;
     return DataDirective;
 })();
 export default DataDirective;

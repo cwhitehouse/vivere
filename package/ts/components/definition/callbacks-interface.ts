@@ -4,4 +4,7 @@ export interface CallbacksInterface {
 
   beforeDestroyed: () => void;
   destroyed: () => void;
+
+  beforeDehydrated: () => void;
+  dehydrated: () => void;
 }

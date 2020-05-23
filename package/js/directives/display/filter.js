@@ -42,6 +42,13 @@ let FilterDirective = /** @class */ (() => {
             filtereds.forEach(({ host, filtered }) => { DOM.conditionallyRender(host, !filtered); });
             Watcher.clear();
         }
+        // Dehdyration
+        dehydrate() {
+            // Re-attach all elments to the DOM
+            this.children.forEach((c) => { DOM.conditionallyRender(c, true); });
+            // Dehydrate
+            super.dehydrate();
+        }
     }
     FilterDirective.id = 'v-filter';
     return FilterDirective;

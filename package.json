@@ -5,7 +5,7 @@
     "front-end",
     "framework"
   ],
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": {
     "name": "Christian Whitehouse",
     "email": "kippy@skippy.works",
@@ -21,7 +21,7 @@
   "scripts": {
     "dev": "parcel examples/index.html",
     "build": "parcel build examples/index.html",
-    "lint": "yarn eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "yarn eslint ./package/ts --ext .js,.jsx,.ts,.tsx"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -40,6 +40,7 @@
     "typescript": "^3.9.2"
   },
   "dependencies": {
-    "tailwindcss": "^1.4.6"
+    "tailwindcss": "^1.4.6",
+    "turbolinks": "^5.2.0"
   }
 }

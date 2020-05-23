@@ -12,6 +12,13 @@ let IfDirective = /** @class */ (() => {
         evaluateValue(value) {
             DOM.conditionallyRender(this, !!value);
         }
+        // Dehdyration
+        dehydrate() {
+            // Re-attach element to the DOM
+            DOM.conditionallyRender(this, true);
+            // Dehydrate
+            super.dehydrate();
+        }
     }
     IfDirective.id = 'v-if';
     return IfDirective;

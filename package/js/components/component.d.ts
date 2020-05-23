@@ -35,5 +35,7 @@ export default class Component {
     $nextRender(func: () => void): void;
     forceRender(shallow?: boolean): void;
     $connect(): void;
-    $destroy(): void;
+    $destroy(shallow?: boolean): void;
+    $dehydrate(shallow?: boolean): void;
+    $dehydrateData(): void;
 }

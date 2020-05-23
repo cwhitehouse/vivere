@@ -22,4 +22,15 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
   evaluateValue(value: unknown): void {
     DOM.conditionallyRender(this, !!value);
   }
+
+
+  // Dehdyration
+
+  dehydrate(): void {
+    // Re-attach element to the DOM
+    DOM.conditionallyRender(this, true);
+
+    // Dehydrate
+    super.dehydrate();
+  }
 }

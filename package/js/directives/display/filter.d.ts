@@ -5,4 +5,5 @@ export default class FilterDirective extends DisplayDirective {
     children: NodeHost[];
     parse(): void;
     evaluateValue(value: unknown): void;
+    dehydrate(): void;
 }

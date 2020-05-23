@@ -7,4 +7,5 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
     placeholder: Node;
     parse(): void;
     evaluateValue(value: unknown): void;
+    dehydrate(): void;
 }

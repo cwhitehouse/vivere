@@ -99,4 +99,8 @@ export default class Reactive {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         component[key];
     }
+    // Better JSON rendering
+    toJSON() {
+        return JSON.stringify(this.value);
+    }
 }

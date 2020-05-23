@@ -101,20 +101,51 @@ export default class Component {
         // Callback hook
         this.$callbacks.connected?.call(this);
     }
-    $destroy() {
+    $destroy(shallow = false) {
+        const { $callbacks, $children, $directives, $element, $parent } = this;
+        const { beforeDestroyed, destroyed } = $callbacks;
         // Callback hook
-        this.$callbacks.beforeDestroyed?.call(this);
+        beforeDestroyed?.call(this);
         // Destroy directives
-        this.$directives.forEach((d) => d.destroy());
+        $directives.forEach((d) => d.destroy());
         // Destroy all children (recusive)
-        this.$children.forEach((c) => c.$destroy());
-        // Remove from parent's children
-        this.$parent?.$children.delete(this);
+        $children.forEach((c) => c.$destroy());
+        if (!shallow)
+            // Remove from parent's children
+            $parent?.$children.delete(this);
         // Remove from global component registry
         Vivere.$untrack(this);
         // Remove from DOM
-        this.$element.parentNode.removeChild(this.$element);
+        $element.parentNode.removeChild(this.$element);
         // Callback hook
-        this.$callbacks.destroyed?.call(this);
+        destroyed?.call(this);
+    }
+    $dehydrate(shallow = false) {
+        const { $callbacks, $children, $dehydrateData, $directives, $parent } = this;
+        const { beforeDehydrated, dehydrated } = $callbacks;
+        // Callback hook
+        beforeDehydrated?.call(this);
+        // Dehydrate this component
+        $dehydrateData.call(this);
+        $directives.forEach((d) => { d.dehydrate(); });
+        if (!shallow)
+            // Dehydrate children
+            $children.forEach((c) => c.$destroy());
+        // Remove from parent's children
+        $parent?.$children.delete(this);
+        // Remove from global component registry
+        Vivere.$untrack(this);
+        // Callback hook
+        dehydrated?.call(this);
+    }
+    $dehydrateData() {
+        const { $definition, $element } = this;
+        const { data } = $definition;
+        if (data != null)
+            Object.keys(data()).forEach((key) => {
+                const kebabKey = Utility.kebabCase(key);
+                const jsonValue = JSON.stringify(this[key]);
+                $element.setAttribute(`v-data:${kebabKey}`, jsonValue);
+            });
     }
 }

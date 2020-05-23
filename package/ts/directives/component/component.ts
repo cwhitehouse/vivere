@@ -14,6 +14,9 @@ export default class ComponentDirective extends Directive {
 
     // Instantiate the new component
     this.component = new Component(this.element, this.expression, parent);
+    this.component.$directives.add(this);
+
+    // Add this component to the global registry
     Vivere.$track(this.component);
   }
 }

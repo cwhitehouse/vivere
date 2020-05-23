@@ -5,6 +5,7 @@ import VivereError from '../../error';
 export default class DataDirective extends Directive {
   static id = 'v-data';
   static forComponent = true;
+  static shouldRehydrate = false;
 
   // Parsing
 

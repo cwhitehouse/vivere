@@ -63,4 +63,15 @@ export default class FilterDirective extends DisplayDirective {
 
     Watcher.clear();
   }
+
+
+  // Dehdyration
+
+  dehydrate(): void {
+    // Re-attach all elments to the DOM
+    this.children.forEach((c) => { DOM.conditionallyRender(c, true); });
+
+    // Dehydrate
+    super.dehydrate();
+  }
 }

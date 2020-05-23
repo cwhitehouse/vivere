@@ -4,10 +4,14 @@ export default class Callbacks implements CallbacksInterface {
     connected: () => void;
     beforeDestroyed: () => void;
     destroyed: () => void;
-    constructor({ beforeConnected, connected, beforeDestroyed, destroyed, }: {
+    beforeDehydrated: () => void;
+    dehydrated: () => void;
+    constructor({ beforeConnected, connected, beforeDestroyed, destroyed, beforeDehydrated, dehydrated, }: {
         beforeConnected: any;
         connected: any;
         beforeDestroyed: any;
         destroyed: any;
+        beforeDehydrated: any;
+        dehydrated: any;
     });
 }

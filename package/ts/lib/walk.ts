@@ -7,6 +7,7 @@ import PassDirective from '../directives/component/pass';
 import ClassDirective from '../directives/display/class';
 import DisabledDirective from '../directives/display/disabled';
 import FilterDirective from '../directives/display/filter';
+import HrefDirective from '../directives/display/href';
 import IfDirective from '../directives/display/if';
 import ShowDirective from '../directives/display/show';
 import SortDirective from '../directives/display/sort';
@@ -27,6 +28,7 @@ const directives: (typeof Directive)[] = [
   ClassDirective,
   DisabledDirective,
   FilterDirective,
+  HrefDirective,
   IfDirective,
   ShowDirective,
   SortDirective,

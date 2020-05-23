@@ -5,6 +5,7 @@ export default class Directive {
   static id: string;
   static forComponent: boolean;
   static needsComponent: boolean;
+  static shouldRehydrate = true;
 
   component?: Component;
   element: Element;
@@ -57,6 +58,19 @@ export default class Directive {
   }
 
 
+  // For turbolinks,
+
+  dehydrate(): void {
+    if (this.shouldRehydrate()) {
+      let attributeName = this.id();
+      if (this.key != null)
+        attributeName += `:${this.key}`;
+
+      this.element.setAttribute(attributeName, this.expression);
+    }
+  }
+
+
   // Utiility methods
 
   id(): string {
@@ -74,5 +88,9 @@ export default class Directive {
   onComponent(): boolean {
     // Check if component is registered to element
     return this.element === this.component?.$element;
+  }
+
+  shouldRehydrate(): boolean {
+    return (this.constructor as typeof Directive).shouldRehydrate;
   }
 }

@@ -23,6 +23,8 @@ declare global {
 const $components: Set<Component> = new Set();
 const $definitions: Registry<string, ComponentDefintion> = new Registry();
 
+let visitingTurbolinks = false;
+
 
 // Initialize Vivere
 
@@ -31,12 +33,19 @@ const $setup = (): void => {
   Walk.tree(document.body);
 
   // Finalize connecting our components
-  $components.forEach((c: Component) => c.$connect());
+  $components.forEach((c) => { c.$connect(); });
 
-  // Remove our even listeners
+  // Stop listening to DOMContentLoaded
   document.removeEventListener('DOMContentLoaded', $setup);
 };
 const $binding = $setup.bind(this);
+
+
+// Dehydrate Vivere
+
+const dehydrate = (): void => {
+  $components.forEach((c) => c.$dehydrate.call(c, true));
+};
 
 
 // Root logic
@@ -64,8 +73,20 @@ const Vivere: VivereInterface = {
   // Initialization
 
   setup(): void {
+    // Listen for class DOM loaded event
     document.addEventListener('DOMContentLoaded', $binding);
-    document.addEventListener('turbolinks:load', $binding);
+
+    // Turbolinks listeners for compatibility
+    document.addEventListener('turbolinks:before-cache', () => {
+      dehydrate();
+    });
+    document.addEventListener('turbolinks:before-visit', () => {
+      visitingTurbolinks = true;
+    });
+    document.addEventListener('turbolinks:load', () => {
+      if (visitingTurbolinks)
+        $binding();
+    });
   },
 };
 

@@ -3,4 +3,6 @@ export interface CallbacksInterface {
     connected: () => void;
     beforeDestroyed: () => void;
     destroyed: () => void;
+    beforeDehydrated: () => void;
+    dehydrated: () => void;
 }

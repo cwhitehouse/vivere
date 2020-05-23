@@ -6,6 +6,11 @@ export default {
       creating: false,
       filter: null,
       sort: null,
+      test: {
+        object: {
+          deep: true,
+        },
+      },
     };
   },
 

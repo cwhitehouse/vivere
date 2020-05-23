@@ -141,4 +141,11 @@ export default class Reactive implements Reactable {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     component[key];
   }
+
+
+  // Better JSON rendering
+
+  toJSON(): string {
+    return JSON.stringify(this.value);
+  }
 }
