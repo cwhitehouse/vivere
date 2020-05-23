@@ -65,6 +65,7 @@ const Vivere: VivereInterface = {
 
   setup(): void {
     document.addEventListener('DOMContentLoaded', $binding);
+    document.addEventListener('turbolinks:load', $binding);
   },
 };
 
