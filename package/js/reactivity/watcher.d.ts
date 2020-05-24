@@ -5,6 +5,5 @@ export default class Watcher {
     callback: () => void;
     constructor(context: Directive | Computed, callback: () => void);
     static current?: Watcher;
-    static assign(context: Directive | Computed, callback: () => void): void;
-    static clear(): void;
+    static watch(context: Directive | Computed, callback: () => void, watch: () => void): void;
 }

@@ -3,10 +3,14 @@ export default class Watcher {
         this.context = context;
         this.callback = callback;
     }
-    static assign(context, callback) {
+    static watch(context, callback, watch) {
+        // Save current Watcher
+        const { current } = Watcher;
+        // Set up new Watcher
         Watcher.current = new Watcher(context, callback);
-    }
-    static clear() {
-        Watcher.current = null;
+        // Execute method that needs to be watched
+        watch();
+        // Re-assign current watcher
+        Watcher.current = current;
     }
 }

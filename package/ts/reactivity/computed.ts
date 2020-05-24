@@ -26,13 +26,12 @@ export default class Computed extends Reactive {
   }
 
   computeValue(): void {
-    Watcher.assign(this, () => { this.dirty(); });
-
-    const newValue = this.evaluator.call(this.context);
-    this.set(newValue);
-    this.$dirty = false;
-
-    Watcher.clear();
+    const callback = (): void => { this.dirty(); };
+    Watcher.watch(this, callback, () => {
+      const newValue = this.evaluator.call(this.context);
+      this.set(newValue);
+      this.$dirty = false;
+    });
   }
 
   getValue(): unknown {

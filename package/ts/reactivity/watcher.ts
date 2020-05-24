@@ -15,11 +15,17 @@ export default class Watcher {
 
   static current?: Watcher;
 
-  static assign(context: Directive | Computed, callback: () => void): void {
-    Watcher.current = new Watcher(context, callback);
-  }
+  static watch(context: Directive | Computed, callback: () => void, watch: () => void): void {
+    // Save current Watcher
+    const { current } = Watcher;
 
-  static clear(): void {
-    Watcher.current = null;
+    // Set up new Watcher
+    Watcher.current = new Watcher(context, callback);
+
+    // Execute method that needs to be watched
+    watch();
+
+    // Re-assign current watcher
+    Watcher.current = current;
   }
 }

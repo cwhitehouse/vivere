@@ -19,28 +19,29 @@ let FilterDirective = /** @class */ (() => {
         }
         // Evaluation
         evaluateValue(value) {
-            Watcher.assign(this, () => { this.component.$queueRender(this); });
-            if (value != null && typeof value !== 'string')
-                throw new VivereError('Filter directive requires a string expression');
-            // We know value is null or a string
-            const $value = value;
-            // Loop through and evaluate necessary information
-            const filtereds = [];
-            this.children.forEach((host) => {
-                const { element } = host;
-                const { $component } = element;
-                if ($component == null)
-                    throw new VivereError('Filter directive requires all children to be components');
-                let filtered;
-                if ($value != null)
-                    filtered = !Evaluator.read($component, $value);
-                else
-                    filtered = false;
-                filtereds.push({ host, filtered });
+            const callback = () => { this.component.$queueRender(this); };
+            Watcher.watch(this, callback, () => {
+                if (value != null && typeof value !== 'string')
+                    throw new VivereError('Filter directive requires a string expression');
+                // We know value is null or a string
+                const $value = value;
+                // Loop through and evaluate necessary information
+                const filtereds = [];
+                this.children.forEach((host) => {
+                    const { element } = host;
+                    const { $component } = element;
+                    if ($component == null)
+                        throw new VivereError('Filter directive requires all children to be components');
+                    let filtered;
+                    if ($value != null)
+                        filtered = !Evaluator.read($component, $value);
+                    else
+                        filtered = false;
+                    filtereds.push({ host, filtered });
+                });
+                // Filter elements
+                filtereds.forEach(({ host, filtered }) => { DOM.conditionallyRender(host, !filtered); });
             });
-            // Filter elements
-            filtereds.forEach(({ host, filtered }) => { DOM.conditionallyRender(host, !filtered); });
-            Watcher.clear();
         }
         // Dehdyration
         dehydrate() {

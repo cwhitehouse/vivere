@@ -14,11 +14,12 @@ export default class Computed extends Reactive {
         this.report();
     }
     computeValue() {
-        Watcher.assign(this, () => { this.dirty(); });
-        const newValue = this.evaluator.call(this.context);
-        this.set(newValue);
-        this.$dirty = false;
-        Watcher.clear();
+        const callback = () => { this.dirty(); };
+        Watcher.watch(this, callback, () => {
+            const newValue = this.evaluator.call(this.context);
+            this.set(newValue);
+            this.$dirty = false;
+        });
     }
     getValue() {
         if (this.$dirty)

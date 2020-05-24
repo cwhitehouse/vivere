@@ -15,50 +15,49 @@ export default class SortDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    Watcher.assign(this, () => { this.component.$queueRender(this); });
+    const callback = (): void => { this.component.$queueRender(this); };
+    Watcher.watch(this, callback, () => {
+      // Ignore null values
+      if (value == null) return;
 
-    // Ignore null values
-    if (value == null) return;
+      // Sort expression needs to be an object
+      if (!Array.isArray(value))
+        throw new VivereError('Sort directive requires an array of options');
 
-    // Sort expression needs to be an object
-    if (!Array.isArray(value))
-      throw new VivereError('Sort directive requires an array of options');
+      let [sortKeys] = value;
+      const [, sortOrders] = value;
 
-    let [sortKeys] = value;
-    const [, sortOrders] = value;
+      if (!Array.isArray(sortKeys))
+        throw new VivereError('Sort directive requires an array of keys to sort by');
+      if (!Array.isArray(sortOrders))
+        throw new VivereError('Sort directive requires an array of orders to sort by');
 
-    if (!Array.isArray(sortKeys))
-      throw new VivereError('Sort directive requires an array of keys to sort by');
-    if (!Array.isArray(sortOrders))
-      throw new VivereError('Sort directive requires an array of orders to sort by');
+      // Loop through and evaluate necessary information
+      const children: Sorter[] = [];
+      Object.values(this.element.children).forEach((element) => {
+        const { $component } = element;
 
-    // Loop through and evaluate necessary information
-    const children: Sorter[] = [];
-    Object.values(this.element.children).forEach((element) => {
-      const { $component } = element;
+        if ($component == null)
+          throw new VivereError('Sort directive requires all children to be components');
 
-      if ($component == null)
-        throw new VivereError('Sort directive requires all children to be components');
+        const child: Sorter = { element };
+        sortKeys.forEach((expression) => {
+          const sortValue = Evaluator.read($component, expression);
+          const sortKey = this.finalPart(expression);
 
-      const child: Sorter = { element };
-      sortKeys.forEach((expression) => {
-        const sortValue = Evaluator.read($component, expression);
-        const sortKey = this.finalPart(expression);
-
-        child[sortKey] = sortValue;
+          child[sortKey] = sortValue;
+        });
+        children.push(child);
       });
-      children.push(child);
-    });
 
-    // Re-order child elements
-    sortKeys = sortKeys.map((key) => this.finalPart(key));
-    Utility.orderBy(children, sortKeys, sortOrders).forEach((sorter) => {
-      const { element } = sorter;
-      this.element.removeChild(element);
-      this.element.appendChild(element);
+      // Re-order child elements
+      sortKeys = sortKeys.map((key) => this.finalPart(key));
+      Utility.orderBy(children, sortKeys, sortOrders).forEach((sorter) => {
+        const { element } = sorter;
+        this.element.removeChild(element);
+        this.element.appendChild(element);
+      });
     });
-
-    Watcher.clear();
   }
 
   finalPart(expression: string): string {

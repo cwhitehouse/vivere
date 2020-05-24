@@ -7,12 +7,11 @@ export default class DisplayDirective extends Directive {
   // Evaluation
 
   evaluate(): void {
-    Watcher.assign(this, () => { this.component.$queueRender(this); });
-
-    const value = Evaluator.read(this.component, this.expression);
-    this.evaluateValue(value);
-
-    Watcher.clear();
+    const callback = (): void => { this.component.$queueRender(this); };
+    Watcher.watch(this, callback, () => {
+      const value = Evaluator.read(this.component, this.expression);
+      this.evaluateValue(value);
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
