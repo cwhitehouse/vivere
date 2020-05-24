@@ -4,14 +4,17 @@ import VivereError from '../error';
 export default class Computed extends Reactive {
     constructor(context, evaluator) {
         super(null);
-        this.$dirty = false;
+        this.$dirty = true;
         this.context = context;
         this.evaluator = evaluator;
-        this.computeValue();
     }
     // Value management
+    dirty() {
+        this.$dirty = true;
+        this.report();
+    }
     computeValue() {
-        Watcher.assign(this, () => { this.computeValue(); });
+        Watcher.assign(this, () => { this.dirty(); });
         const newValue = this.evaluator.call(this.context);
         this.set(newValue);
         this.$dirty = false;

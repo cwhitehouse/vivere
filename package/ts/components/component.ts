@@ -148,14 +148,16 @@ export default class Component {
   // Life cycle
 
   $connect(): void {
+    const { $callbacks, forceRender } = this;
+
     // Callback hook
-    this.$callbacks.beforeConnected?.call(this);
+    $callbacks.beforeConnected?.call(this);
 
     // Force initial render
-    this.forceRender(true);
+    forceRender.call(this, true);
 
     // Callback hook
-    this.$callbacks.connected?.call(this);
+    $callbacks.connected?.call(this);
   }
 
   $destroy(shallow = false): void {
