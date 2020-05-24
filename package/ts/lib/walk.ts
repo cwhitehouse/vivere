@@ -13,7 +13,9 @@ import ShowDirective from '../directives/display/show';
 import SortDirective from '../directives/display/sort';
 import SyncDirective from '../directives/display/sync';
 import TextDirective from '../directives/display/text';
+import BlurDirective from '../directives/event/blur';
 import ClickDirective from '../directives/event/click';
+import FocusDirective from '../directives/event/focus';
 import KeydownDirective from '../directives/event/keydown';
 import MouseenterDirective from '../directives/event/mouseenter';
 import MouseleaveDirective from '../directives/event/mouseleave';
@@ -34,7 +36,9 @@ const directives: (typeof Directive)[] = [
   SortDirective,
   SyncDirective,
   TextDirective,
+  BlurDirective,
   ClickDirective,
+  FocusDirective,
   KeydownDirective,
   MouseenterDirective,
   MouseleaveDirective,
