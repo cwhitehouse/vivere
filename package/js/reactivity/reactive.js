@@ -77,6 +77,8 @@ export default class Reactive {
     static pass(component, key, reactive) {
         // Track the Reactive on the Passed info
         const passed = component.$passed[key];
+        if (passed == null)
+            throw new VivereError(`Value passed to component for unknown key ${key}`);
         passed.$reactive = reactive;
         // Pass down Reactive property
         Object.defineProperty(component, key, {

@@ -114,6 +114,9 @@ export default class Reactive implements Reactable {
   static pass(component: Component, key: string, reactive: Reactive): void {
     // Track the Reactive on the Passed info
     const passed = component.$passed[key];
+    if (passed == null)
+      throw new VivereError(`Value passed to component for unknown key ${key}`);
+
     passed.$reactive = reactive;
 
     // Pass down Reactive property

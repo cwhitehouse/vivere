@@ -4,17 +4,18 @@ let PassDirective = /** @class */ (() => {
     class PassDirective extends Directive {
         // Parsing
         parse() {
-            const parent = this.component.$parent;
+            const { component, expression, key } = this;
+            const parent = component.$parent;
             if (parent == null)
                 throw new VivereError('Cannot pass properties to a parentless component');
             let readKey;
-            if (this.expression != null)
-                readKey = this.expression;
+            if (expression != null && expression.length > 0)
+                readKey = expression;
             else
-                readKey = this.key;
+                readKey = key;
             const reactive = parent.$reactives[readKey];
-            reactive.registerHook(this, () => this.component.$react(this.key));
-            this.component.$pass(this.key, reactive);
+            reactive.registerHook(this, () => component.$react(key));
+            component.$pass(key, reactive);
         }
     }
     PassDirective.id = 'v-pass';

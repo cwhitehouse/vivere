@@ -9,16 +9,19 @@ export default class PassDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const parent = this.component.$parent;
-    if (parent == null) throw new VivereError('Cannot pass properties to a parentless component');
+    const { component, expression, key } = this;
+    const parent = component.$parent;
+
+    if (parent == null)
+      throw new VivereError('Cannot pass properties to a parentless component');
 
     let readKey: string;
-    if (this.expression != null) readKey = this.expression;
-    else readKey = this.key;
+    if (expression != null && expression.length > 0) readKey = expression;
+    else readKey = key;
 
     const reactive: Reactive = parent.$reactives[readKey];
-    reactive.registerHook(this, () => this.component.$react(this.key));
+    reactive.registerHook(this, () => component.$react(key));
 
-    this.component.$pass(this.key, reactive);
+    component.$pass(key, reactive);
   }
 }
