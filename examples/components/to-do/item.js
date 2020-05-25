@@ -4,6 +4,13 @@ const State = {
 };
 
 export default {
+  passed: {
+    text: {
+      type: String,
+      default: null,
+    },
+  },
+
   data() {
     return {
       toDo: null,
@@ -28,6 +35,26 @@ export default {
 
     taggedNotifies() {
       return this.tags?.indexOf('notifies') >= 0;
+    },
+
+    lowerText() {
+      const { text } = this;
+      return text?.toLowerCase();
+    },
+
+    lowerLabel() {
+      const { toDo } = this;
+      const { label } = toDo;
+      return label?.toLowerCase();
+    },
+
+    matchesText() {
+      const { lowerText, lowerLabel } = this;
+
+      if (lowerText == null || lowerText.length <= 0)
+        return true;
+
+      return lowerLabel.includes(lowerText);
     },
 
     isShowing() {

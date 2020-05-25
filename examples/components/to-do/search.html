@@ -1,0 +1,15 @@
+<div
+  v-component="to-do-search"
+  v-pass:filtering
+  v-bind:input="updateText"
+  class="w-full max-w-lg relative"
+>
+  <input
+    v-sync="text"
+    v-disabled="filtering"
+    v-blur="blur"
+    type="text"
+    class="w-full py-2 px-3 bg-gray-200 rounded focus:bg-white disabled:opacity-75"
+    placeholder="Search to-dos..."
+  ></input>
+</div>

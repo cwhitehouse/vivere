@@ -6,11 +6,7 @@ export default {
       creating: false,
       filter: null,
       sort: null,
-      test: {
-        object: {
-          deep: true,
-        },
-      },
+      text: null,
     };
   },
 
@@ -39,8 +35,14 @@ export default {
         case 'notifies':
           return 'taggedNotifies';
         default:
-          return null;
+          return 'matchesText';
       };
+    },
+
+    filtering() {
+      const { filter } = this;
+      return filter != null
+        && filter.length > 0;
     },
   },
 
@@ -51,6 +53,11 @@ export default {
 
     stopCreating() {
       this.creating = false;
+    },
+
+    updateText(text) {
+      console.log('updateText invoked!');
+      this.text = text;
     },
 
     create(label) {

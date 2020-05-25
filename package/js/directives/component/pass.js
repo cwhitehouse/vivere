@@ -13,7 +13,9 @@ let PassDirective = /** @class */ (() => {
                 readKey = expression;
             else
                 readKey = key;
-            const reactive = parent.$reactives[readKey];
+            const reactive = parent.$reactives[readKey] || parent.$computeds[readKey];
+            if (reactive == null)
+                throw new VivereError(`Cannot pass property, parent does not define ${readKey}`);
             reactive.registerHook(this, () => component.$react(key));
             component.$pass(key, reactive);
         }
