@@ -46,6 +46,13 @@ export default {
     },
   },
 
+  watch: {
+    filter() {
+      if (this.filter != null)
+        this.text = null;
+    },
+  },
+
   methods: {
     startCreating() {
       this.creating = true;

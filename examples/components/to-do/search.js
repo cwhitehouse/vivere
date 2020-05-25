@@ -4,23 +4,25 @@ export default {
       type: Boolean,
       default: false,
     },
+    text: {
+      type: String,
+      default: null,
+    },
   },
 
   data() {
     return {
-      text: null,
+      inputText: null,
     };
   },
 
   watch: {
-    text() {
-      this.$emit('input', this.text);
+    inputText() {
+      this.$emit('input', this.inputText);
     },
-  },
 
-  methods: {
-    blur() {
-      this.text = null;
+    text() {
+      this.inputText = this.text;
     },
   },
 };
