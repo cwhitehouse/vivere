@@ -32,7 +32,9 @@ export default class FilterDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    const callback = (): void => { this.component.$queueRender(this); };
+    const { children, component } = this;
+
+    const callback = (): void => { component.$queueRender(this); };
     Watcher.watch(this, callback, () => {
       if (value != null && typeof value !== 'string')
         throw new VivereError('Filter directive requires a string expression');
@@ -42,7 +44,7 @@ export default class FilterDirective extends DisplayDirective {
 
       // Loop through and evaluate necessary information
       const filtereds: Filtered[] = [];
-      this.children.forEach((host) => {
+      children.forEach((host) => {
         const { element } = host;
         const { $component } = element;
 
@@ -59,7 +61,12 @@ export default class FilterDirective extends DisplayDirective {
       });
 
       // Filter elements
-      filtereds.forEach(({ host, filtered }) => { DOM.conditionallyRender(host, !filtered); });
+      let hasChild = false;
+      filtereds.forEach(({ host, filtered }) => {
+        hasChild = hasChild || !filtered;
+        DOM.conditionallyRender(host, !filtered);
+      });
+      DOM.toggleClass(this.element, 'v-filter-empty', !hasChild);
     });
   }
 

@@ -1,13 +1,12 @@
 import DisplayDirective from './display';
+import DOM from '../../lib/dom';
 const showClass = 'hidden';
 let ShowDirective = /** @class */ (() => {
     class ShowDirective extends DisplayDirective {
         // Evaluation
         evaluateValue(value) {
-            if (value)
-                this.element.classList.remove(showClass);
-            else
-                this.element.classList.add(showClass);
+            const { element } = this;
+            DOM.toggleClass(element, showClass, !value);
         }
     }
     ShowDirective.id = 'v-show';

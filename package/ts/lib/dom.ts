@@ -16,4 +16,9 @@ export default {
       host.current = newNode;
     }
   },
+
+  toggleClass(element: Element, className: string, add: boolean): void {
+    if (add) element.classList.add(className);
+    else element.classList.remove(className);
+  },
 };

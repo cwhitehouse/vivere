@@ -1,5 +1,6 @@
 import DisplayDirective from './display';
 import VivereError from '../../error';
+import DOM from '../../lib/dom';
 let ClassDirective = /** @class */ (() => {
     class ClassDirective extends DisplayDirective {
         // Parsing
@@ -9,10 +10,8 @@ let ClassDirective = /** @class */ (() => {
         }
         // Evaluation
         evaluateValue(value) {
-            if (value)
-                this.element.classList.add(this.key);
-            else
-                this.element.classList.remove(this.key);
+            const { element, key } = this;
+            DOM.toggleClass(element, key, !!value);
         }
     }
     ClassDirective.id = 'v-class';

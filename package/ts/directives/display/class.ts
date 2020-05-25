@@ -1,5 +1,6 @@
 import DisplayDirective from './display';
 import VivereError from '../../error';
+import DOM from '../../lib/dom';
 
 export default class ClassDirective extends DisplayDirective {
   static id = 'v-class';
@@ -14,7 +15,7 @@ export default class ClassDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    if (value) this.element.classList.add(this.key);
-    else this.element.classList.remove(this.key);
+    const { element, key } = this;
+    DOM.toggleClass(element, key, !!value);
   }
 }
