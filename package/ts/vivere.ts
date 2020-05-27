@@ -66,6 +66,9 @@ const Vivere: VivereInterface = {
   },
 
   $getDefinition(name: string): ComponentDefintion {
+    if (name == null || name.length <= 0)
+      return {};
+
     return $definitions[name];
   },
 
