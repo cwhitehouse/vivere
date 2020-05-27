@@ -13,7 +13,14 @@ export default class EventDirective extends Directive {
     }
     // Execution
     execute(e) {
-        // Execute the method defined in the evaluator
-        Evaluator.execute(this.component, this.expression, e);
+        const { component, expression } = this;
+        // We can automatically execute some assignment operations
+        // without a mthod on the component
+        if (Evaluator.isAssignmentOperation(expression))
+            // Automatically evaluate the expression
+            Evaluator.executeAssignment(component, expression);
+        else
+            // Execute the method defined in the evaluator
+            Evaluator.execute(component, expression, e);
     }
 }

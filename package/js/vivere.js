@@ -30,6 +30,8 @@ const Vivere = {
         $components.delete(component);
     },
     $getDefinition(name) {
+        if (name == null || name.length <= 0)
+            return {};
         return $definitions[name];
     },
     // Initialization
