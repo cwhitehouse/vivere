@@ -8,7 +8,7 @@ let Directive = /** @class */ (() => {
             // TODO: Extract modifiers from key
             this.component = component;
             this.element = element;
-            this.key = key;
+            [this.key, ...this.modifiers] = key.split('.');
             this.expression = expression;
             // Check the directive if it's valid
             if (this.id() == null)

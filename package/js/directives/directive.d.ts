@@ -8,6 +8,7 @@ export default class Directive {
     element: Element;
     expression: string;
     key?: string;
+    modifiers?: string[];
     constructor(element: Element, name: string, expression: string, component?: Component);
     parse(): void;
     evaluate(): void;

@@ -99,7 +99,7 @@ export default {
               <button
                 v-disabled="toDo.checked"
                 class="text-white bg-pink-600 px-3 py-2 rounded hover:shadow-md active:shadow-none disabled:opacity-50"
-                v-click="confirmDelete"
+                v-event:click="confirmDelete"
               >Delete</button>
             </div>
           </div>
@@ -110,11 +110,11 @@ export default {
             <p class="flex-1 text-red-600">Are you sure you want to delete this?</p>
             <button
               class="text-white bg-pink-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mr-2"
-              v-click="delete"
+              v-event:click="delete"
             >Confirm</button>
             <button
               class="bg-gray-400 px-3 py-2 rounded hover:shadow-md active:shadow-none"
-              v-click="reset"
+              v-event:click="reset"
             >Cancel</button>
           </div>
         </div>

@@ -52,7 +52,7 @@
   <button
     v-if="!creating"
     class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mt-4"
-    v-click="startCreating"
+    v-event:click="startCreating"
   >New To-Do</button>
   <div v-if="creating">
     <include src="components/to-do/new-item.html"></include>

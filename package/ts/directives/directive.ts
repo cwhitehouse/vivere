@@ -11,6 +11,7 @@ export default class Directive {
   element: Element;
   expression: string;
   key?: string;
+  modifiers?: string[];
 
   // Constructor
 
@@ -21,7 +22,7 @@ export default class Directive {
 
     this.component = component;
     this.element = element;
-    this.key = key;
+    [this.key, ...this.modifiers] = key.split('.');
     this.expression = expression;
 
     // Check the directive if it's valid

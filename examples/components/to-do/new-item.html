@@ -11,16 +11,16 @@
     class="flex-1 border-2 border-solid border-gray-300 rounded px-3"
     v-sync="label"
     v-ref="input"
-    v-keydown:enter="create"
-    v-keydown:escape="reset"
+    v-event:keydown.enter="create"
+    v-event:keydown.escape="reset"
   ></input>
   <button
     class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mx-2 disabled:opacity-50"
-    v-click="create"
+    v-event:click="create"
     v-disabled="!hasLabel"
   >Create</button>
   <button
     class="bg-gray-400 px-3 py-2 rounded hover:shadow-md active:shadow-none"
-    v-click="reset"
+    v-event:click="reset"
   >Cancel</button>
 </div>
