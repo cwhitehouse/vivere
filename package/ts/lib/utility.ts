@@ -4,6 +4,9 @@ export default {
   },
 
   pascalCase(name: string): string {
+    if (name == null || name.length <= 0)
+      return null;
+
     const camel = this.camelCase(name);
     return `${camel[0].toUpperCase()}${camel.slice(1)}`;
   },
