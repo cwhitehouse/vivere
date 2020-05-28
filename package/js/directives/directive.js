@@ -3,12 +3,12 @@ let Directive = /** @class */ (() => {
     class Directive {
         // Constructor
         constructor(element, name, expression, component) {
-            // Extract key from name
+            // Extract key and modifiers from attribute name
             const [, key] = name.split(':');
-            // TODO: Extract modifiers from key
+            if (key != null)
+                [this.key, ...this.modifiers] = key.split('.');
             this.component = component;
             this.element = element;
-            [this.key, ...this.modifiers] = key.split('.');
             this.expression = expression;
             // Check the directive if it's valid
             if (this.id() == null)

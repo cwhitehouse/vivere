@@ -25,4 +25,15 @@ export default {
       this.inputText = this.text;
     },
   },
+
+  methods: {
+    clear() {
+      this.inputText = null;
+      this.blur();
+    },
+
+    blur() {
+      this.$refs.input.blur();
+    },
+  },
 };

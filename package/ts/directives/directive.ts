@@ -16,13 +16,13 @@ export default class Directive {
   // Constructor
 
   constructor(element: Element, name: string, expression: string, component?: Component) {
-    // Extract key from name
+    // Extract key and modifiers from attribute name
     const [, key] = name.split(':');
-    // TODO: Extract modifiers from key
+    if (key != null)
+      [this.key, ...this.modifiers] = key.split('.');
 
     this.component = component;
     this.element = element;
-    [this.key, ...this.modifiers] = key.split('.');
     this.expression = expression;
 
     // Check the directive if it's valid

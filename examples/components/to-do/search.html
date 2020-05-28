@@ -3,11 +3,14 @@
   v-pass:filtering
   v-pass:text
   v-bind:input="updateText"
+  v-event:keydown.esc="clear"
+  v-event:keydown.ent="blur"
   class="w-full max-w-lg relative"
 >
   <input
     v-sync="inputText"
     v-disabled="filtering"
+    v-ref="input"
     type="text"
     class="w-full py-2 px-3 bg-gray-200 rounded focus:bg-white disabled:opacity-75"
     placeholder="Search to-dos..."

@@ -37,9 +37,11 @@ let EventDirective = /** @class */ (() => {
         matchesKeycode(keyCode, keyEvent) {
             switch (keyEvent) {
                 case 'enter':
+                case 'ent':
                     return keyCode === 'Enter'
                         || keyCode === 13;
                 case 'escape':
+                case 'esc':
                     return keyCode === 'Escape'
                         || keyCode === 27;
                 default:

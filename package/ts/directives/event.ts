@@ -52,9 +52,11 @@ export default class EventDirective extends Directive {
   matchesKeycode(keyCode: string | number, keyEvent: string): boolean {
     switch (keyEvent) {
       case 'enter':
+      case 'ent':
         return keyCode === 'Enter'
           || keyCode === 13;
       case 'escape':
+      case 'esc':
         return keyCode === 'Escape'
           || keyCode === 27;
       default:
