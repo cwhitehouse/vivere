@@ -26,7 +26,7 @@ const read = (object: object, expression: string): unknown => {
     invert = true;
   }
 
-  const parts = expression.split('.');
+  const parts = $expression.split('.');
   let result = dig(object, parts);
   if (invert) result = !result;
   return result;
@@ -87,7 +87,7 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    */
   isAssignmentOperation(expression: string): boolean {
-    return expression.match(/^[a-zA-z.-_]+ [+-]= [A-z0-9]$/) != null;
+    return expression.match(/^[a-zA-z.-_]+ [+-]?= [A-z0-9]+$/) != null;
   },
 
   /**

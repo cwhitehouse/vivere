@@ -24,6 +24,39 @@
         class="px-3 py-1 border border-solid border-gray-400 shadow hover:shadow-lg focus:shadow-none"
       >+</button>
     </div>
+    <div
+      v-component
+      v-data:showing="true"
+      class="mt-6 px-6"
+    >
+      <div class="fiex items-center">
+        <button
+          v-event:click="showing = true"
+          v-class:bg-white="showing"
+          v-class:bg-gray-200="!showing"
+          v-class:hover:bg-indigo-100="!showing"
+          v-class:hover:border-indigo-100="!showing"
+          v-class:text-gray-600="!showing"
+          class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t"
+        >Tab A</button>
+        <button
+          v-event:click="showing = false"
+          v-class:bg-white="!showing"
+          v-class:bg-gray-200="showing"
+          v-class:hover:bg-indigo-100="showing"
+          v-class:hover:border-indigo-100="showing"
+          v-class:text-gray-600="showing"
+          class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t m-l"
+        >Tab B</button>
+      </div>
+      <div
+        class="border-2 border-solid border-gray-200 rounded-tr p-8"
+        style="margin-top: -2px;"
+      >
+        <p v-if="showing">Showing is true!</p>
+        <p v-if="!showing">Showing is false!</p>
+      </div>
+    </div>
   </body>
 </html>
 

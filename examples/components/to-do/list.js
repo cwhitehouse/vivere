@@ -63,7 +63,6 @@ export default {
     },
 
     updateText(text) {
-      console.log('updateText invoked!');
       this.text = text;
     },
 

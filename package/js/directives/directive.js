@@ -4,9 +4,9 @@ let Directive = /** @class */ (() => {
         // Constructor
         constructor(element, name, expression, component) {
             // Extract key and modifiers from attribute name
-            const [, key] = name.split(':');
+            const [, ...key] = name.split(':');
             if (key != null)
-                [this.key, ...this.modifiers] = key.split('.');
+                [this.key, ...this.modifiers] = key.join(':').split('.');
             this.component = component;
             this.element = element;
             this.expression = expression;

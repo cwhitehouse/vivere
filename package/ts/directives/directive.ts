@@ -17,9 +17,9 @@ export default class Directive {
 
   constructor(element: Element, name: string, expression: string, component?: Component) {
     // Extract key and modifiers from attribute name
-    const [, key] = name.split(':');
+    const [, ...key] = name.split(':');
     if (key != null)
-      [this.key, ...this.modifiers] = key.split('.');
+      [this.key, ...this.modifiers] = key.join(':').split('.');
 
     this.component = component;
     this.element = element;
