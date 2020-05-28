@@ -48,6 +48,9 @@ const parse = (object: object, expression: string): unknown => {
   if (expression === 'true') return true;
   if (expression === 'false') return false;
 
+  // Check if expression is null
+  if (expression === 'null') return null;
+
   // Check if the expression is a string (with quotes)
   if (expression.match(/^(('.*')|(".*"))$/))
     return expression.slice(1, expression.length - 1);
@@ -75,7 +78,8 @@ const digShallow = (object: object, expression: string): { obj: unknown; key: st
 // Core API...
 
 export default {
-  // For event handlers, we can perform basic functions automatically
+  // Handling some basic code besides object chains...
+
   // Supported operators:
   //   =
   //   +=
@@ -87,7 +91,7 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    */
   isAssignmentOperation(expression: string): boolean {
-    return expression.match(/^[a-zA-z.-_]+ [+-]?= [A-z0-9]+$/) != null;
+    return expression.match(/^[a-zA-z.-_]+ [+-]?= [A-z0-9.-_'"]+$/) != null;
   },
 
   /**
@@ -117,6 +121,51 @@ export default {
         break;
       default:
         throw new VivereError('Failed to excute assignment, unknown operator!');
+    }
+  },
+
+  /**
+   * Determine whether a Directive's expression represents
+   * comparison between values, i.e. ==, !=, ===, !==, >, >=, <, <=
+   * @param expression
+   */
+  isComparisonOperation(expression: string): boolean {
+    return expression.match(/^[a-zA-z.-_]+ ([<>]=?|!==?|===?) [A-z0-9.-_'"]+$/) != null;
+  },
+
+  /**
+   * Evaluates a comparison operation based on a Directive
+   * expression representing a comparison, on the object
+   * Supports ==, !=, ===, !==, >, >=, <, <=
+   * @param object A Javascript object to dig into
+   * @param expression An expression passed to a Directive via an HTML attribute
+   */
+  evaluateComparison(object: object, expression: string): boolean {
+    const [lhExp, operator, rhExp] = expression.split(' ');
+    const lhValue = parse(object, lhExp);
+    const rhValue = parse(object, rhExp);
+
+    switch (operator) {
+      case '==':
+        // eslint-disable-next-line eqeqeq
+        return lhValue == rhValue;
+      case '===':
+        return lhValue === rhValue;
+      case '!=':
+        // eslint-disable-next-line eqeqeq
+        return lhValue != rhValue;
+      case '!==':
+        return lhValue !== rhValue;
+      case '>':
+        return lhValue > rhValue;
+      case '>=':
+        return lhValue >= rhValue;
+      case '<':
+        return lhValue < rhValue;
+      case '<=':
+        return lhValue <= rhValue;
+      default:
+        throw new VivereError('Failed to evaluate comparison, unknown operator!');
     }
   },
 

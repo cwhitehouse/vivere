@@ -26,35 +26,45 @@
     </div>
     <div
       v-component
-      v-data:showing="true"
+      v-data:tab="b"
       class="mt-6 px-6"
     >
       <div class="fiex items-center">
         <button
-          v-event:click="showing = true"
-          v-class:bg-white="showing"
-          v-class:bg-gray-200="!showing"
-          v-class:hover:bg-indigo-100="!showing"
-          v-class:hover:border-indigo-100="!showing"
-          v-class:text-gray-600="!showing"
+          v-event:click="tab = 'a'"
+          v-class:bg-white="tab === 'a'"
+          v-class:bg-gray-200="tab !== 'a'"
+          v-class:hover:bg-indigo-100="tab !== 'a'"
+          v-class:hover:border-indigo-100="tab !== 'a'"
+          v-class:text-gray-600="tab !== 'a'"
           class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t"
         >Tab A</button>
         <button
-          v-event:click="showing = false"
-          v-class:bg-white="!showing"
-          v-class:bg-gray-200="showing"
-          v-class:hover:bg-indigo-100="showing"
-          v-class:hover:border-indigo-100="showing"
-          v-class:text-gray-600="showing"
+          v-event:click="tab = 'b'"
+          v-class:bg-white="tab === 'b'"
+          v-class:bg-gray-200="tab !== 'b'"
+          v-class:hover:bg-indigo-100="tab !== 'b'"
+          v-class:hover:border-indigo-100="tab !== 'b'"
+          v-class:text-gray-600="tab !== 'b'"
           class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t m-l"
         >Tab B</button>
+        <button
+          v-event:click="tab = 'c'"
+          v-class:bg-white="tab === 'c'"
+          v-class:bg-gray-200="tab !== 'c'"
+          v-class:hover:bg-indigo-100="tab !== 'c'"
+          v-class:hover:border-indigo-100="tab !== 'c'"
+          v-class:text-gray-600="tab !== 'c'"
+          class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t m-l"
+        >Tab C</button>
       </div>
       <div
         class="border-2 border-solid border-gray-200 rounded-tr p-8"
         style="margin-top: -2px;"
       >
-        <p v-if="showing">Showing is true!</p>
-        <p v-if="!showing">Showing is false!</p>
+        <p v-if="tab === 'a'">Displaying content for Tab A...</p>
+        <p v-if="tab === 'b'">Displaying content for Tab B...</p>
+        <p v-if="tab === 'c'">Displaying content for Tab C...</p>
       </div>
     </div>
   </body>

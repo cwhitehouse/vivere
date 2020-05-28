@@ -7,9 +7,15 @@ export default class DisplayDirective extends Directive {
   // Evaluation
 
   evaluate(): void {
-    const callback = (): void => { this.component.$queueRender(this); };
+    const { component, expression } = this;
+
+    const callback = (): void => { component.$queueRender(this); };
     Watcher.watch(this, callback, () => {
-      const value = Evaluator.read(this.component, this.expression);
+      let value: unknown;
+      if (Evaluator.isComparisonOperation(expression))
+        value = Evaluator.evaluateComparison(component, expression);
+      else
+        value = Evaluator.read(component, expression);
       this.evaluateValue(value);
     });
   }
