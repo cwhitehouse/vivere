@@ -1,6 +1,7 @@
 import Directive from '../directive';
 import Reactive from '../../reactivity/reactive';
 import VivereError from '../../error';
+import Utility from '../../lib/utility';
 
 export default class PassDirective extends Directive {
   static id = 'v-pass';
@@ -9,8 +10,9 @@ export default class PassDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { component, expression, key } = this;
+    const { component, expression } = this;
     const parent = component.$parent;
+    const key = Utility.camelCase(this.key);
 
     if (parent == null)
       throw new VivereError('Cannot pass properties to a parentless component');

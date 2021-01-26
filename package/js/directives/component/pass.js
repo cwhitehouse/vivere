@@ -1,11 +1,13 @@
 import Directive from '../directive';
 import VivereError from '../../error';
+import Utility from '../../lib/utility';
 let PassDirective = /** @class */ (() => {
     class PassDirective extends Directive {
         // Parsing
         parse() {
-            const { component, expression, key } = this;
+            const { component, expression } = this;
             const parent = component.$parent;
+            const key = Utility.camelCase(this.key);
             if (parent == null)
                 throw new VivereError('Cannot pass properties to a parentless component');
             let readKey;
