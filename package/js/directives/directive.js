@@ -1,12 +1,15 @@
 import VivereError from '../error';
+import Utility from '../lib/utility';
 let Directive = /** @class */ (() => {
     class Directive {
         // Constructor
         constructor(element, name, expression, component) {
             // Extract key and modifiers from attribute name
             const [, ...key] = name.split(':');
-            if (key != null)
+            if (key != null) {
                 [this.key, ...this.modifiers] = key.join(':').split('.');
+                this.key = Utility.camelCase(this.key);
+            }
             this.component = component;
             this.element = element;
             this.expression = expression;
