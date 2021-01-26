@@ -3,7 +3,7 @@ let TextDirective = /** @class */ (() => {
     class TextDirective extends DisplayDirective {
         // Evaluation
         evaluateValue(value) {
-            this.element.textContent = value?.toString();
+            this.element.textContent = (value && value.toString());
         }
     }
     TextDirective.id = 'v-text';

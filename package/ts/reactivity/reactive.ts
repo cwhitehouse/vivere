@@ -98,7 +98,7 @@ export default class Reactive implements Reactable {
 
       // Override property definitions
       Object.defineProperty($host, key, {
-        get() { return $host.$reactives[key]?.get(); },
+        get() { return $host.$reactives[key] && $host.$reactives[key].get(); },
         set(newValue) { $host.$reactives[key].set(newValue); },
       });
     } else

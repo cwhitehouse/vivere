@@ -71,7 +71,8 @@ export default class Component {
     element.$component = this;
 
     // Track this component as a child of its parent
-    parent?.$children.add(this);
+    if (parent != null)
+      parent.$children.add(this);
   }
 
 
@@ -91,7 +92,8 @@ export default class Component {
 
   $react(key: string): void {
     // Invoke any watchers for this property
-    this.$watchers[key]?.call(this);
+    if (this.$watchers[key] != null)
+      this.$watchers[key].call(this);
   }
 
 
@@ -151,13 +153,15 @@ export default class Component {
     const { $callbacks, forceRender } = this;
 
     // Callback hook
-    $callbacks.beforeConnected?.call(this);
+    if ($callbacks.beforeConnected != null)
+      $callbacks.beforeConnected.call(this);
 
     // Force initial render
     forceRender.call(this, true);
 
     // Callback hook
-    $callbacks.connected?.call(this);
+    if ($callbacks.connected != null)
+      $callbacks.connected.call(this);
   }
 
   $destroy(shallow = false): void {
@@ -165,7 +169,8 @@ export default class Component {
     const { beforeDestroyed, destroyed } = $callbacks;
 
     // Callback hook
-    beforeDestroyed?.call(this);
+    if (beforeDestroyed != null)
+      beforeDestroyed.call(this);
 
     // Destroy directives
     $directives.forEach((d) => d.destroy());
@@ -173,9 +178,9 @@ export default class Component {
     // Destroy all children (recusive)
     $children.forEach((c) => c.$destroy());
 
-    if (!shallow)
+    if (!shallow && $parent != null)
       // Remove from parent's children
-      $parent?.$children.delete(this);
+      $parent.$children.delete(this);
 
 
     // Remove from global component registry
@@ -185,7 +190,8 @@ export default class Component {
     $element.parentNode.removeChild(this.$element);
 
     // Callback hook
-    destroyed?.call(this);
+    if (destroyed != null)
+      destroyed.call(this);
   }
 
   $dehydrate(shallow = false): void {
@@ -193,7 +199,8 @@ export default class Component {
     const { beforeDehydrated, dehydrated } = $callbacks;
 
     // Callback hook
-    beforeDehydrated?.call(this);
+    if (beforeDehydrated != null)
+      beforeDehydrated.call(this);
 
     // Dehydrate this component
     $dehydrateData.call(this);
@@ -204,13 +211,15 @@ export default class Component {
       $children.forEach((c) => c.$destroy());
 
     // Remove from parent's children
-    $parent?.$children.delete(this);
+    if ($parent != null)
+      $parent.$children.delete(this);
 
     // Remove from global component registry
     Vivere.$untrack(this);
 
     // Callback hook
-    dehydrated?.call(this);
+    if (dehydrated != null)
+      dehydrated.call(this);
   }
 
   $dehydrateData(): void {

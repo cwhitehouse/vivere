@@ -11,7 +11,7 @@ let HrefDirective = /** @class */ (() => {
         }
         // Evaluation
         evaluateValue(value) {
-            this.element.href = value?.toString();
+            this.element.href = (value && value.toString());
         }
     }
     HrefDirective.id = 'v-href';

@@ -64,7 +64,7 @@ export default class Reactive {
             $host.$reactives[key] = reactive;
             // Override property definitions
             Object.defineProperty($host, key, {
-                get() { return $host.$reactives[key]?.get(); },
+                get() { return $host.$reactives[key] && $host.$reactives[key].get(); },
                 set(newValue) { $host.$reactives[key].set(newValue); },
             });
         }

@@ -20,6 +20,6 @@ export default class HrefDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    this.element.href = value?.toString();
+    this.element.href = (value && value.toString());
   }
 }
