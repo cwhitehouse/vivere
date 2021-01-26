@@ -1,5 +1,6 @@
 import Component from '../components/component';
 import VivereError from '../error';
+import Utility from '../lib/utility';
 
 export default class Directive {
   static id: string;
@@ -18,8 +19,10 @@ export default class Directive {
   constructor(element: Element, name: string, expression: string, component?: Component) {
     // Extract key and modifiers from attribute name
     const [, ...key] = name.split(':');
-    if (key != null)
+    if (key != null) {
       [this.key, ...this.modifiers] = key.join(':').split('.');
+      this.key = Utility.camelCase(this.key);
+    }
 
     this.component = component;
     this.element = element;
