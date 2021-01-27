@@ -9,6 +9,7 @@ import HrefDirective from '../directives/display/href';
 import IfDirective from '../directives/display/if';
 import ShowDirective from '../directives/display/show';
 import SortDirective from '../directives/display/sort';
+import StyleDirective from '../directives/display/style';
 import SyncDirective from '../directives/display/sync';
 import TextDirective from '../directives/display/text';
 import EventDirective from '../directives/event';
@@ -25,6 +26,7 @@ const directives = [
     IfDirective,
     ShowDirective,
     SortDirective,
+    StyleDirective,
     SyncDirective,
     TextDirective,
     EventDirective,
