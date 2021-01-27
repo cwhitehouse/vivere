@@ -12,6 +12,9 @@ export default class ReactiveObject {
                         delete temp.$reactives;
                         return () => temp;
                     default:
+                        if (value.bind != null)
+                            // Functions need to be bound to the right target
+                            return value.bind(target);
                         // Anything else can pass through as normal
                         return value;
                 }
