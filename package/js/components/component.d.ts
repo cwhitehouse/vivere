@@ -26,6 +26,7 @@ export default class Component {
     $watchers: object;
     constructor(element: Element, name: string, parent?: Component);
     $set(key: string, value: unknown): void;
+    $compute(key: string, evaluator: () => unknown): void;
     $pass(key: string, reactive: Reactive): void;
     $react(key: string): void;
     $emit(event: string, arg: unknown): void;

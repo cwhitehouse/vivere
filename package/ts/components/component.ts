@@ -65,7 +65,7 @@ export default class Component {
     if (data != null)
       Object.entries(data()).forEach(([k, v]) => this.$set(k, v));
     if (computed != null)
-      Object.entries(computed).forEach(([k, v]) => Computed.set(this, k, v));
+      Object.entries(computed).forEach(([k, v]) => this.$compute(k, v));
 
     // Attach the component to the DOM
     element.$component = this;
@@ -86,6 +86,14 @@ export default class Component {
     reactive.registerHook(this, () => this.$react(key));
   }
 
+  $compute(key: string, evaluator: () => unknown): void {
+    // Initialize the computed property
+    const computed = Computed.set(this, key, evaluator);
+
+    // Listen for changes to this computed property
+    computed.registerHook(this, () => this.$react(key));
+  }
+
   $pass(key: string, reactive: Reactive): void {
     Reactive.pass(this, key, reactive);
   }
@@ -93,7 +101,9 @@ export default class Component {
   $react(key: string): void {
     // Invoke any watchers for this property
     if (this.$watchers[key] != null)
-      this.$watchers[key].call(this);
+      setTimeout(() => {
+        this.$watchers[key].call(this);
+      }, 0);
   }
 
 
