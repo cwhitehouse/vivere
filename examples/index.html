@@ -7,8 +7,7 @@
     <include src="components/turbo-refresh/view.html"></include>
     <include src="components/to-do/list.html"></include>
     <div
-      v-component
-      v-data:count="0"
+      v-component="counter"
       class="flex items-center mt-6 px-6"
     >
       <button
@@ -17,6 +16,7 @@
       >-</button>
       <p
         v-text="count"
+        v-class:text-red="countHigh"
         class="w-16 text-center"
       ></p>
       <button

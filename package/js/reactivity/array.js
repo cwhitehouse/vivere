@@ -9,8 +9,9 @@ export default class ReactiveArray {
                     case 'unshift':
                         // Mutating methods should force a report
                         return (...args) => {
+                            const oldValue = [...target];
                             const result = value.apply(target, args);
-                            host.report();
+                            host.report(oldValue, target);
                             return result;
                         };
                     default:

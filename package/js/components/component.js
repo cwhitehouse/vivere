@@ -6,6 +6,9 @@ import Computed from '../reactivity/computed';
 import Callbacks from './callbacks';
 import Renderer from '../renderer';
 import VivereError from '../error';
+
+let id = 0;
+
 export default class Component {
     // Constructor
     constructor(element, name, parent) {
@@ -15,6 +18,9 @@ export default class Component {
         if (definition == null)
             throw new VivereError(`Tried to instantiate unknown component ${componentName}`);
         // Initialize component data
+        id += 1;
+
+        this.$id = id;
         this.$bindings = {};
         this.$callbacks = new Callbacks(definition);
         this.$children = new Set();
@@ -48,18 +54,26 @@ export default class Component {
         // Turn on reactivity for properties
         const reactive = Reactive.set(this, key, value);
         // Listen for changes to this reactive property
-        reactive.registerHook(this, () => this.$react(key));
+        reactive.registerHook(this, (newValue, oldValue) => this.$react(key, newValue, oldValue));
     }
     $compute(key, evaluator) {
         // Initialize the computed property
         const computed = Computed.set(this, key, evaluator);
         // Listen for changes to this computed property
-        computed.registerHook(this, () => this.$react(key));
+        computed.registerHook(this, (newValue, oldValue) => this.$react(key, newValue, oldValue));
     }
     $pass(key, reactive) {
         Reactive.pass(this, key, reactive);
     }
-    $react(key) {
+    $react(key, newValue, oldValue) {
+        // Ignore undefined reports (from pre-computed computes)
+        if (newValue === undefined && oldValue === undefined) {
+            const computed = this.$computeds[key];
+            if (computed != null)
+                computed.getValue();
+            return;
+        }
+
         // Invoke any watchers for this property
         if (this.$watchers[key] != null)
             setTimeout(() => {

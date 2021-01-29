@@ -11,7 +11,7 @@ export default class Computed extends Reactive {
     // Value management
     dirty() {
         this.$dirty = true;
-        this.report();
+        this.report(undefined, undefined);
     }
     computeValue() {
         const callback = () => { this.dirty(); };

@@ -100,10 +100,11 @@ export default class Component {
 
   $react(key: string): void {
     // Invoke any watchers for this property
-    if (this.$watchers[key] != null)
+    if (this.$watchers[key] != null) {
       setTimeout(() => {
         this.$watchers[key].call(this);
       }, 0);
+    }
   }
 
 
