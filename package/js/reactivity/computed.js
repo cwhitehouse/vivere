@@ -10,14 +10,14 @@ export default class Computed extends Reactive {
     }
     // Value management
     dirty() {
-        this.computeValue();
+        setTimeout(() => { this.computeValue(); }, 0);
     }
     computeValue() {
         const callback = () => { this.dirty(); };
         Watcher.watch(this, callback, () => {
             const newValue = this.evaluator.call(this.context);
             this.set(newValue);
-            this.$computed = false;
+            this.$computed = true;
         });
     }
     getValue() {
