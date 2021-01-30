@@ -23,7 +23,7 @@ export default class Reactive {
     // Assigning values, and reacting
     set(value) {
         const oldValue = this.value;
-        if (value !== oldValue) {
+        if (value !== this.value) {
             this.updateValue(value);
             this.report(value, oldValue);
         }
@@ -46,8 +46,8 @@ export default class Reactive {
     registerHook(object, hook) {
         this.registry.register(object, hook);
     }
-    report(value, oldValue) {
-        this.registry.forEach((_, hook) => hook(value, oldValue));
+    report(newValue, oldValue) {
+        this.registry.forEach((_, hook) => hook(newValue, oldValue));
     }
     // Helper method for automatically making a property reactive
     static set(host, key, value) {

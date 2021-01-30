@@ -4,7 +4,7 @@ import Watcher from './watcher';
 import VivereError from '../error';
 
 export default class Computed extends Reactive {
-  $dirty = true;
+  $computed = false;
 
   context: Component;
 
@@ -21,8 +21,7 @@ export default class Computed extends Reactive {
   // Value management
 
   dirty(): void {
-    this.$dirty = true;
-    this.report();
+    this.computeValue();
   }
 
   computeValue(): void {
@@ -30,12 +29,12 @@ export default class Computed extends Reactive {
     Watcher.watch(this, callback, () => {
       const newValue = this.evaluator.call(this.context);
       this.set(newValue);
-      this.$dirty = false;
+      this.$computed = false;
     });
   }
 
   getValue(): unknown {
-    if (this.$dirty)
+    if (!this.$computed)
       this.computeValue();
 
     return this.value;

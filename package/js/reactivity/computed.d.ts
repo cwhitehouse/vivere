@@ -1,7 +1,7 @@
 import Reactive from './reactive';
 import Component from '../components/component';
 export default class Computed extends Reactive {
-    $dirty: boolean;
+    $computed: boolean;
     context: Component;
     evaluator: () => unknown;
     constructor(context: Component, evaluator: () => unknown);

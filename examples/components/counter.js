@@ -7,8 +7,6 @@ export default {
 
   computed: {
     countHigh() {
-      console.log('computing countHigh...');
-
       const { count } = this;
       return count >= 5;
     },
@@ -18,7 +16,6 @@ export default {
     countHigh() {
       console.log('countHigh changed!');
       console.log(` -> ${this.countHigh}`);
-      console.log('');
     },
   },
 }

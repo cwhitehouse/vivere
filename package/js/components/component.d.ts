@@ -28,7 +28,7 @@ export default class Component {
     $set(key: string, value: unknown): void;
     $compute(key: string, evaluator: () => unknown): void;
     $pass(key: string, reactive: Reactive): void;
-    $react(key: string): void;
+    $react(key: string, newValue: unknown, oldValue: unknown): void;
     $emit(event: string, arg: unknown): void;
     $invokeBinding(event: string, arg: unknown): void;
     $attach(html: string, ref: string): void;

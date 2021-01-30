@@ -83,7 +83,7 @@ export default class Component {
     const reactive = Reactive.set(this, key, value);
 
     // Listen for changes to this reactive property
-    reactive.registerHook(this, () => this.$react(key));
+    reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => this.$react(key, newValue, oldValue));
   }
 
   $compute(key: string, evaluator: () => unknown): void {
@@ -91,20 +91,19 @@ export default class Component {
     const computed = Computed.set(this, key, evaluator);
 
     // Listen for changes to this computed property
-    computed.registerHook(this, () => this.$react(key));
+    computed.registerHook(this, (newValue: unknown, oldValue: unknown) => this.$react(key, newValue, oldValue));
   }
 
   $pass(key: string, reactive: Reactive): void {
     Reactive.pass(this, key, reactive);
   }
 
-  $react(key: string): void {
+  $react(key: string, newValue: unknown, oldValue: unknown): void {
     // Invoke any watchers for this property
-    if (this.$watchers[key] != null) {
+    if (newValue !== oldValue && this.$watchers[key] != null)
       setTimeout(() => {
-        this.$watchers[key].call(this);
+        this.$watchers[key].call(this, newValue, oldValue);
       }, 0);
-    }
   }
 
 

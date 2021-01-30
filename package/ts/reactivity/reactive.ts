@@ -12,7 +12,7 @@ interface Reactable {
 export default class Reactive implements Reactable {
   $reactives: { prop: Reactive };
   value: unknown;
-  registry: Registry<object, () => void>;
+  registry: Registry<object, (newValue: unknown, oldValue: unknown) => void>;
 
   constructor(value: unknown) {
     this.registry = new Registry();
@@ -40,9 +40,10 @@ export default class Reactive implements Reactable {
   // Assigning values, and reacting
 
   set(value: unknown): void {
+    const oldValue = this.value;
     if (value !== this.value) {
       this.updateValue(value);
-      this.report();
+      this.report(value, oldValue);
     }
   }
 
@@ -68,12 +69,12 @@ export default class Reactive implements Reactable {
 
   // Reporting
 
-  registerHook(object: object, hook: () => void): void {
+  registerHook(object: object, hook: (newValue: unknown, oldValue: unknown) => void): void {
     this.registry.register(object, hook);
   }
 
-  report(): void {
-    this.registry.forEach((_, hook) => hook());
+  report(newValue: unknown, oldValue: unknown): void {
+    this.registry.forEach((_, hook) => hook(newValue, oldValue));
   }
 
 

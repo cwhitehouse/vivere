@@ -11,7 +11,7 @@ export default class ReactiveArray {
                         return (...args) => {
                             const oldValue = [...target];
                             const result = value.apply(target, args);
-                            host.report(oldValue, target);
+                            host.report(target, oldValue);
                             return result;
                         };
                     default:

@@ -10,15 +10,15 @@ export default class Reactive implements Reactable {
         prop: Reactive;
     };
     value: unknown;
-    registry: Registry<object, () => void>;
+    registry: Registry<object, (newValue: unknown, oldValue: unknown) => void>;
     constructor(value: unknown);
     getValue(): unknown;
     get(): unknown;
     set(value: unknown): void;
     updateValue(value: unknown): void;
     reactiveValue(value: unknown): unknown;
-    registerHook(object: object, hook: () => void): void;
-    report(): void;
+    registerHook(object: object, hook: (newValue: unknown, oldValue: unknown) => void): void;
+    report(newValue: unknown, oldValue: unknown): void;
     static set(host: unknown, key: string | number | symbol, value: unknown): Reactive;
     static pass(component: Component, key: string, reactive: Reactive): void;
     toJSON(): string;
