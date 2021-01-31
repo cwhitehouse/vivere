@@ -10,7 +10,7 @@ declare global {
 export default class Component {
     $bindings: object;
     $callbacks: Callbacks;
-    $children: Set<Component>;
+    $children: [Component];
     $computeds: object;
     $definition: ComponentDefintion;
     $directives: Set<Directive>;

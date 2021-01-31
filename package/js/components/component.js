@@ -17,7 +17,6 @@ export default class Component {
         // Initialize component data
         this.$bindings = {};
         this.$callbacks = new Callbacks(definition);
-        this.$children = new Set();
         this.$computeds = new Set();
         this.$definition = definition;
         this.$directives = new Set();
@@ -29,9 +28,11 @@ export default class Component {
         this.$reactives = {};
         this.$refs = {};
         this.$watchers = { ...definition.watch };
+        // Set up reactive properties (internal)
+        this.$set('$children', []);
         // Pass through methods
         Object.assign(this, { ...definition.methods });
-        // Setup reactive data
+        // Setup reactive data (end-user)
         const { computed, data } = definition;
         if (data != null)
             Object.entries(data()).forEach(([k, v]) => this.$set(k, v));
@@ -41,7 +42,7 @@ export default class Component {
         element.$component = this;
         // Track this component as a child of its parent
         if (parent != null)
-            parent.$children.add(this);
+            parent.$children.push(this);
     }
     // Reactivity
     $set(key, value) {
@@ -124,9 +125,12 @@ export default class Component {
         $directives.forEach((d) => d.destroy());
         // Destroy all children (recusive)
         $children.forEach((c) => c.$destroy());
-        if (!shallow && $parent != null)
+        if (!shallow && $parent != null) {
             // Remove from parent's children
-            $parent.$children.delete(this);
+            const childIdx = $parent.$children.indexOf(this);
+            if (childIdx >= 0)
+                $parent.$children.splice(childIdx, 1);
+        }
         // Remove from global component registry
         Vivere.$untrack(this);
         // Remove from DOM
@@ -148,8 +152,11 @@ export default class Component {
             // Dehydrate children
             $children.forEach((c) => c.$destroy());
         // Remove from parent's children
-        if ($parent != null)
-            $parent.$children.delete(this);
+        if ($parent != null) {
+            const childIdx = $parent.$children.indexOf(this);
+            if (childIdx >= 0)
+                $parent.$children.splice(childIdx, 1);
+        }
         // Remove from global component registry
         Vivere.$untrack(this);
         // Callback hook
