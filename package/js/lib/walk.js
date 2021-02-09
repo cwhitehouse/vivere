@@ -2,6 +2,7 @@ import ComponentDirective from '../directives/component/component';
 import BindDirective from '../directives/component/bind';
 import DataDirective from '../directives/component/data';
 import PassDirective from '../directives/component/pass';
+import StoreDirective from '../directives/component/store';
 import ClassDirective from '../directives/display/class';
 import DisabledDirective from '../directives/display/disabled';
 import FilterDirective from '../directives/display/filter';
@@ -20,6 +21,7 @@ const directives = [
     BindDirective,
     DataDirective,
     PassDirective,
+    StoreDirective,
     ClassDirective,
     DisabledDirective,
     FilterDirective,
