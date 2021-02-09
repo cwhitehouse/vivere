@@ -91,7 +91,7 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    */
   isAssignmentOperation(expression: string): boolean {
-    return expression.match(/^[a-zA-z.-_]+ [+-]?= [A-z0-9.-_'"]+$/) != null;
+    return expression.match(/^[a-zA-z.-_]+ [+-]?= !*[A-z0-9.-_'"]+$/) != null;
   },
 
   /**
@@ -102,9 +102,18 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    */
   executeAssignment(object: object, expression: string): void {
-    const [lhExp, operator, rhExp] = expression.split(' ');
+    let [lhExp, operator, rhExp] = expression.split(' ');
     const { obj, key } = digShallow(object, lhExp);
-    const value = parse(object, rhExp);
+
+    let inversions = 0;
+    while (rhExp.startsWith('!')) {
+      rhExp = rhExp.slice(1);
+      inversions += 1;
+    }
+    let value = parse(object, rhExp);
+    for (let i = 0; i < inversions ; i += 1) {
+      value = !value;
+    }
 
     switch (operator) {
       case '=':

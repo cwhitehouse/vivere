@@ -6,9 +6,18 @@
   <body>
     <include src="components/turbo-refresh/view.html"></include>
     <include src="components/to-do/list.html"></include>
+    <p class="ml-6 mt-12 font-semibold">Toggle Button</p>
+    <button
+      class="mt-4 ml-6 px-3 py-1 border border-gray-400 shadow hover:shadow-lg focus:shadow-none"
+      v-component
+      v-data:on="false"
+      v-text="on"
+      v-event:click="on = !on"
+    ></button>
+    <p class="ml-6 mt-12 font-semibold">Counter</p>
     <div
       v-component="counter"
-      class="flex items-center mt-6 px-6"
+      class="flex items-center mt-4 px-6"
     >
       <button
         v-event:click="count -= 1"
@@ -24,6 +33,20 @@
         class="px-3 py-1 border border-solid border-gray-400 shadow hover:shadow-lg focus:shadow-none"
       >+</button>
     </div>
+    <p class="ml-6 mt-12 font-semibold">Hover Image</p>
+    <div
+      class="mt-4 ml-6"
+      v-component="img-test"
+      v-data:src="https://s3.amazonaws.com/kippy.online/kullect-cover.png"
+      v-data:alt-src="https://s3.amazonaws.com/kippy.online/kullect.gif"
+    >
+      <img
+        v-src="computedSrc"
+        v-event:mouseenter="hovering = true"
+        v-event:mouseleave="hovering = false"
+      />
+    </div>
+    <p class="ml-6 mt-12 font-semibold">Tabs</p>
     <div
       v-component
       v-data:tab="b"

@@ -80,7 +80,7 @@ export default {
      * @param expression An expression passed to a Directive via an HTML attribute
      */
     isAssignmentOperation(expression) {
-        return expression.match(/^[a-zA-z.-_]+ [+-]?= [A-z0-9.-_'"]+$/) != null;
+        return expression.match(/^[a-zA-z.-_]+ [+-]?= !*[A-z0-9.-_'"]+$/) != null;
     },
     /**
      * Executes an assignment operation based on a Directive
@@ -90,9 +90,17 @@ export default {
      * @param expression An expression passed to a Directive via an HTML attribute
      */
     executeAssignment(object, expression) {
-        const [lhExp, operator, rhExp] = expression.split(' ');
+        let [lhExp, operator, rhExp] = expression.split(' ');
         const { obj, key } = digShallow(object, lhExp);
-        const value = parse(object, rhExp);
+        let inversions = 0;
+        while (rhExp.startsWith('!')) {
+            rhExp = rhExp.slice(1);
+            inversions += 1;
+        }
+        let value = parse(object, rhExp);
+        for (let i = 0; i < inversions; i += 1) {
+            value = !value;
+        }
         switch (operator) {
             case '=':
                 obj[key] = value;
