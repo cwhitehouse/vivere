@@ -1,7 +1,7 @@
 import DisplayDirective from './display';
 import VivereError from '../../error';
 
-export default class HrefDirective extends DisplayDirective {
+export default class SrcDirective extends DisplayDirective {
   static id = 'v-src';
 
   element: HTMLImageElement;

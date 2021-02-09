@@ -1,7 +1,7 @@
 import DisplayDirective from './display';
 import VivereError from '../../error';
-let HrefDirective = /** @class */ (() => {
-    class HrefDirective extends DisplayDirective {
+let SrcDirective = /** @class */ (() => {
+    class SrcDirective extends DisplayDirective {
         // Parsing
         parse() {
             // Validate our element node
@@ -14,7 +14,7 @@ let HrefDirective = /** @class */ (() => {
             this.element.src = (value && value.toString());
         }
     }
-    HrefDirective.id = 'v-src';
-    return HrefDirective;
+    SrcDirective.id = 'v-src';
+    return SrcDirective;
 })();
-export default HrefDirective;
+export default SrcDirective;
