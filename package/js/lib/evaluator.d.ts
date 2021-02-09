@@ -13,20 +13,8 @@ declare const _default: {
      * @param expression An expression passed to a Directive via an HTML attribute
      */
     executeAssignment(object: object, expression: string): void;
-    /**
-     * Determine whether a Directive's expression represents
-     * comparison between values, i.e. ==, !=, ===, !==, >, >=, <, <=
-     * @param expression
-     */
-    isComparisonOperation(expression: string): boolean;
-    /**
-     * Evaluates a comparison operation based on a Directive
-     * expression representing a comparison, on the object
-     * Supports ==, !=, ===, !==, >, >=, <, <=
-     * @param object A Javascript object to dig into
-     * @param expression An expression passed to a Directive via an HTML attribute
-     */
-    evaluateComparison(object: object, expression: string): boolean;
+    isComparisonOperation: (expression: string) => boolean;
+    evaluateComparison: (object: object, expression: string) => boolean;
     read: (object: object, expression: string) => unknown;
     /**
      * Evaluates a Directive expression, and then assigns a value

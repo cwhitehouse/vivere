@@ -1,34 +1,16 @@
 import VivereError from '../error';
 /**
- * Dig into an object chain, passing each subsequent expression
- * part to the object and returning the final value of the chain.
- * @param object A Javascript object to dig into
- * @param expressionParts An array of strings presenting the keys to dig into
- */
-const dig = (object, expressionParts) => {
-    let result = object;
-    expressionParts.forEach((part) => { result = result[part]; });
-    return result;
-};
+   * Determine whether a Directive's expression represents
+   * comparison between values, i.e. ==, !=, ===, !==, >, >=, <, <=
+   * @param expression
+   */
+const isComparisonOperation = (expression) => expression.match(/^!*[a-zA-z.-_]+ ([<>]=?|!==?|===?) !*[A-z0-9.-_'"]+$/) != null;
 /**
- * Gets a value from an object, by parsing a Directive expression
- * as an object chain, an digging into the object
- * @param object A Javascript object to dig into
- * @param expression An expression passed to a Directive via an HTML attribute
+ * Determine where a Directive's expression represents
+ * a ternary expression
+ * @param expression
  */
-const read = (object, expression) => {
-    let $expression = expression;
-    let invert = false;
-    if ($expression.startsWith('!')) {
-        $expression = $expression.slice(1);
-        invert = true;
-    }
-    const parts = $expression.split('.');
-    let result = dig(object, parts);
-    if (invert)
-        result = !result;
-    return result;
-};
+const isTernaryExpression = (expression) => expression.match(/^!*[a-zA-z.-_]+( ([<>]=?|!==?|===?) !*[A-z0-9.-_'"]+)? [?] !*[a-zA-z.-_'"]+ [:] !*[a-zA-z.-_'"]+$/) != null;
 /**
  * Parse an expression passed to a Directive, determining
  * whether it represents a number, string, boolean or an
@@ -52,7 +34,85 @@ const parse = (object, expression) => {
     // Check if the expression is a string (with quotes)
     if (expression.match(/^(('.*')|(".*"))$/))
         return expression.slice(1, expression.length - 1);
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return read(object, expression);
+};
+/**
+ * Evaluates a comparison operation based on a Directive
+ * expression representing a comparison, on the object
+ * Supports ==, !=, ===, !==, >, >=, <, <=
+ * @param object A Javascript object to dig into
+ * @param expression An expression passed to a Directive via an HTML attribute
+ */
+const evaluateComparison = (object, expression) => {
+    const [lhExp, operator, rhExp] = expression.split(' ');
+    const lhValue = parse(object, lhExp);
+    const rhValue = parse(object, rhExp);
+    switch (operator) {
+        case '==':
+            // eslint-disable-next-line eqeqeq
+            return lhValue == rhValue;
+        case '===':
+            return lhValue === rhValue;
+        case '!=':
+            // eslint-disable-next-line eqeqeq
+            return lhValue != rhValue;
+        case '!==':
+            return lhValue !== rhValue;
+        case '>':
+            return lhValue > rhValue;
+        case '>=':
+            return lhValue >= rhValue;
+        case '<':
+            return lhValue < rhValue;
+        case '<=':
+            return lhValue <= rhValue;
+        default:
+            throw new VivereError('Failed to evaluate comparison, unknown operator!');
+    }
+};
+/**
+ * Dig into an object chain, passing each subsequent expression
+ * part to the object and returning the final value of the chain.
+ * @param object A Javascript object to dig into
+ * @param expressionParts An array of strings presenting the keys to dig into
+ */
+const dig = (object, expressionParts) => {
+    let result = object;
+    expressionParts.forEach((part) => { result = result[part]; });
+    return result;
+};
+/**
+ * Gets a value from an object, by parsing a Directive expression
+ * as an object chain, an digging into the object
+ * @param object A Javascript object to dig into
+ * @param expression An expression passed to a Directive via an HTML attribute
+ */
+const read = (object, expression) => {
+    if (isTernaryExpression(expression)) {
+        const [temp, elseValue] = expression.split(' : ');
+        const [comparison, ifValue] = temp.split(' ? ');
+        const $comparison = comparison;
+        let $boolean = false;
+        if (isComparisonOperation($comparison))
+            $boolean = evaluateComparison(object, $comparison);
+        else
+            $boolean = !!parse(object, $comparison);
+        return $boolean
+            ? parse(object, ifValue)
+            : parse(object, elseValue);
+    }
+    let $expression = expression;
+    let invert = false;
+    if ($expression.startsWith('!')) {
+        $expression = $expression.slice(1);
+        invert = true;
+    }
+    const parts = $expression.split('.');
+    let result = dig(object, parts);
+    if (invert)
+        result = !result;
+    return result;
 };
 /**
  * Digs  into the object most of the way, and then
@@ -90,15 +150,15 @@ export default {
      * @param expression An expression passed to a Directive via an HTML attribute
      */
     executeAssignment(object, expression) {
-        const [lhExp, operator, _rhExp] = expression.split(' ');
+        const [lhExp, operator, rhExp] = expression.split(' ');
         const { obj, key } = digShallow(object, lhExp);
-        let rhExp = _rhExp;
+        let $rhExp = rhExp;
         let inversions = 0;
-        while (rhExp.startsWith('!')) {
-            rhExp = rhExp.slice(1);
+        while ($rhExp.startsWith('!')) {
+            $rhExp = $rhExp.slice(1);
             inversions += 1;
         }
-        let value = parse(object, rhExp);
+        let value = parse(object, $rhExp);
         for (let i = 0; i < inversions; i += 1)
             value = !value;
         switch (operator) {
@@ -117,48 +177,8 @@ export default {
                 throw new VivereError('Failed to excute assignment, unknown operator!');
         }
     },
-    /**
-     * Determine whether a Directive's expression represents
-     * comparison between values, i.e. ==, !=, ===, !==, >, >=, <, <=
-     * @param expression
-     */
-    isComparisonOperation(expression) {
-        return expression.match(/^[a-zA-z.-_]+ ([<>]=?|!==?|===?) [A-z0-9.-_'"]+$/) != null;
-    },
-    /**
-     * Evaluates a comparison operation based on a Directive
-     * expression representing a comparison, on the object
-     * Supports ==, !=, ===, !==, >, >=, <, <=
-     * @param object A Javascript object to dig into
-     * @param expression An expression passed to a Directive via an HTML attribute
-     */
-    evaluateComparison(object, expression) {
-        const [lhExp, operator, rhExp] = expression.split(' ');
-        const lhValue = parse(object, lhExp);
-        const rhValue = parse(object, rhExp);
-        switch (operator) {
-            case '==':
-                // eslint-disable-next-line eqeqeq
-                return lhValue == rhValue;
-            case '===':
-                return lhValue === rhValue;
-            case '!=':
-                // eslint-disable-next-line eqeqeq
-                return lhValue != rhValue;
-            case '!==':
-                return lhValue !== rhValue;
-            case '>':
-                return lhValue > rhValue;
-            case '>=':
-                return lhValue >= rhValue;
-            case '<':
-                return lhValue < rhValue;
-            case '<=':
-                return lhValue <= rhValue;
-            default:
-                throw new VivereError('Failed to evaluate comparison, unknown operator!');
-        }
-    },
+    isComparisonOperation,
+    evaluateComparison,
     // Reading, writing, and executing expressions
     read,
     /**
