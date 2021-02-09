@@ -1,8 +1,9 @@
 export default {
-  data() {
-    return {
-      count: 0,
-    };
+  stored: {
+    count: {
+      type: 'session',
+      defaultValue: 0,
+    }
   },
 
   computed: {

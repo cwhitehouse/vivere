@@ -102,18 +102,19 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    */
   executeAssignment(object: object, expression: string): void {
-    let [lhExp, operator, rhExp] = expression.split(' ');
+    const [lhExp, operator, _rhExp] = expression.split(' ');
     const { obj, key } = digShallow(object, lhExp);
 
+    let rhExp = _rhExp;
     let inversions = 0;
     while (rhExp.startsWith('!')) {
       rhExp = rhExp.slice(1);
       inversions += 1;
     }
     let value = parse(object, rhExp);
-    for (let i = 0; i < inversions ; i += 1) {
+    for (let i = 0; i < inversions; i += 1)
       value = !value;
-    }
+
 
     switch (operator) {
       case '=':

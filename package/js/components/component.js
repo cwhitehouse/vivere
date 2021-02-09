@@ -6,6 +6,7 @@ import Computed from '../reactivity/computed';
 import Callbacks from './callbacks';
 import Renderer from '../renderer';
 import VivereError from '../error';
+import Storage from '../reactivity/storage';
 export default class Component {
     // Constructor
     constructor(element, name, parent) {
@@ -27,17 +28,20 @@ export default class Component {
         this.$passed = { ...definition.passed };
         this.$reactives = {};
         this.$refs = {};
+        this.$stored = { ...definition.stored };
         this.$watchers = { ...definition.watch };
         // Set up reactive properties (internal)
         this.$set('$children', []);
         // Pass through methods
         Object.assign(this, { ...definition.methods });
         // Setup reactive data (end-user)
-        const { computed, data } = definition;
+        const { computed, data, stored } = definition;
         if (data != null)
             Object.entries(data()).forEach(([k, v]) => this.$set(k, v));
         if (computed != null)
             Object.entries(computed).forEach(([k, v]) => this.$compute(k, v));
+        if (stored != null)
+            Object.entries(stored).forEach(([k, v]) => this.$set(k, v.defaultValue));
         // Attach the component to the DOM
         element.$component = this;
         // Track this component as a child of its parent
@@ -57,15 +61,30 @@ export default class Component {
         // Listen for changes to this computed property
         computed.registerHook(this, (newValue, oldValue) => this.$react(key, newValue, oldValue));
     }
+    $loadStoredData() {
+        Object.entries(this.$stored).forEach(([key, definition]) => {
+            const storedValue = Storage.retrieve(key, definition);
+            // Update the value if we had a stored value
+            if (storedValue !== undefined)
+                this.$set(key, storedValue);
+        });
+    }
     $pass(key, reactive) {
         Reactive.pass(this, key, reactive);
     }
     $react(key, newValue, oldValue) {
-        // Invoke any watchers for this property
-        if (newValue !== oldValue && this.$watchers[key] != null)
-            setTimeout(() => {
-                this.$watchers[key].call(this, newValue, oldValue);
-            }, 0);
+        // Check if our property actually changed
+        if (newValue !== oldValue) {
+            // If we're storing this value, save it to storage
+            const storedDefinition = this.$stored[key];
+            if (storedDefinition != null)
+                Storage.save(key, storedDefinition, newValue);
+            // Invoke any watchers
+            if (this.$watchers[key] != null)
+                setTimeout(() => {
+                    this.$watchers[key].call(this, newValue, oldValue);
+                }, 0);
+        }
     }
     // Event passing
     $emit(event, arg) {
@@ -105,10 +124,12 @@ export default class Component {
     }
     // Life cycle
     $connect() {
-        const { $callbacks, forceRender } = this;
+        const { $callbacks, $loadStoredData, forceRender } = this;
         // Callback hook
         if ($callbacks.beforeConnected != null)
             $callbacks.beforeConnected.call(this);
+        // Load data from storage
+        $loadStoredData.call(this);
         // Force initial render
         forceRender.call(this, true);
         // Callback hook

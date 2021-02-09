@@ -23,10 +23,12 @@ export default class Component {
         prop?: Reactive;
     };
     $refs: object;
+    $stored: object;
     $watchers: object;
     constructor(element: Element, name: string, parent?: Component);
     $set(key: string, value: unknown): void;
     $compute(key: string, evaluator: () => unknown): void;
+    $loadStoredData(): void;
     $pass(key: string, reactive: Reactive): void;
     $react(key: string, newValue: unknown, oldValue: unknown): void;
     $emit(event: string, arg: unknown): void;
