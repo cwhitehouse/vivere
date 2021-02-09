@@ -2,22 +2,22 @@ import DisplayDirective from './display';
 import VivereError from '../../error';
 
 export default class HrefDirective extends DisplayDirective {
-  static id = 'v-href';
+  static id = 'v-src';
 
-  element: HTMLAnchorElement;
+  element: HTMLImageElement;
 
   // Parsing
 
   parse(): void {
     // Validate our element node
     const { nodeName } = this.element;
-    if (nodeName !== 'A')
-      throw new VivereError(`Href directives only work on anchor elements, not ${nodeName}`);
+    if (nodeName !== 'IMG')
+      throw new VivereError(`Src directives only work on image elements, not ${nodeName}`);
   }
 
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    this.element.href = (value && value.toString());
+    this.element.src = (value && value.toString());
   }
 }

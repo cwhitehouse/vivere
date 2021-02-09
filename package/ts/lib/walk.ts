@@ -11,6 +11,7 @@ import HrefDirective from '../directives/display/href';
 import IfDirective from '../directives/display/if';
 import ShowDirective from '../directives/display/show';
 import SortDirective from '../directives/display/sort';
+import SrcDirective from '../directives/display/src';
 import StyleDirective from '../directives/display/style';
 import SyncDirective from '../directives/display/sync';
 import TextDirective from '../directives/display/text';
@@ -29,6 +30,7 @@ const directives: (typeof Directive)[] = [
   IfDirective,
   ShowDirective,
   SortDirective,
+  SrcDirective,
   StyleDirective,
   SyncDirective,
   TextDirective,

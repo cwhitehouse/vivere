@@ -1,7 +1,7 @@
 import DisplayDirective from './display';
 export default class HrefDirective extends DisplayDirective {
     static id: string;
-    element: HTMLAnchorElement;
+    element: HTMLImageElement;
     parse(): void;
     evaluateValue(value: unknown): void;
 }
