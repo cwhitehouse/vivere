@@ -36,12 +36,13 @@
     <p class="ml-6 mt-12 font-semibold">Hover Image</p>
     <div
       class="mt-4 ml-6"
-      v-component="img-test"
+      v-component
+      v-data:hovering="false"
       v-data:src="https://s3.amazonaws.com/kippy.online/kullect-cover.png"
       v-data:alt-src="https://s3.amazonaws.com/kippy.online/kullect.gif"
     >
       <img
-        v-src="computedSrc"
+        v-src="hovering && altSrc ? altSrc : src"
         v-event:mouseenter="hovering = true"
         v-event:mouseleave="hovering = false"
       />

@@ -1,16 +1,21 @@
 import VivereError from '../error';
-/**
-   * Determine whether a Directive's expression represents
-   * comparison between values, i.e. ==, !=, ===, !==, >, >=, <, <=
-   * @param expression
-   */
-const isComparisonOperation = (expression) => expression.match(/^!*[a-zA-z.-_]+ ([<>]=?|!==?|===?) !*[A-z0-9.-_'"]+$/) != null;
-/**
- * Determine where a Directive's expression represents
- * a ternary expression
- * @param expression
- */
-const isTernaryExpression = (expression) => expression.match(/^!*[a-zA-z.-_]+( ([<>]=?|!==?|===?) !*[A-z0-9.-_'"]+)? [?] !*[a-zA-z.-_'"]+ [:] !*[a-zA-z.-_'"]+$/) != null;
+const basicSymbolRegex = '[a-zA-z.\\-_0-9\'"]+';
+const standardSymbolRegex = `!*${basicSymbolRegex}`;
+const complexSymbolRegex = `( ?(&& |\\|\\| )?${standardSymbolRegex})+`;
+// const isBasicSymbolRegex = new RegExp(`^${basicSymbolRegex}$`);
+// const isBasicSybmol = (expression: string): boolean => expression.match(isBasicSymbolRegex) != null;
+// const isStandardSymbolRegex = new RegExp(`^${standardSymbolRegex}$`);
+// const isStandardSymbol = (expression: string): boolean => expression.match(isStandardSymbolRegex) != null;
+// const isComplexSymbolRegex = new RegExp(`^${complexSymbolRegex}$`);
+// const isComplexSymbol = (expression: string): boolean => expression.match(isComplexSymbolRegex) != null;
+const assignmentSymbolRegex = '[+-]?=';
+const isAssignmentOperationRegex = new RegExp(`^${basicSymbolRegex} ${assignmentSymbolRegex} ${complexSymbolRegex}$`);
+const isAssignmentOperation = (expression) => expression.match(isAssignmentOperationRegex) != null;
+const comparisonSymbolRegex = '([<>]=?|!==?|===?)';
+const isComparisonOperationRegex = new RegExp(`^${complexSymbolRegex} ${comparisonSymbolRegex} ${complexSymbolRegex}$`);
+const isComparisonOperation = (expression) => expression.match(isComparisonOperationRegex) != null;
+const isTernaryOperationRegx = new RegExp(`^${complexSymbolRegex} [?] ${standardSymbolRegex} [:] ${standardSymbolRegex}$`);
+const isTernaryExpression = (expression) => expression.match(isTernaryOperationRegx) != null;
 /**
  * Parse an expression passed to a Directive, determining
  * whether it represents a number, string, boolean or an
@@ -19,6 +24,23 @@ const isTernaryExpression = (expression) => expression.match(/^!*[a-zA-z.-_]+( (
  * @param expression An expression passed to a Directive via an HTML attribute
  */
 const parse = (object, expression) => {
+    const parts = expression.split(' ');
+    if (parts.length > 1) {
+        // Spaces imply we're chaining values with && and || operators
+        let result = parse(object, parts[0]);
+        for (let i = 1; i < parts.length; i += 2) {
+            const operator = parts[i];
+            const exp = parts[i + 1];
+            const value = parse(object, exp);
+            if (operator === '&&')
+                result = result && value;
+            else if (operator === '||')
+                result = result || value;
+            else
+                throw new VivereError(`Tried to parse unknown operator: ${operator}`);
+        }
+        return result;
+    }
     // Check if the expression is a number
     const number = Number(expression);
     if (!Number.isNaN(number))
@@ -45,7 +67,8 @@ const parse = (object, expression) => {
  * @param expression An expression passed to a Directive via an HTML attribute
  */
 const evaluateComparison = (object, expression) => {
-    const [lhExp, operator, rhExp] = expression.split(' ');
+    const splitRegex = new RegExp(` ${comparisonSymbolRegex} `);
+    const [lhExp, operator, rhExp] = expression.split(splitRegex);
     const lhValue = parse(object, lhExp);
     const rhValue = parse(object, rhExp);
     switch (operator) {
@@ -129,19 +152,12 @@ const digShallow = (object, expression) => {
 };
 // Core API...
 export default {
-    // Handling some basic code besides object chains...
-    // Supported operators:
-    //   =
-    //   +=
-    //   -=
     /**
      * Determine whether a Directive's expression represents
      * assignment to a value, e.g. =, += or push-ing to an array.
      * @param expression An expression passed to a Directive via an HTML attribute
      */
-    isAssignmentOperation(expression) {
-        return expression.match(/^[a-zA-z.-_]+ [+-]?= !*[A-z0-9.-_'"]+$/) != null;
-    },
+    isAssignmentOperation,
     /**
      * Executes an assignment operation based on a Directive
      * expression representing the operation, on the object.
@@ -177,6 +193,11 @@ export default {
                 throw new VivereError('Failed to excute assignment, unknown operator!');
         }
     },
+    /**
+   * Determine whether a Directive's expression represents
+   * comparison between values, i.e. ==, !=, ===, !==, >, >=, <, <=
+   * @param expression
+   */
     isComparisonOperation,
     evaluateComparison,
     // Reading, writing, and executing expressions

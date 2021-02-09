@@ -4,7 +4,7 @@ declare const _default: {
      * assignment to a value, e.g. =, += or push-ing to an array.
      * @param expression An expression passed to a Directive via an HTML attribute
      */
-    isAssignmentOperation(expression: string): boolean;
+    isAssignmentOperation: (expression: string) => boolean;
     /**
      * Executes an assignment operation based on a Directive
      * expression representing the operation, on the object.
@@ -13,6 +13,11 @@ declare const _default: {
      * @param expression An expression passed to a Directive via an HTML attribute
      */
     executeAssignment(object: object, expression: string): void;
+    /**
+   * Determine whether a Directive's expression represents
+   * comparison between values, i.e. ==, !=, ===, !==, >, >=, <, <=
+   * @param expression
+   */
     isComparisonOperation: (expression: string) => boolean;
     evaluateComparison: (object: object, expression: string) => boolean;
     read: (object: object, expression: string) => unknown;
