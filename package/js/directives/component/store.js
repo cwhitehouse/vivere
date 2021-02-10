@@ -1,5 +1,6 @@
 import Directive from '../directive';
 import Utility from '../../lib/utility';
+import Evaluator from '../../lib/evaluator';
 let StoreDirective = /** @class */ (() => {
     class StoreDirective extends Directive {
         // Parsing
@@ -9,7 +10,7 @@ let StoreDirective = /** @class */ (() => {
                 expression = JSON.parse(this.expression);
             }
             catch (err) {
-                expression = this.expression;
+                expression = Evaluator.parsePrimitive(this.expression) || this.expression;
             }
             const camelKey = Utility.camelCase(this.key);
             // Store the storage definition on the component

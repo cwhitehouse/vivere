@@ -16,6 +16,24 @@ const isComparisonOperationRegex = new RegExp(`^${complexSymbolRegex} ${comparis
 const isComparisonOperation = (expression) => expression.match(isComparisonOperationRegex) != null;
 const isTernaryOperationRegx = new RegExp(`^${complexSymbolRegex} [?] ${standardSymbolRegex} [:] ${standardSymbolRegex}$`);
 const isTernaryExpression = (expression) => expression.match(isTernaryOperationRegx) != null;
+const parsePrimitive = (expression) => {
+    // Check if the expression is a number
+    const number = Number(expression);
+    if (!Number.isNaN(number))
+        return number;
+    // Check if expression is a boolean
+    if (expression === 'true')
+        return true;
+    if (expression === 'false')
+        return false;
+    // Check if expression is null
+    if (expression === 'null')
+        return null;
+    // Check if the expression is a string (with quotes)
+    if (expression.match(/^(('.*')|(".*"))$/))
+        return expression.slice(1, expression.length - 1);
+    return undefined;
+};
 /**
  * Parse an expression passed to a Directive, determining
  * whether it represents a number, string, boolean or an
@@ -41,21 +59,9 @@ const parse = (object, expression) => {
         }
         return result;
     }
-    // Check if the expression is a number
-    const number = Number(expression);
-    if (!Number.isNaN(number))
-        return number;
-    // Check if expression is a boolean
-    if (expression === 'true')
-        return true;
-    if (expression === 'false')
-        return false;
-    // Check if expression is null
-    if (expression === 'null')
-        return null;
-    // Check if the expression is a string (with quotes)
-    if (expression.match(/^(('.*')|(".*"))$/))
-        return expression.slice(1, expression.length - 1);
+    const primitive = parsePrimitive(expression);
+    if (primitive !== undefined)
+        return primitive;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return read(object, expression);
 };
@@ -126,14 +132,14 @@ const read = (object, expression) => {
             : parse(object, elseValue);
     }
     let $expression = expression;
-    let invert = false;
-    if ($expression.startsWith('!')) {
+    let inversions = 0;
+    while ($expression.startsWith('!')) {
         $expression = $expression.slice(1);
-        invert = true;
+        inversions += 1;
     }
     const parts = $expression.split('.');
     let result = dig(object, parts);
-    if (invert)
+    for (let i = 0; i < inversions; i += 1)
         result = !result;
     return result;
 };
@@ -202,6 +208,7 @@ export default {
     evaluateComparison,
     // Reading, writing, and executing expressions
     read,
+    parsePrimitive,
     /**
      * Evaluates a Directive expression, and then assigns a value
      * to the result of object chain described by the Directive

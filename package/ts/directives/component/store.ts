@@ -1,5 +1,6 @@
 import Directive from '../directive';
 import Utility from '../../lib/utility';
+import Evaluator from '../../lib/evaluator';
 
 export default class StoreDirective extends Directive {
   static id = 'v-store';
@@ -13,7 +14,7 @@ export default class StoreDirective extends Directive {
     try {
       expression = JSON.parse(this.expression);
     } catch (err) {
-      expression = this.expression;
+      expression = Evaluator.parsePrimitive(this.expression) || this.expression;
     }
 
     const camelKey = Utility.camelCase(this.key);
