@@ -72,7 +72,13 @@ export default class Component {
     if (computed != null)
       Object.entries(computed).forEach(([k, v]) => this.$compute(k, v));
     if (stored != null)
-      Object.entries(stored).forEach(([k, v]) => this.$set(k, v.defaultValue));
+      Object.entries(stored).forEach(([k, v]) => {
+        let { defaultValue } = v;
+        if (typeof defaultValue === 'function')
+          defaultValue = defaultValue();
+
+        this.$set(k, defaultValue);
+      });
 
     // Attach the component to the DOM
     element.$component = this;
