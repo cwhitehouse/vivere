@@ -21,6 +21,7 @@ declare const _default: {
     isComparisonOperation: (expression: string) => boolean;
     evaluateComparison: (object: object, expression: string) => boolean;
     read: (object: object, expression: string) => unknown;
+    parse: (object: object, expression: string) => unknown;
     parsePrimitive: (expression: string) => unknown;
     /**
      * Evaluates a Directive expression, and then assigns a value

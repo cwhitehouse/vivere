@@ -46,6 +46,40 @@ const parsePrimitive = (expression: string): unknown => {
 };
 
 /**
+ * Dig into an object chain, passing each subsequent expression
+ * part to the object and returning the final value of the chain.
+ * @param object A Javascript object to dig into
+ * @param expressionParts An array of strings presenting the keys to dig into
+ */
+const dig = (object: object, expressionParts: string[]): unknown => {
+  let result = object;
+  expressionParts.forEach((part) => { result = result[part]; });
+  return result;
+};
+
+/**
+ * Gets a value from an object, by parsing a Directive expression
+ * as an object chain, an digging into the object
+ * @param object A Javascript object to dig into
+ * @param expression An expression passed to a Directive via an HTML attribute
+ */
+const read = (object: object, expression: string): unknown => {
+  let $expression = expression;
+  let inversions = 0;
+  while ($expression.startsWith('!')) {
+    $expression = $expression.slice(1);
+    inversions += 1;
+  }
+
+  const parts = $expression.split('.');
+  let result = dig(object, parts);
+  for (let i = 0; i < inversions; i += 1)
+    result = !result;
+
+  return result;
+};
+
+/**
  * Parse an expression passed to a Directive, determining
  * whether it represents a number, string, boolean or an
  * object chain.
@@ -53,6 +87,23 @@ const parsePrimitive = (expression: string): unknown => {
  * @param expression An expression passed to a Directive via an HTML attribute
  */
 const parse = (object: object, expression: string): unknown => {
+  if (isTernaryExpression(expression)) {
+    const [temp, elseValue] = expression.split(' : ');
+    const [comparison, ifValue] = temp.split(' ? ');
+
+    const $comparison = comparison;
+    let $boolean = false;
+    if (isComparisonOperation($comparison))
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      $boolean = evaluateComparison(object, $comparison);
+    else
+      $boolean = !!parse(object, $comparison);
+
+    return $boolean
+      ? parse(object, ifValue)
+      : parse(object, elseValue);
+  }
+
   const parts = expression.split(' ');
   if (parts.length > 1) {
     // Spaces imply we're chaining values with && and || operators
@@ -76,7 +127,6 @@ const parse = (object: object, expression: string): unknown => {
   const primitive = parsePrimitive(expression);
   if (primitive !== undefined) return primitive;
 
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return read(object, expression);
 };
 
@@ -116,56 +166,6 @@ const evaluateComparison = (object: object, expression: string): boolean => {
     default:
       throw new VivereError('Failed to evaluate comparison, unknown operator!');
   }
-};
-
-/**
- * Dig into an object chain, passing each subsequent expression
- * part to the object and returning the final value of the chain.
- * @param object A Javascript object to dig into
- * @param expressionParts An array of strings presenting the keys to dig into
- */
-const dig = (object: object, expressionParts: string[]): unknown => {
-  let result = object;
-  expressionParts.forEach((part) => { result = result[part]; });
-  return result;
-};
-
-/**
- * Gets a value from an object, by parsing a Directive expression
- * as an object chain, an digging into the object
- * @param object A Javascript object to dig into
- * @param expression An expression passed to a Directive via an HTML attribute
- */
-const read = (object: object, expression: string): unknown => {
-  if (isTernaryExpression(expression)) {
-    const [temp, elseValue] = expression.split(' : ');
-    const [comparison, ifValue] = temp.split(' ? ');
-
-    const $comparison = comparison;
-    let $boolean = false;
-    if (isComparisonOperation($comparison))
-      $boolean = evaluateComparison(object, $comparison);
-    else
-      $boolean = !!parse(object, $comparison);
-
-    return $boolean
-      ? parse(object, ifValue)
-      : parse(object, elseValue);
-  }
-
-  let $expression = expression;
-  let inversions = 0;
-  while ($expression.startsWith('!')) {
-    $expression = $expression.slice(1);
-    inversions += 1;
-  }
-
-  const parts = $expression.split('.');
-  let result = dig(object, parts);
-  for (let i = 0; i < inversions; i += 1)
-    result = !result;
-
-  return result;
 };
 
 /**
@@ -247,6 +247,7 @@ export default {
   // Reading, writing, and executing expressions
 
   read,
+  parse,
   parsePrimitive,
 
   /**

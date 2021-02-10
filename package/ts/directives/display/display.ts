@@ -15,7 +15,7 @@ export default class DisplayDirective extends Directive {
       if (Evaluator.isComparisonOperation(expression))
         value = Evaluator.evaluateComparison(component, expression);
       else
-        value = Evaluator.read(component, expression);
+        value = Evaluator.parse(component, expression);
       this.evaluateValue(value);
     });
   }

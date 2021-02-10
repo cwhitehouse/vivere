@@ -38,7 +38,7 @@
       class="mt-4 ml-6"
       v-component
       v-data:hovering="false"
-      v-data:src="https://s3.amazonaws.com/kippy.online/kullect-cover.png"
+      v-data:src="https://s3.amazonaws.com/kippy.online/kullect.png"
       v-data:alt-src="https://s3.amazonaws.com/kippy.online/kullect.gif"
     >
       <img
@@ -47,6 +47,8 @@
         v-event:mouseenter="hovering = true"
         v-event:mouseleave="hovering = false"
       />
+      <p v-if="hovering">Hovering!</p>
+      <p v-if="!hovering && !!altSrc">Try hovering!</p>
     </div>
     <p class="ml-6 mt-12 font-semibold">Tabs</p>
     <div
