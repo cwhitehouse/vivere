@@ -2,6 +2,8 @@ import Walk from './lib/walk';
 import Component from './components/component';
 import Registry from './reactivity/registry';
 import { ComponentDefintion } from './components/definition';
+import EventBus from './lib/events/bus';
+import Event from './lib/events/event';
 
 interface VivereInterface {
   $components?: Set<Component>;
@@ -89,6 +91,11 @@ const Vivere: VivereInterface = {
     document.addEventListener('turbolinks:load', () => {
       if (visitingTurbolinks)
         $binding();
+    });
+
+    // For click.outside handlers, we need to see every click
+    document.addEventListener('click', (e: Event) => {
+      EventBus.broadcast(Event.CLICK, e);
     });
   },
 };

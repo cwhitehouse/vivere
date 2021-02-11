@@ -1,5 +1,7 @@
 import Walk from './lib/walk';
 import Registry from './reactivity/registry';
+import EventBus from './lib/events/bus';
+import Event from './lib/events/event';
 const $components = new Set();
 const $definitions = new Registry();
 let visitingTurbolinks = false;
@@ -48,6 +50,10 @@ const Vivere = {
         document.addEventListener('turbolinks:load', () => {
             if (visitingTurbolinks)
                 $binding();
+        });
+        // For click.outside handlers, we need to see every click
+        document.addEventListener('click', (e) => {
+            EventBus.broadcast(Event.CLICK, e);
         });
     },
 };

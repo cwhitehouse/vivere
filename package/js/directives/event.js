@@ -1,17 +1,40 @@
 import Directive from './directive';
 import Evaluator from '../lib/evaluator';
+import EventBus from '../lib/events/bus';
+import Event from '../lib/events/event';
 let EventDirective = /** @class */ (() => {
     class EventDirective extends Directive {
         // Parsing
         parse() {
             this.binding = this.execute.bind(this);
-            this.element.addEventListener(this.key, this.binding);
+            this.clickOutsideBinding = this.handleClickOutside.bind(this);
+            if (this.key === 'click' && this.modifiers?.includes('outside'))
+                // Click outside requires special handling
+                EventBus.register(Event.CLICK, this.clickOutsideBinding);
+            else
+                this.element.addEventListener(this.key, this.binding);
         }
         // Destruction (detach event listeners)
         destroy() {
             this.element.removeEventListener(this.key, this.binding);
+            EventBus.deregister(Event.CLICK, this.clickOutsideBinding);
         }
         // Execution
+        handleClickOutside(e) {
+            // Check that we clicked on an element
+            if (e.target instanceof Element) {
+                // CHeck if click target was a descendant of this element
+                let clickTarget = e.target;
+                do {
+                    if (clickTarget === this.element)
+                        return;
+                    clickTarget = clickTarget.parentElement;
+                } while (clickTarget != null);
+            }
+            // Execute the event if the target was not an element
+            // or was not a descendant of this element
+            this.binding(e);
+        }
         execute(e) {
             const { component, expression, modifiers } = this;
             // Keydown Directives can be scoped via modifiers
