@@ -11,7 +11,7 @@ const complexSymbolRegex = `( ?(&& |\\|\\| )?${standardSymbolRegex})+`;
 const assignmentSymbolRegex = '[+-]?=';
 const isAssignmentOperationRegex = new RegExp(`^${basicSymbolRegex} ${assignmentSymbolRegex} ${complexSymbolRegex}$`);
 const isAssignmentOperation = (expression) => expression.match(isAssignmentOperationRegex) != null;
-const isExecutionSymbolRegex = new RegExp(`^${basicSymbolRegex}\\(\\)`);
+const isExecutionSymbolRegex = new RegExp(`^${basicSymbolRegex}\\(${standardSymbolRegex}\\)`);
 const isExecutionSymbol = (expression) => expression.match(isExecutionSymbolRegex) != null;
 const comparisonSymbolRegex = '([<>]=?|!==?|===?)';
 const isComparisonOperationRegex = new RegExp(`^${complexSymbolRegex} ${comparisonSymbolRegex} ${complexSymbolRegex}$`);
