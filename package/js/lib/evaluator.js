@@ -11,6 +11,8 @@ const complexSymbolRegex = `( ?(&& |\\|\\| )?${standardSymbolRegex})+`;
 const assignmentSymbolRegex = '[+-]?=';
 const isAssignmentOperationRegex = new RegExp(`^${basicSymbolRegex} ${assignmentSymbolRegex} ${complexSymbolRegex}$`);
 const isAssignmentOperation = (expression) => expression.match(isAssignmentOperationRegex) != null;
+const isExecutionSymbolRegex = new RegExp(`^${basicSymbolRegex}\\(\\)`);
+const isExecutionSymbol = (expression) => expression.match(isExecutionSymbolRegex) != null;
 const comparisonSymbolRegex = '([<>]=?|!==?|===?)';
 const isComparisonOperationRegex = new RegExp(`^${complexSymbolRegex} ${comparisonSymbolRegex} ${complexSymbolRegex}$`);
 const isComparisonOperation = (expression) => expression.match(isComparisonOperationRegex) != null;
@@ -232,6 +234,14 @@ export default {
      */
     execute(object, expression, ...args) {
         const { obj, key } = digShallow(object, expression);
-        obj[key](...args);
+        // If we've passed an arg, we need to extract and parse it
+        if (isExecutionSymbol(key)) {
+            const [method, $argString] = key.split('(');
+            const $args = $argString.slice(0, -1).split(',').map((s) => parse(object, s.trim()));
+            obj[method](...$args);
+        }
+        else
+            // Otherwise we can just pass the default args
+            obj[key](...args);
     },
 };
