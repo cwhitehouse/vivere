@@ -14,6 +14,8 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
     this.container = this.element.parentElement;
     this.placeholder = document.createComment('');
     this.current = this.element;
+
+    this.element.removeAttribute('hidden');
   }
 
 

@@ -7,6 +7,7 @@ let IfDirective = /** @class */ (() => {
             this.container = this.element.parentElement;
             this.placeholder = document.createComment('');
             this.current = this.element;
+            this.element.removeAttribute('hidden');
         }
         // Evaluation
         evaluateValue(value) {
