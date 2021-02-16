@@ -5,7 +5,7 @@ import VivereError from '../../error';
 export default class SyncDirective extends DisplayDirective {
   static id = 'v-sync';
 
-  element: HTMLInputElement;
+  element: (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement);
   event: string;
   binding: (event: Event) => boolean;
 
@@ -33,7 +33,7 @@ export default class SyncDirective extends DisplayDirective {
 
   evaluateValue(value: unknown): void {
     // Push our new value to the element
-    if (this.element.type === 'checkbox')
+    if (this.element instanceof HTMLInputElement && this.element.type === 'checkbox')
       this.element.checked = !!value;
     else
       this.element.value = value as string;
@@ -51,7 +51,7 @@ export default class SyncDirective extends DisplayDirective {
   // Syncing
 
   value(): string | boolean {
-    if (this.element.type === 'checkbox')
+    if (this.element instanceof HTMLInputElement && this.element.type === 'checkbox')
       return this.element.checked;
 
     return this.element.value;

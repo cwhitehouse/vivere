@@ -20,7 +20,7 @@ let SyncDirective = /** @class */ (() => {
         // Evaluation
         evaluateValue(value) {
             // Push our new value to the element
-            if (this.element.type === 'checkbox')
+            if (this.element instanceof HTMLInputElement && this.element.type === 'checkbox')
                 this.element.checked = !!value;
             else
                 this.element.value = value;
@@ -32,7 +32,7 @@ let SyncDirective = /** @class */ (() => {
         }
         // Syncing
         value() {
-            if (this.element.type === 'checkbox')
+            if (this.element instanceof HTMLInputElement && this.element.type === 'checkbox')
                 return this.element.checked;
             return this.element.value;
         }
