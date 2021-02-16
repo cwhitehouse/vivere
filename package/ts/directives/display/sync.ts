@@ -14,7 +14,7 @@ export default class SyncDirective extends DisplayDirective {
   parse(): void {
     // Validate our element node
     const { nodeName } = this.element;
-    if (nodeName !== 'INPUT' && nodeName !== 'SELECT')
+    if (nodeName !== 'INPUT' && nodeName !== 'SELECT' && nodeName !== 'TEXTAREA')
       throw new VivereError(`Sync directives only work on input elements, not ${nodeName}`);
 
     // Bind the sync function
