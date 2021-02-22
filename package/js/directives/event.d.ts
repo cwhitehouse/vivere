@@ -7,5 +7,6 @@ export default class EventDirective extends Directive {
     destroy(): void;
     handleClickOutside(e: Event): void;
     execute(e: Event): void;
+    executeEvent(e: Event): void;
     matchesKeycode(keyCode: string | number, keyEvent: string): boolean;
 }
