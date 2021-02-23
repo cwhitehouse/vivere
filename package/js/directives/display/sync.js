@@ -14,8 +14,12 @@ let SyncDirective = /** @class */ (() => {
             this.binding = this.sync.bind(this);
             // Listen for input changes
             this.element.addEventListener(this.event, this.binding);
-            // Run an initial sync
-            this.sync();
+            if (this.value())
+                // If the input element has initial data, sync the data attribute
+                this.sync();
+            else
+                // Otherwise set the value of the input element
+                this.evaluate();
         }
         // Evaluation
         evaluateValue(value) {
