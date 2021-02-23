@@ -52,24 +52,25 @@ export default class EventDirective extends Directive {
     this.binding(e);
   }
 
-  execute(e: Event): void {
+  execute(e: Event): boolean {
     const { modifiers } = this;
 
     // Keydown Directives can be scoped via modifiers
     if (e instanceof KeyboardEvent && modifiers != null && modifiers.length > 0) {
       const keyCode = e.key || e.keyCode;
       const matchesModifier = modifiers.some((mod) => this.matchesKeycode(keyCode, mod));
-      if (!matchesModifier) return;
+      if (!matchesModifier) return undefined;
     }
-
-    // Allow preventing default via modifiers
-    if (modifiers != null && modifiers.indexOf('prevent') > 0)
-      e.preventDefault();
 
     if (modifiers != null && modifiers.includes('delay'))
       setTimeout(() => this.executeEvent(e), 0);
     else
       this.executeEvent(e);
+
+    if (modifiers != null && modifiers.includes('cancel'))
+      return false;
+
+    return undefined;
   }
 
   executeEvent(e: Event): void {
