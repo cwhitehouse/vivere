@@ -10,8 +10,10 @@ let ClassDirective = /** @class */ (() => {
         }
         // Evaluation
         evaluateValue(value) {
-            const { element, key } = this;
-            DOM.toggleClass(element, key, !!value);
+            const { element, key, modifiers } = this;
+            [key, ...modifiers].forEach((className) => {
+                DOM.toggleClass(element, className, !!value);
+            });
         }
     }
     ClassDirective.id = 'v-class';

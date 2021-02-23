@@ -15,7 +15,10 @@ export default class ClassDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    const { element, key } = this;
-    DOM.toggleClass(element, key, !!value);
+    const { element, key, modifiers } = this;
+
+    [key, ...modifiers].forEach((className) => {
+      DOM.toggleClass(element, className, !!value);
+    });
   }
 }
