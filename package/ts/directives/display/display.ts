@@ -6,18 +6,23 @@ import VivereError from '../../error';
 export default class DisplayDirective extends Directive {
   // Evaluation
 
-  evaluate(): void {
+  parseExpression(): unknown {
     const { component, expression } = this;
-
     const callback = (): void => { component.$queueRender(this); };
+
+    let value: unknown;
     Watcher.watch(this, callback, () => {
-      let value: unknown;
       if (Evaluator.isComparisonOperation(expression))
         value = Evaluator.evaluateComparison(component, expression);
       else
         value = Evaluator.parse(component, expression);
-      this.evaluateValue(value);
     });
+
+    return value;
+  }
+
+  evaluate(): void {
+    this.evaluateValue(this.parseExpression());
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

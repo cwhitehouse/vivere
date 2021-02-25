@@ -24,12 +24,13 @@ export default class SyncDirective extends DisplayDirective {
     // Listen for input changes
     this.element.addEventListener(this.event, this.binding);
 
-    if (this.value())
-      // If the input element has initial data, sync the data attribute
-      this.sync();
+    const initialValue = this.parseExpression();
+    if (initialValue)
+      // If we have an initial value, assign that value
+      this.evaluateValue(initialValue);
     else
-      // Otherwise set the value of the input element
-      this.evaluate();
+      // Otherwise set the data from the element
+      this.sync();
   }
 
 
