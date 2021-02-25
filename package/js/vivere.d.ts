@@ -8,7 +8,6 @@ interface VivereInterface {
     $track: (component: Component) => void;
     $untrack: (component: Component) => void;
     $getDefinition: (name: string) => ComponentDefintion;
-    setup: () => void;
 }
 declare global {
     interface Window {

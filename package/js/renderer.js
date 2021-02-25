@@ -15,6 +15,9 @@ const render = () => {
     tick();
 };
 const Renderer = {
+    $forceRender() {
+        render();
+    },
     $queueRender(directive) {
         // Add directives to set of directives that
         // will require an update next render

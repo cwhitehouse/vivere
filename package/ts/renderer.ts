@@ -23,6 +23,10 @@ const render: () => void = () => {
 };
 
 const Renderer = {
+  $forceRender(): void {
+    render();
+  },
+
   $queueRender(directive: Directive): void {
     // Add directives to set of directives that
     // will require an update next render

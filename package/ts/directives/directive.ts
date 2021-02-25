@@ -64,7 +64,7 @@ export default class Directive {
   dehydrate(): void {
     if (this.shouldRehydrate()) {
       let attributeName = this.id();
-      if (this.key != null)
+      if (this.key)
         attributeName += `:${this.key}`;
 
       this.element.setAttribute(attributeName, this.expression);

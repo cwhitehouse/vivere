@@ -1,4 +1,4 @@
-import Turbolinks from 'turbolinks';
+import * as Turbo from '@hotwired/turbo';
 import Vivere from '../package/js/vivere';
 
 import Accordion from './components/accordion/accordion.js';
@@ -18,6 +18,3 @@ Vivere.register('ToDoList', ToDoList);
 Vivere.register('ToDoNewItem', ToDoNewItem);
 Vivere.register('ToDoSearch', ToDoSearch);
 Vivere.register('TurboRefresh', TurboRefresh);
-
-Vivere.setup();
-Turbolinks.start();

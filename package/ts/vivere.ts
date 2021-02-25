@@ -4,6 +4,7 @@ import Registry from './reactivity/registry';
 import { ComponentDefintion } from './components/definition';
 import EventBus from './lib/events/bus';
 import Event from './lib/events/event';
+import Renderer from './renderer';
 
 interface VivereInterface {
   $components?: Set<Component>;
@@ -13,7 +14,6 @@ interface VivereInterface {
   $track: (component: Component) => void;
   $untrack: (component: Component) => void;
   $getDefinition: (name: string) => ComponentDefintion;
-  setup: () => void;
 }
 
 declare global {
@@ -25,22 +25,25 @@ declare global {
 const $components: Set<Component> = new Set();
 const $definitions: Registry<string, ComponentDefintion> = new Registry();
 
-let visitingTurbolinks = false;
+// Setup logic
 
-
-// Initialize Vivere
-
-const $setup = (): void => {
+const $setup = (element: Element): void => {
   // Walk the tree to initialize components
-  Walk.tree(document.body);
+  Walk.tree(element);
 
   // Finalize connecting our components
   $components.forEach((c) => { c.$connect(); });
+};
+
+// Initialize Vivere
+
+const $setupDocument = (): void => {
+  $setup(document.body);
 
   // Stop listening to DOMContentLoaded
-  document.removeEventListener('DOMContentLoaded', $setup);
+  document.removeEventListener('DOMContentLoaded', $setupDocument);
 };
-const $binding = $setup.bind(this);
+const $binding = $setupDocument.bind(this);
 
 
 // Dehydrate Vivere
@@ -48,6 +51,30 @@ const $binding = $setup.bind(this);
 const dehydrate = (): void => {
   $components.forEach((c) => c.$dehydrate.call(c, true));
 };
+
+
+// SETUP VIVERE AUTOMATICALLY
+
+// Listen for class DOM loaded event
+document.addEventListener('DOMContentLoaded', $binding);
+
+// Turbolinks listeners for compatibility
+document.addEventListener('turbo:before-cache', () => {
+  dehydrate();
+});
+document.addEventListener('turbo:before-render', (event: Record<string, any>) => {
+  const { newBody } = event.detail;
+
+  $setup(newBody);
+
+  // Force an initial render on the main thread
+  Renderer.$forceRender();
+});
+
+// For click.outside handlers, we need to see every click
+document.addEventListener('click', (e: Event) => {
+  EventBus.broadcast(Event.CLICK, e);
+});
 
 
 // Root logic
@@ -72,31 +99,6 @@ const Vivere: VivereInterface = {
       return {};
 
     return $definitions[name];
-  },
-
-
-  // Initialization
-
-  setup(): void {
-    // Listen for class DOM loaded event
-    document.addEventListener('DOMContentLoaded', $binding);
-
-    // Turbolinks listeners for compatibility
-    document.addEventListener('turbolinks:before-cache', () => {
-      dehydrate();
-    });
-    document.addEventListener('turbolinks:before-visit', () => {
-      visitingTurbolinks = true;
-    });
-    document.addEventListener('turbolinks:load', () => {
-      if (visitingTurbolinks)
-        $binding();
-    });
-
-    // For click.outside handlers, we need to see every click
-    document.addEventListener('click', (e: Event) => {
-      EventBus.broadcast(Event.CLICK, e);
-    });
   },
 };
 
