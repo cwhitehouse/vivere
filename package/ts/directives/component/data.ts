@@ -5,7 +5,8 @@ import Evaluator from '../../lib/evaluator';
 export default class DataDirective extends Directive {
   static id = 'v-data';
   static forComponent = true;
-  static shouldRehydrate = false;
+
+  camelKey: string;
 
   // Parsing
 
@@ -17,7 +18,15 @@ export default class DataDirective extends Directive {
       expression = Evaluator.parsePrimitive(this.expression) || this.expression;
     }
 
-    const camelKey = Utility.camelCase(this.key);
-    this.component.$set(camelKey, expression);
+    this.camelKey = Utility.camelCase(this.key);
+    this.component.$set(this.camelKey, expression);
+  }
+
+
+  // Dehydration
+
+  dehydrate(): void {
+    const jsonValue = JSON.stringify(this.component[this.camelKey]);
+    this.element.setAttribute(`v-data:${this.key}`, jsonValue);
   }
 }

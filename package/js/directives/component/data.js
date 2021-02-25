@@ -12,13 +12,17 @@ let DataDirective = /** @class */ (() => {
             catch (err) {
                 expression = Evaluator.parsePrimitive(this.expression) || this.expression;
             }
-            const camelKey = Utility.camelCase(this.key);
-            this.component.$set(camelKey, expression);
+            this.camelKey = Utility.camelCase(this.key);
+            this.component.$set(this.camelKey, expression);
+        }
+        // Dehydration
+        dehydrate() {
+            const jsonValue = JSON.stringify(this.component[this.camelKey]);
+            this.element.setAttribute(`v-data:${this.key}`, jsonValue);
         }
     }
     DataDirective.id = 'v-data';
     DataDirective.forComponent = true;
-    DataDirective.shouldRehydrate = false;
     return DataDirective;
 })();
 export default DataDirective;

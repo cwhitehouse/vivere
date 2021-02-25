@@ -31,7 +31,7 @@ export default class Directive {
     if (this.needsComponent() && this.component == null) throw new VivereError(`${name} created without a component`);
 
     // Register directive on the component (if necessary)
-    if (!this.forComponent() && this.component != null) this.component.$directives.add(this);
+    if (this.component != null) this.component.$directives.add(this);
 
     // Finish parsing directive
     this.parse();
