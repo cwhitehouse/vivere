@@ -28,11 +28,15 @@ const $definitions: Registry<string, ComponentDefintion> = new Registry();
 // Setup logic
 
 const $setup = (element: Element): void => {
+  const start = new Date();
+
   // Walk the tree to initialize components
   Walk.tree(element);
 
   // Finalize connecting our components
   $components.forEach((c) => { c.$connect(); });
+
+  console.log(`Vivere | Document parsed: ${new Date().getTime() - start.getTime()}ms`);
 };
 
 // Initialize Vivere

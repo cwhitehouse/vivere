@@ -11,12 +11,16 @@ const tick: () => void = () => {
 };
 
 const render: () => void = () => {
+  const start = new Date();
+
   // Evaluate all directives queued for a render
   $directives.forEach((d) => d.evaluate());
 
   // Reset system so we're not waiting on anything
   $directives.clear();
   $dirty = false;
+
+  console.log(`Vivere | Directives rendered: ${new Date().getTime() - start.getTime()}ms`);
 
   // Run all waiting ticks
   tick();
