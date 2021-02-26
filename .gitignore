@@ -2,6 +2,9 @@
 # Temp build files
 .cache
 dist
+temp
+tmp
+_examples
 
 # JS packages
 node_modules

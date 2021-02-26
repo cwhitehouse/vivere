@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "target": "esnext",
-    "lib": [
-      "dom",
-      "esnext"
-    ],
-    "outDir": "package/js"
+    "esModuleInterop": true,
+    "lib": [ "dom", "esnext" ],
+    "module": "es2015",
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "rootDir": "src",
+    "strict": false,
+    "target": "es2017",
+    "noEmit": true,
+    "removeComments": true,
   },
-  "include": [
-    "package/ts/*.ts",
-  ],
+  "exclude": [ "dist" ]
 }

@@ -1,14 +1,14 @@
 import * as Turbo from '@hotwired/turbo';
-import Vivere from '../package/js/vivere';
+import Vivere from '../dist/vivere.es2017-esm.js';
 
-import Accordion from './components/accordion/accordion.js';
-import AccordionSection from './components/accordion/section.js';
-import Counter from './components/counter.js';
-import ToDoItem from './components/to-do/item.js';
-import ToDoList from './components/to-do/list.js';
-import ToDoNewItem from './components/to-do/new-item.js';
-import ToDoSearch from './components/to-do/search.js';
-import TurboRefresh from './components/turbo-refresh/script.js';
+import Accordion from './includes/accordion/accordion.js';
+import AccordionSection from './includes/accordion/section.js';
+import Counter from './includes/counter.js';
+import ToDoItem from './includes/to-do/item.js';
+import ToDoList from './includes/to-do/list.js';
+import ToDoNewItem from './includes/to-do/new-item.js';
+import ToDoSearch from './includes/to-do/search.js';
+import TurboRefresh from './includes/turbo-refresh/turbo-refresh.js';
 
 Vivere.register('Accordion', Accordion);
 Vivere.register('AccordionSection', AccordionSection);

@@ -1,0 +1,48 @@
+<div
+  v-component="to-do-list"
+  class="py-8"
+>
+  <%- include('/to-do/search') %>
+  <div class="flex items-center mt-4">
+    <p class="text-sm text-gray-700 font-semibold uppercase ml-2 flex-2">List of To-Dos</p>
+    <div class="flex-1 flex items-center">
+      <select
+        class="flex-1 h-8 border-2 border-solid border-gray-300 rounded text-sm text-black mr-1"
+        v-sync="filter"
+      >
+        <option value="">All tags...</option>
+        <option value="urgent">URGENT</option>
+        <option value="blocked">BLOCKED</option>
+        <option value="notifies">NOTIFIES</option>
+      </select>
+      <select
+        class="flex-1 h-8 border-2 border-solid border-gray-300 rounded text-sm text-black ml-1"
+        v-sync="sort"
+      >
+        <option value="">Default order</option>
+        <option value="alphaAsc">Alphabetical (A-Z)</option>
+        <option value="alphaDesc">Alphabetical (Z-A)</option>
+      </select>
+    </div>
+    <div class="flex-1"></div>
+  </div>
+  <div
+    class="mt-4"
+    v-sort="orderBy"
+    v-filter="filterBy"
+    v-ref="list"
+  >
+    <%- include('/to-do/item', { toDo: { id: 1, label: "Spec out a high level pan of attack" }, tags: ["urgent", "blocked"] }) %>
+    <%- include('/to-do/item', { toDo: { id: 2, label: "Add time estimates to the various parts of the project" }, tags: ["blocked", "notifies"] }) %>
+    <%- include('/to-do/item', { toDo: { id: 3, label: "Choose a technical infrastructure for the project" }, tags: ["urgent", "notifies"] }) %>
+    <%- include('/to-do/item', { toDo: { id: 4, label: "Spin up an example app" }, tags: ["notifies"] }) %>
+  </div>
+  <button
+    v-if="!creating"
+    class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mt-4"
+    v-event:click="startCreating"
+  >New To-Do</button>
+  <div v-if="creating">
+    <%- include('/to-do/new-item') %>
+  </div>
+</div>
