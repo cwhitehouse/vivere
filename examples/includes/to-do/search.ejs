@@ -5,14 +5,14 @@
   v-bind:input="updateText"
   v-event:keydown.esc="clear"
   v-event:keydown.ent="blur"
-  class="w-full max-w-lg relative"
+  class="flex-1"
 >
   <input
     v-sync="inputText"
     v-disabled="filtering"
     v-ref="input"
     type="text"
-    class="w-full py-2 px-3 bg-gray-200 rounded focus:bg-white disabled:opacity-75"
+    class="w-full"
     placeholder="Search to-dos..."
   ></input>
 </div>

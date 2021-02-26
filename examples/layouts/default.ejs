@@ -6,11 +6,22 @@
 
     <title><%= (locals.title ? `${locals.title} | ` : '') + 'vivere js' %></title>
 
-    <link rel="stylesheet" href="/main.css" />
-    <script src="/main.js" defer></script>
+    <link rel="stylesheet" href="/main.css" data-turbo-track="reload"/>
+    <script src="/main.js" data-turbo-track="reload" defer></script>
   </head>
-  <body>
-    <div class="m-8">
+  <body class="bg-gray-50">
+    <!-- <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?Secular+One&display=fallback" rel="stylesheet"> -->
+
+    <div class="border-b-2 bg-white">
+      <div class="container mx-auto px-10 py-4">
+        <a
+          href="/"
+          class="text-xl font-display text-indigo-600 hover:text-indigo-800"
+        >vivere</a>
+      </div>
+    </div>
+    <div class="container mx-auto p-8">
       <%- content %>
     </div>
   </body>

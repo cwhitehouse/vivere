@@ -1,107 +1,67 @@
 ---
 layout: default
+examples:
+  - name: Toggle Button
+    url: /toggle-button
+    description: A simple button that toggle its own label
+    tags:
+      - V-IF
+      - V-DATA
+      - V-EVENT
+  - name: Image Hovering
+    url: /hover-img
+    description: Animate GIFs on mouseover
+    tags:
+      - V-IF
+      - V-DATA
+      - V-EVENT
+  - name: Tabs
+    url: /tabs
+    description: A responsive tabbed interface
+    tags:
+      - V-IF
+      - V-CLASS
+      - V-STORE
+      - V-EVENT
+  - name: Counters
+    url: /counters
+    description: Basic counters built a few different ways
+    tags:
+      - V-STORE
+      - V-CLASS
+      - V-EVENT
+      - V-DATA
+      - V-DISABLED
+      - V-TEXT
+      - V-SYNC
+      - COMPUTED
+  - name: To-Do list
+    url: /to-do-list
+    description: An interactive to-do list
+    tags:
+      - V-IF
+      - V-CLASS
+      - V-EVENT
+      - V-DISABLED
+      - V-TEXT
+      - V-SORT
+      - COMPUTED
 ---
 
-<!-- TURBO TESTING-->
-
-<%- include('/turbo-refresh/view') %>
-
-
-<!-- TO DO LIST-->
-
-<%- include('/to-do/list') %>
-
-
-<!-- TOGGLE BUTTON-->
-
-<p class="mt-12 font-semibold">Toggle Button</p>
-<button
-  class="mt-4 px-3 py-1 border border-gray-400 shadow hover:shadow-lg focus:shadow-none"
-  v-component
-  v-data:on="false"
-  v-text="on ? 'On' : 'Off'"
-  v-event:click="on = !on"
-></button>
-
-
-<!-- COUNTER -->
-
-<p class="mt-12 font-semibold">Counter</p>
-<div
-  v-component="counter"
-  class="flex items-center mt-4"
->
-  <button
-    v-event:click="count -= 1"
-    class="px-3 py-1 border border-solid border-gray-400 shadow hover:shadow-lg focus:shadow-none"
-  >-</button>
-  <p
-    v-text="count"
-    v-class:text-red="countHigh"
-    class="w-16 text-center"
-  ></p>
-  <button
-    v-event:click="count += 1"
-    class="px-3 py-1 border border-solid border-gray-400 shadow hover:shadow-lg focus:shadow-none"
-  >+</button>
-</div>
-
-
-<!-- HOVER IMAGE -->
-
-<p class="mt-12 font-semibold">Hover Image</p>
-<div
-  class="mt-4"
-  v-component
-  v-data:hovering="false"
-  v-data:src="https://s3.amazonaws.com/kippy.online/kullect.png"
-  v-data:alt-src="https://s3.amazonaws.com/kippy.online/kullect.gif"
->
-  <img
-    class="h-64 w-64 object-cover"
-    v-src="hovering && !!altSrc ? altSrc : src"
-    v-event:mouseenter="hovering = true"
-    v-event:mouseleave="hovering = false"
-  />
-  <p v-if="hovering">Hovering!</p>
-  <p v-if="!hovering && !!altSrc">Try hovering!</p>
-</div>
-
-
-<!-- TABS -->
-
-<p class="mt-12 font-semibold">Tabs</p>
-<div
-  v-component
-  v-data:tab="b"
-  class="mt-6"
->
-  <div class="fiex items-center">
-    <button
-      v-event:click="tab = 'a'"
-      v-class:bg-white="tab === 'a'"
-      v-class:bg-gray-200.hover:bg-indigo-100.hover:border-indigo-100.text-gray-600="tab !== 'a'"
-      class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t"
-    >Tab A</button>
-    <button
-      v-event:click="tab = 'b'"
-      v-class:bg-white="tab === 'b'"
-      v-class:bg-gray-200.hover:bg-indigo-100.hover:border-indigo-100.text-gray-600="tab !== 'b'"
-      class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t m-l"
-    >Tab B</button>
-    <button
-      v-event:click="tab = 'c'"
-      v-class:bg-white="tab === 'c'"
-      v-class:bg-gray-200.hover:bg-indigo-100.hover:border-indigo-100.text-gray-600="tab !== 'c'"
-      class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t m-l"
-    >Tab C</button>
-  </div>
-  <div
-    class="border-2 border-solid border-gray-200 rounded-tr p-8"
-    style="margin-top: -2px;"
-  >
-    <p v-if="tab === 'a'">Displaying content for Tab A...</p>
-    <p v-if="tab === 'b'">Displaying content for Tab B...</p>
-    <p v-if="tab === 'c'">Displaying content for Tab C...</p>
-  </div>
+<div class="grid grid-cols-3 gap-x-6 gap-y-8">
+  <% examples.forEach(example => { %>
+    <div>
+      <a href="<%= example.url %>">
+        <div class="border rounded bg-white shadow-md hover:shadow-xl active:shadow-none p-4">
+          <p class="text-xl font-medium"><%= example.name %></p>
+          <p class="text-gray-700 mt-2 h-12"><%= example.description %></p>
+        </div>
+      </a>
+      <div class="flex flex-wrap items-center mt-1 ml-2 mr-1">
+        <% example.tags.forEach(tag => { %>
+          <%- include('/tag', { tag }) %>
+        <% }); %>
+      </div>
+    </div>
+  <% }); %>
 </div>

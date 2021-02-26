@@ -4,23 +4,24 @@
   v-bind:create="create"
   v-pass:showing="creating"
   v-ref="newItem"
-  class="flex items-stretch h-10 mt-4"
+  class="flex items-stretch h-10 space-x-2"
 >
   <input
     type="text"
-    class="flex-1 border-2 border-solid border-gray-300 rounded px-3"
+    class="flex-1"
+    placeholder="New to-do..."
     v-sync="label"
     v-ref="input"
     v-event:keydown.enter="create"
     v-event:keydown.escape="reset"
   ></input>
   <button
-    class="text-white bg-indigo-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mx-2 disabled:opacity-50"
+    class="button-indigo"
     v-event:click="create"
     v-disabled="!hasLabel"
   >Create</button>
   <button
-    class="bg-gray-400 px-3 py-2 rounded hover:shadow-md active:shadow-none"
+    class="button"
     v-event:click="reset"
   >Cancel</button>
 </div>

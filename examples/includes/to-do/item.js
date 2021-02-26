@@ -1,6 +1,7 @@
 const State = {
-  Show: 'show',
-  Delete: 'delete',
+  SHOW: 'show',
+  DELETE: 'delete',
+  EDIT: 'edit',
 };
 
 export default {
@@ -15,8 +16,9 @@ export default {
     return {
       toDo: null,
       tags: null,
-      state: State.Show,
-      states: [State.Show],
+      state: State.SHOW,
+      states: [State.SHOW],
+      label: null,
     };
   },
 
@@ -58,17 +60,35 @@ export default {
     },
 
     isShowing() {
-      return this.fauxState === State.Show;
+      return this.fauxState === State.SHOW;
+    },
+
+    isEditing() {
+      return this.fauxState === State.EDIT;
+    },
+
+    hasLabel() {
+      const { label } = this;
+      return !!label;
     },
 
     isDeleting() {
-      return this.fauxState === State.Delete;
+      return this.fauxState === State.DELETE;
     },
   },
 
   methods: {
+    startEditing() {
+      this.states.unshift(State.EDIT);
+    },
+
+    save() {
+      this.toDo.label = this.label;
+      this.reset();
+    },
+
     confirmDelete() {
-      this.states.unshift(State.Delete);
+      this.states.unshift(State.DELETE);
     },
 
     delete() {
@@ -76,7 +96,18 @@ export default {
     },
 
     reset() {
-      this.states.unshift(State.Show);
+      this.states.unshift(State.SHOW);
+    },
+  },
+
+  watch: {
+    isEditing() {
+      if (this.isEditing) {
+        this.label = this.toDo.label;
+        this.$nextRender(() => {
+          this.$refs.input.focus();
+        });
+      }
     },
   },
 };

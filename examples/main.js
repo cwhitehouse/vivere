@@ -8,7 +8,6 @@ import ToDoItem from './includes/to-do/item.js';
 import ToDoList from './includes/to-do/list.js';
 import ToDoNewItem from './includes/to-do/new-item.js';
 import ToDoSearch from './includes/to-do/search.js';
-import TurboRefresh from './includes/turbo-refresh/turbo-refresh.js';
 
 Vivere.register('Accordion', Accordion);
 Vivere.register('AccordionSection', AccordionSection);
@@ -17,4 +16,3 @@ Vivere.register('ToDoItem', ToDoItem);
 Vivere.register('ToDoList', ToDoList);
 Vivere.register('ToDoNewItem', ToDoNewItem);
 Vivere.register('ToDoSearch', ToDoSearch);
-Vivere.register('TurboRefresh', TurboRefresh);

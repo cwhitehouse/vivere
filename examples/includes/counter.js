@@ -11,6 +11,11 @@ export default {
       const { count } = this;
       return count >= 5;
     },
+
+    canDecrement() {
+      const { count } = this;
+      return count > 0;
+    },
   },
 
   watch: {

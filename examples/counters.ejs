@@ -1,0 +1,62 @@
+---
+layout: default
+---
+
+<div class="grid grid-cols-2 gap-8">
+  <!-- BASIC COUNTER -->
+  <div>
+    <div class="border-2 rounded bg-white flex flex-col items-stretch">
+      <p class="border-b-2 font-semibold text-center py-3 px-8">Basic Counter</p>
+      <div
+        v-component
+        v-data:count="0"
+        class="flex items-center p-8"
+      >
+        <button
+          v-event:click="count -= 1"
+          class="button"
+        >-</button>
+        <p
+          v-text="count"
+          class="flex-1 text-center"
+        >0</p>
+        <button
+          v-event:click="count += 1"
+          class="button"
+        >+</button>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center mt-1 ml-2 mr-1">
+      <%- include('/tags', { tags: ['V-DATA', 'v-EVENT', 'V-TEXT'] }) %>
+    </div>
+  </div>
+
+  <!-- FANCY COUNTER -->
+  <div>
+    <div class="border-2 rounded bg-white flex flex-col items-stretch">
+      <p class="border-b-2 font-semibold text-center py-3 px-8">Fancy Counter</p>
+      <div
+        v-component="counter"
+        class="flex items-center p-8"
+      >
+        <button
+          v-event:click="count -= 1"
+          v-disabled="!canDecrement"
+          class="button"
+        >-</button>
+        <p
+          v-text="count"
+          v-class:text-red-600.font-medium="countHigh"
+          class="flex-1 text-center"
+        ></p>
+        <button
+          v-event:click="count += 1"
+          class="button"
+        >+</button>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center mt-1 ml-2 mr-1">
+      <%- include('/tags', { tags: ['DATA', 'COMPUTED', 'V-EVENT', 'V-DISABLED', 'V-CLASS', 'V-TEXT'] }) %>
+    </div>
+  </div>
+</div>
