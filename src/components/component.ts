@@ -131,9 +131,7 @@ export default class Component {
 
       // Invoke any watchers
       if (this.$watchers[key] != null)
-        setTimeout(() => {
-          this.$watchers[key].call(this, newValue, oldValue);
-        }, 0);
+        this.$watchers[key].call(this, newValue, oldValue);
     }
   }
 

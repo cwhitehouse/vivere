@@ -21,7 +21,7 @@ export default class Computed extends Reactive {
   // Value management
 
   dirty(): void {
-    setTimeout(() => { this.computeValue(); }, 0);
+    this.computeValue();
   }
 
   computeValue(): void {

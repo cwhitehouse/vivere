@@ -49,7 +49,7 @@ export default {
 
     lowerText() {
       const { text } = this;
-      return text?.toLowerCase();
+      return text && text.toLowerCase();
     },
 
     lowerLabel() {

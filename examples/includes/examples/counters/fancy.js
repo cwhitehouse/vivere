@@ -12,6 +12,13 @@ export default {
       return count >= 5;
     },
 
+    logMessage() {
+      const { countHigh } = this;
+
+      if (countHigh) return '< THE COUNT IS NOW HIGH! >';
+      return '> THE COUNT IS NOW LOW <';
+    },
+
     canDecrement() {
       const { count } = this;
       return count > 0;
@@ -20,8 +27,8 @@ export default {
 
   watch: {
     countHigh() {
-      console.log('countHigh changed!');
-      console.log(` -> ${this.countHigh}`);
+      const { logMessage } = this;
+      console.log(logMessage);
     },
   },
 }

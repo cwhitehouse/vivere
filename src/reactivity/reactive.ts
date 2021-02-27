@@ -4,6 +4,7 @@ import Registry from './registry';
 import ReactiveArray from './array';
 import ReactiveObject from './object';
 import VivereError from '../error';
+import Coordinator from './coordinator';
 
 interface Reactable {
   $reactives?: { prop?: Reactive };
@@ -41,9 +42,16 @@ export default class Reactive implements Reactable {
 
   set(value: unknown): void {
     const oldValue = this.value;
+
+    // Deal with undefined/null confusion
+    if (value == null && oldValue == null)
+      return;
+
+    // Don't bother reporting if nothing changed
     if (value !== this.value) {
+      Coordinator.chanReactionStarted();
       this.updateValue(value);
-      this.report(value, oldValue);
+      this.$report(value, oldValue);
     }
   }
 
@@ -74,7 +82,19 @@ export default class Reactive implements Reactable {
   }
 
   report(newValue: unknown, oldValue: unknown): void {
-    this.registry.forEach((_, hook) => hook(newValue, oldValue));
+    Coordinator.chanReactionStarted();
+    this.$report(newValue, oldValue);
+  }
+
+  $report(newValue: unknown, oldValue: unknown): void {
+    this.registry.forEach((entity, hook) => {
+      if (entity instanceof Component)
+        Coordinator.trackComponent(entity, hook, newValue, oldValue);
+      else
+        hook(newValue, oldValue);
+    });
+
+    Coordinator.chainReactionEnded();
   }
 
 
@@ -100,7 +120,7 @@ export default class Reactive implements Reactable {
       // Override property definitions
       Object.defineProperty($host, key, {
         get() { return $host.$reactives[key] && $host.$reactives[key].get(); },
-        set(newValue) { $host.$reactives[key].set(newValue); },
+        set(newValue) { $host.$reactives[key].set(newValue, key); },
       });
     } else
       // Simple assignment is sufficient
