@@ -16,6 +16,19 @@
     <div class="flex flex-col items-stretch p-8">
       <%- include(`/examples/${id}/${example.id}`) %>
     </div>
+    <div class="border-t-2 flex items-center py-2 px-3 bg-white space-x-1 text-sm">
+      <% if (!!example.scripts.length) { %>
+        <% for (script of example.scripts) { %>
+          <a
+            href="https://github.com/cwhitehouse/vivere/blob/master/<%= script %>"
+            class="text-link p-1"
+            target="_blank"
+          ><%= script.split('/').pop() %></a>
+        <% } %>
+      <% } else { %>
+        <p class="text-gray-500 italic p-1">No js required...</p>
+      <% } %>
+    </div>
   </div>
   <div class="flex flex-wrap items-center mt-1 ml-2 mr-1">
     <%- include('/tags', { tags: (example.tags || []) }) %>

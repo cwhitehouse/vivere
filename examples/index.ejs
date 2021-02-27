@@ -8,8 +8,8 @@ layout: default
       const tags = exampleGroup.examples
         .map(e => (e.tags || []))
         .flat()
-        .filter((t,i,arr) => arr.indexOf(t) === i)
-        .sort();
+        .filter(list.uniqueness)
+        .sort(list.directives);
     %>
     <div>
       <a href="<%= exampleGroup.id %>">

@@ -45,13 +45,6 @@ const exampleGroups = [
         width: 2,
         gray: true,
       },
-    ],
-  },
-  {
-    id: 'accordion',
-    name: 'Accordion',
-    description: 'Fancy UI elements you might find in fancy apps!',
-    examples: [
       {
         id: 'accordion',
         name: 'Accordion',
@@ -91,8 +84,9 @@ const exampleGroups = [
 
 exampleGroups.forEach(eg => {
   eg.examples.forEach(e => {
-    const directives = fileParser.parseDirectives(`examples/includes/examples/${eg.id}/${e.id}.ejs`);
+    const { directives, scripts } = fileParser.parseDirectives(`examples/includes/examples/${eg.id}/${e.id}.ejs`);
     e.tags = directives;
+    e.scripts = scripts;
   });
 });
 

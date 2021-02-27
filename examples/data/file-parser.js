@@ -1,5 +1,6 @@
 const { at } = require('core-js/fn/string');
 const fs = require('fs');
+const { uniqueness } = require('./list');
 const list = require('./list');
 const strings = require('./strings');
 
@@ -13,7 +14,9 @@ const componentMatches = jsMain
 for (let match of componentMatches) {
   const componentName = match[1];
   const importName = match[2];
-  components[componentName] = importName;
+  components[componentName] = {
+    importName,
+  };
 }
 
 const importMatches = jsMain
@@ -23,7 +26,7 @@ for (let match of importMatches) {
   const filePath = `examples${match[2].slice(1)}`;
 
   for (let componentName in components) {
-    const impName = components[componentName];
+    const impName = components[componentName].importName;
     if (impName === importName) {
       const jsFileContent = fs.readFileSync(filePath, {
         encoding:'utf8',
@@ -41,7 +44,8 @@ for (let match of importMatches) {
         attributes.push(attribute);
       }
 
-      components[componentName] = attributes;
+      components[componentName].attributes = attributes;
+      components[componentName].filePath = filePath;
     }
   }
 }
@@ -49,6 +53,7 @@ for (let match of importMatches) {
 module.exports = {
   parseDirectives(fileName) {
     const directives = [];
+    const scripts = [];
 
     // Read the file
     const fileContent = fs.readFileSync(fileName, {
@@ -61,9 +66,12 @@ module.exports = {
       .matchAll(/<%- include\('([/A-z-]+)/g);
     for (let match of includeMatches) {
       const filePart = match[1];
-      const includedDirectives = this.parseDirectives(`examples/includes${filePart}.ejs`);
+      const parsed = this.parseDirectives(`examples/includes${filePart}.ejs`);
 
-      for (directive of includedDirectives)
+      for (script of parsed.scripts)
+        scripts.push(script);
+
+      for (directive of parsed.directives)
         directives.push(directive);
     }
 
@@ -81,16 +89,24 @@ module.exports = {
     for (let match of componentMatches) {
       const componentCode = match[1];
       const componentName = strings.pascalCase(componentCode);
-      const componentAttributes = components[componentName];
+      const componentDetails = components[componentName];
 
-      if (componentAttributes != null)
-        for (let attribute of componentAttributes)
+      if (componentDetails != null) {
+        scripts.push(componentDetails.filePath);
+
+        for (let attribute of componentDetails.attributes)
           directives.push(attribute);
+      }
     }
 
-    return directives
-      .filter(list.uniqueness)
-      .filter(d => d !== 'v-component')
-      .sort();
+    return {
+      directives: directives
+        .filter(list.uniqueness)
+        .filter(d => d !== 'v-component')
+        .sort(list.directives),
+      scripts: scripts
+        .filter(uniqueness)
+        .sort(),
+    };
   },
 };

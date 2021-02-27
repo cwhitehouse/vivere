@@ -1,8 +1,8 @@
 import * as Turbo from '@hotwired/turbo';
 import Vivere from '../dist/vivere.es2017-esm.js';
 
-import Accordion from './includes/examples/accordion/accordion.js';
-import AccordionSection from './includes/examples/accordion/section.js';
+import Accordion from './includes/examples/tabs/accordion.js';
+import AccordionSection from './includes/examples/tabs/section.js';
 
 import FancyCounter from './includes/examples/counters/fancy.js';
 
