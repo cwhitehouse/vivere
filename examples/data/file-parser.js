@@ -5,7 +5,7 @@ const list = require('./list');
 const strings = require('./strings');
 
 const components = {};
-const jsMain = fs.readFileSync('examples/main.js', {
+const jsMain = fs.readFileSync('examples/main.ts', {
   encoding:'utf8',
   flag:'r'
 });
@@ -23,7 +23,9 @@ const importMatches = jsMain
   .matchAll(/import ([A-z]+) from ['"]([A-z0-9-./@]+)["']/g);
 for (let match of importMatches) {
   const importName = match[1];
-  const filePath = `examples${match[2].slice(1)}`;
+  let filePath = `examples${match[2].slice(1)}`;
+  if (!filePath.endsWith('.ts'))
+    filePath += '.js';
 
   for (let componentName in components) {
     const impName = components[componentName].importName;

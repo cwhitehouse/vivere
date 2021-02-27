@@ -54,7 +54,7 @@ export default [
     }
   },
   {
-    input: "examples/main.js",
+    input: "examples/main.ts",
     output: [
       {
         file: "tmp/main.js",
@@ -64,10 +64,12 @@ export default [
     ],
     plugins: [
       resolve(),
+      typescript(),
     ],
     watch: {
       include: [
         "examples/**/*.js",
+        "examples/**/*.ts",
         "dist/**/*.js",
       ]
     }
