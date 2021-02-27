@@ -4,11 +4,22 @@ const exampleGroups = [
   {
     id: 'toggle-button',
     name: 'Toggle Buttons',
-    description: 'Basic buttons that turn things on and off ',
+    description: 'Basic buttons that turn things on and off',
     examples: [
       {
         id: 'basic',
         name: 'Basic Toggle',
+      },
+    ],
+  },
+  {
+    id: 'links',
+    name: 'Link Magic',
+    description: 'Magically on demand link behavior',
+    examples: [
+      {
+        id: 'basic',
+        name: 'Basic Link Toggle',
       },
     ],
   },

@@ -1,8 +1,12 @@
 import VivereError from '../error';
 
-const basicSymbolRegex = '[a-zA-z.\\-_0-9\'"]+';
+const stringRegex = '\'[^\']*\'|"[^"]*"';
+const basicSymbolRegex = `(${stringRegex}|[a-zA-z.\\-_0-9]+)`;
 const standardSymbolRegex = `!*${basicSymbolRegex}`;
 const complexSymbolRegex = `( ?(&& |\\|\\| )?${standardSymbolRegex})+`;
+
+const isStringRegex = new RegExp(`^${stringRegex}$`);
+const isString = (expression: string): boolean => expression.match(isStringRegex) != null;
 
 // const isBasicSymbolRegex = new RegExp(`^${basicSymbolRegex}$`);
 // const isBasicSybmol = (expression: string): boolean => expression.match(isBasicSymbolRegex) != null;
@@ -105,6 +109,13 @@ const parse = (object: object, expression: string): unknown => {
     return $boolean
       ? parse(object, ifValue)
       : parse(object, elseValue);
+  }
+
+  // Strings can have spaces, so try parsing
+  // as a string before we treat is a complex expression
+  if (isString(expression)) {
+    const primitive = parsePrimitive(expression);
+    if (primitive !== undefined) return primitive;
   }
 
   const parts = expression.split(' ');

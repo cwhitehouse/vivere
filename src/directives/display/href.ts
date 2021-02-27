@@ -18,6 +18,9 @@ export default class HrefDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    this.element.href = (value && value.toString());
+    if (!value)
+      this.element.removeAttribute('href');
+    else
+      this.element.href = value.toString();
   }
 }
