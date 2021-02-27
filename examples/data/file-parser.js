@@ -90,6 +90,7 @@ module.exports = {
 
     return directives
       .filter(list.uniqueness)
+      .filter(d => d !== 'v-component')
       .sort();
   },
 };
