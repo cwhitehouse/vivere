@@ -28,8 +28,9 @@ export default {
     const storage = getStorage(definition);
 
     const storedValue = storage.getItem(storeKey);
-    if (storedValue == null)
+    if (storedValue == null || storedValue === 'undefined')
       return undefined;
+
     return JSON.parse(storedValue);
   },
 

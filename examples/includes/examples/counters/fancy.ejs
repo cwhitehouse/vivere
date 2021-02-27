@@ -1,0 +1,19 @@
+<div
+  v-component="counter"
+  class="flex items-center"
+>
+  <button
+    v-event:click="count -= 1"
+    v-disabled="!canDecrement"
+    class="button"
+  >-</button>
+  <p
+    v-text="count"
+    v-class:text-red-600.font-medium="countHigh"
+    class="flex-1 text-center"
+  ></p>
+  <button
+    v-event:click="count += 1"
+    class="button"
+  >+</button>
+</div>

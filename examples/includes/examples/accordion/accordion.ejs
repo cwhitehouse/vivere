@@ -1,0 +1,28 @@
+<%
+  const sections = [
+    {
+      value: 'a',
+      title: 'Yo, man!',
+      text: 'Body text, pew pew!',
+    },
+    {
+      value: 'b',
+      title: 'Pew pew pew"',
+      text: 'Secondary body text rawr',
+    },
+    {
+      value: 'c',
+      title: 'Ca caw!',
+      text: 'More body text, pew pew Body text pew pew',
+    },
+  ];
+%>
+
+<div
+  v-component="accordion"
+  class="-space-y-0.5"
+>
+  <% sections.forEach(section => { %>
+    <%- include('/examples/accordion/section', { section }); %>
+  <% }); %>
+</div>

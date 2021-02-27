@@ -1,7 +1,6 @@
 <div
   v-component="to-do-item"
   v-data:to-do="<%= JSON.stringify(toDo) %>"
-  v-data:tags="<%= JSON.stringify(tags) %>"
   v-pass:text
   class="to-do-item h-12 flex items-stretch"
 >
@@ -50,7 +49,7 @@
       ></p>
     </div>
     <div class="to-do-tags flex-1 flex items-center">
-      <% tags.forEach((tag) => { %>
+      <% toDo.tags.forEach((tag) => { %>
         <%- include('/tag', { tag }) %>
       <% }); %>
     </div>

@@ -1,0 +1,23 @@
+<div
+  v-component
+  v-store:tab.local="b"
+>
+  <div class="fiex items-center space-x-1">
+    <% ['a', 'b', 'c'].forEach(tab => { %>
+      <button
+        v-event:click="tab = '<%= tab %>'"
+        v-class:bg-white="tab === '<%= tab %>'"
+        v-class:bg-gray-200.hover:bg-indigo-100.hover:border-indigo-100.text-gray-600="tab !== '<%= tab %>'"
+        class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t"
+      >Tab <%= tab.toUpperCase(); %></button>
+    <% }); %>
+  </div>
+  <div
+    class="bg-white border-2 rounded p-8"
+    style="margin-top: -2px;"
+  >
+    <p v-if="tab === 'a'">Displaying content for Tab A...</p>
+    <p v-if="tab === 'b'">Displaying content for Tab B...</p>
+    <p v-if="tab === 'c'">Displaying content for Tab C...</p>
+  </div>
+</div>

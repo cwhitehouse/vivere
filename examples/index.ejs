@@ -1,66 +1,25 @@
 ---
 layout: default
-examples:
-  - name: Toggle Button
-    url: /toggle-button
-    description: A simple button that toggle its own label
-    tags:
-      - V-IF
-      - V-DATA
-      - V-EVENT
-  - name: Image Hovering
-    url: /hover-img
-    description: Animate GIFs on mouseover
-    tags:
-      - V-IF
-      - V-DATA
-      - V-EVENT
-  - name: Tabs
-    url: /tabs
-    description: A responsive tabbed interface
-    tags:
-      - V-IF
-      - V-CLASS
-      - V-STORE
-      - V-EVENT
-  - name: Counters
-    url: /counters
-    description: Basic counters built a few different ways
-    tags:
-      - V-STORE
-      - V-CLASS
-      - V-EVENT
-      - V-DATA
-      - V-DISABLED
-      - V-TEXT
-      - V-SYNC
-      - COMPUTED
-  - name: To-Do list
-    url: /to-do-list
-    description: An interactive to-do list
-    tags:
-      - V-IF
-      - V-CLASS
-      - V-EVENT
-      - V-DISABLED
-      - V-TEXT
-      - V-SORT
-      - COMPUTED
 ---
 
 <div class="grid grid-cols-3 gap-x-6 gap-y-8">
-  <% examples.forEach(example => { %>
+  <% examples.forEach(exampleGroup => { %>
+    <%
+      const tags = exampleGroup.examples
+        .map(e => (e.tags || []))
+        .flat()
+        .filter((t,i,arr) => arr.indexOf(t) === i)
+        .sort();
+    %>
     <div>
-      <a href="<%= example.url %>">
+      <a href="<%= exampleGroup.id %>">
         <div class="border rounded bg-white shadow-md hover:shadow-xl active:shadow-none p-4">
-          <p class="text-xl font-medium"><%= example.name %></p>
-          <p class="text-gray-700 mt-2 h-12"><%= example.description %></p>
+          <p class="text-xl font-medium"><%= exampleGroup.name %></p>
+          <p class="text-gray-700 mt-2 h-12"><%= exampleGroup.description %></p>
         </div>
       </a>
       <div class="flex flex-wrap items-center mt-1 ml-2 mr-1">
-        <% example.tags.forEach(tag => { %>
-          <%- include('/tag', { tag }) %>
-        <% }); %>
+        <%- include('/tags', { tags }); %>
       </div>
     </div>
   <% }); %>

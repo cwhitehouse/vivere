@@ -29,5 +29,9 @@ module.exports = {
   variants: {
     boxShadow: ['responsive', 'hover', 'focus', 'active', 'disabled'],
     opacity: ['responsive', 'hover', 'focus', 'active', 'disabled'],
+
+    extend: {
+      borderRadius: ['first', 'last'],
+    },
   },
 };

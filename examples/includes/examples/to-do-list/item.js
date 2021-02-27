@@ -15,7 +15,6 @@ export default {
   data() {
     return {
       toDo: null,
-      tags: null,
       state: State.SHOW,
       states: [State.SHOW],
       label: null,
@@ -28,15 +27,24 @@ export default {
     },
 
     taggedUrgent() {
-      return this.tags?.indexOf('urgent') >= 0;
+      const { toDo } = this;
+      const { tags } = toDo;
+
+      return tags?.indexOf('urgent') >= 0;
     },
 
     taggedBlocked() {
-      return this.tags?.indexOf('blocked') >= 0;
+      const { toDo } = this;
+      const { tags } = toDo;
+
+      return tags?.indexOf('blocked') >= 0;
     },
 
     taggedNotifies() {
-      return this.tags?.indexOf('notifies') >= 0;
+      const { toDo } = this;
+      const { tags } = toDo;
+
+      return tags?.indexOf('notifies') >= 0;
     },
 
     lowerText() {
