@@ -85,6 +85,17 @@ export default {
     },
   },
 
+  watch: {
+    isEditing() {
+      if (this.isEditing) {
+        this.label = this.toDo.label;
+        this.$nextRender(() => {
+          this.$refs.input.focus();
+        });
+      }
+    },
+  },
+
   methods: {
     startEditing() {
       this.states.unshift(State.EDIT);
@@ -105,17 +116,6 @@ export default {
 
     reset() {
       this.states.unshift(State.SHOW);
-    },
-  },
-
-  watch: {
-    isEditing() {
-      if (this.isEditing) {
-        this.label = this.toDo.label;
-        this.$nextRender(() => {
-          this.$refs.input.focus();
-        });
-      }
     },
   },
 };
