@@ -32,9 +32,9 @@ export default class FilterDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    const { children, component } = this;
+    const { children, context } = this;
 
-    const callback = (): void => { component.$queueRender(this); };
+    const callback = (): void => { context.queueRender(this); };
     Watcher.watch(this, callback, () => {
       if (value != null && typeof value !== 'string')
         throw new VivereError('Filter directive requires a string expression');

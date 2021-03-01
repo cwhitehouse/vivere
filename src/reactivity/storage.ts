@@ -1,4 +1,4 @@
-import { StoredInterface } from '../components/definition/stored-interface';
+import StoredInterface from '../components/definition/stored-interface';
 import VivereError from '../error';
 
 const getStorage = (definition: StoredInterface): Storage => {
@@ -16,8 +16,7 @@ const getStorage = (definition: StoredInterface): Storage => {
 
 const getStoreKey = (key: string, definition: StoredInterface): string => {
   let { version } = definition;
-  if (version == null)
-    version = 0;
+  version = version || 0;
 
   return `vivere-store-v${version}-${key}`;
 };

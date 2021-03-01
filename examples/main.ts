@@ -1,7 +1,7 @@
 // eslint-disable-next-line
 import * as Turbo from '@hotwired/turbo';
 
-import Vivere from '../dist/vivere.es2017-esm';
+import { Vivere } from '../src/vivere';
 
 import Accordion from './includes/examples/tabs/accordion';
 import AccordionSection from './includes/examples/tabs/section';

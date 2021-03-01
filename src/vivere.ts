@@ -1,19 +1,20 @@
 import Walk from './lib/walk';
-import Component from './components/component';
+import ComponentContext from './components/component-context';
 import Registry from './reactivity/registry';
-import { ComponentDefintion } from './components/definition';
+import ComponentInterface from './components/interface';
 import EventBus from './lib/events/bus';
 import Event from './lib/events/event';
 import Renderer from './renderer';
+import Component from './components/component';
 
 interface VivereInterface {
-  $components?: Set<Component>;
-  $definitions?: Registry<string, ComponentDefintion>;
+  $components?: Set<ComponentContext>;
+  $definitions?: Registry<string, ComponentInterface>;
 
-  register: (name: string, definition: ComponentDefintion) => void;
-  $track: (component: Component) => void;
-  $untrack: (component: Component) => void;
-  $getDefinition: (name: string) => ComponentDefintion;
+  register: (name: string, definition: ComponentInterface) => void;
+  $track: (component: ComponentContext) => void;
+  $untrack: (component: ComponentContext) => void;
+  $getDefinition: (name: string) => ComponentInterface;
 }
 
 declare global {
@@ -22,8 +23,8 @@ declare global {
   }
 }
 
-const $components: Set<Component> = new Set();
-const $definitions: Registry<string, ComponentDefintion> = new Registry();
+const $components: Set<ComponentContext> = new Set();
+const $definitions: Registry<string, ComponentInterface> = new Registry();
 
 // Setup logic
 
@@ -34,7 +35,7 @@ const $setup = (element: Element): void => {
   Walk.tree(element);
 
   // Finalize connecting our components
-  $components.forEach((c) => { c.$connect(); });
+  $components.forEach((c) => { c.connect(); });
 
   console.log(`Vivere | Document parsed: ${new Date().getTime() - start.getTime()}ms`);
 };
@@ -53,7 +54,7 @@ const $binding = $setupDocument.bind(this);
 // Dehydrate Vivere
 
 const dehydrate = (): void => {
-  $components.forEach((c) => c.$dehydrate.call(c, true));
+  $components.forEach((c) => c.dehydrate.call(c, true));
 };
 
 
@@ -86,19 +87,19 @@ document.addEventListener('click', (e: Event) => {
 const Vivere: VivereInterface = {
   // Track components and definitions
 
-  register(name: string, definition: ComponentDefintion): void {
+  register(name: string, definition: ComponentInterface): void {
     $definitions.register(name, definition);
   },
 
-  $track(component: Component): void {
+  $track(component: ComponentContext): void {
     $components.add(component);
   },
 
-  $untrack(component: Component): void {
+  $untrack(component: ComponentContext): void {
     $components.delete(component);
   },
 
-  $getDefinition(name: string): ComponentDefintion {
+  $getDefinition(name: string): ComponentInterface {
     if (name == null || name.length <= 0)
       return {};
 
@@ -106,4 +107,4 @@ const Vivere: VivereInterface = {
   },
 };
 
-export default Vivere;
+export { Vivere, Component as VivereComponent, ComponentInterface };

@@ -1,39 +1,32 @@
-export default {
-  passed: {
+export default class {
+  inputText = null;
+
+  filtering = false;
+  text = null;
+
+  passed = {
     filtering: {
       type: Boolean,
-      default: false,
     },
     text: {
       type: String,
-      default: null,
     },
-  },
+  };
 
-  data() {
-    return {
-      inputText: null,
-    };
-  },
+  onInputTextChanged() {
+    this.$emit('input', this.inputText);
+  }
 
-  watch: {
-    inputText() {
-      this.$emit('input', this.inputText);
-    },
+  onTextChanged() {
+    this.inputText = this.text;
+  }
 
-    text() {
-      this.inputText = this.text;
-    },
-  },
+  clear() {
+    this.inputText = null;
+    this.blur();
+  }
 
-  methods: {
-    clear() {
-      this.inputText = null;
-      this.blur();
-    },
-
-    blur() {
-      this.$refs.input.blur();
-    },
-  },
+  blur() {
+    this.$refs.input.blur();
+  }
 };

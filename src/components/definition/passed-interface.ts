@@ -1,5 +1,5 @@
-export interface PassedInterface {
-  type: 'Boolean' | 'Object' | 'String' | 'Number';
-  default?: unknown;
+export default interface PassedInterface {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  default?: any;
   required?: boolean;
 }

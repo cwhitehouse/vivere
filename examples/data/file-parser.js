@@ -24,8 +24,14 @@ const importMatches = jsMain
 for (let match of importMatches) {
   const importName = match[1];
   let filePath = `examples${match[2].slice(1)}`;
-  if (!filePath.endsWith('.ts'))
-    filePath += '.js';
+
+  for (ext of ['.js', '.ts']) {
+    const path = filePath + ext;
+    if (fs.existsSync(path)) {
+      filePath = path;
+      break;
+    }
+  }
 
   for (let componentName in components) {
     const impName = components[componentName].importName;
@@ -36,7 +42,7 @@ for (let match of importMatches) {
       });
 
       const exportedContent = jsFileContent
-        .match(/export default {(.|\s)*/)[0];
+        .match(/export [A-z ]* {(.|\s)*/)[0];
 
       const attributes = [];
       const attributesMatcher = exportedContent

@@ -1,4 +1,6 @@
 export default {
+  label: null,
+
   passed: {
     showing: {
       type: Boolean,
@@ -6,40 +8,28 @@ export default {
     },
   },
 
-  data() {
-    return {
-      label: null,
-    };
+  get hasLabel() {
+    return this.label != null
+      && this.label.length > 0;
   },
 
-  computed: {
-    hasLabel() {
-      return this.label != null
-        && this.label.length > 0;
-    },
+  onShowingChanged() {
+    if (this.showing)
+      this.$nextRender(() => this.$refs.input.focus());
   },
 
-  watch: {
-    showing() {
-      if (this.showing)
-        this.$nextRender(() => this.$refs.input.focus());
-    },
+  reset() {
+    this.close();
   },
 
-  methods: {
-    reset() {
-      this.close();
-    },
+  create() {
+    if (this.hasLabel)
+      this.$emit('create', this.label);
+    this.close();
+  },
 
-    create() {
-      if (this.hasLabel)
-        this.$emit('create', this.label);
-      this.close();
-    },
-
-    close() {
-      this.$emit('cancel');
-      this.label = null;
-    },
-  }
+  close() {
+    this.$emit('cancel');
+    this.label = null;
+  },
 };

@@ -94,54 +94,66 @@ const read = (object: object, expression: string): unknown => {
  * @param expression An expression passed to a Directive via an HTML attribute
  */
 const parse = (object: object, expression: string): unknown => {
-  if (isTernaryExpression(expression)) {
-    const [temp, elseValue] = expression.split(' : ');
-    const [comparison, ifValue] = temp.split(' ? ');
+  try {
+    if (isTernaryExpression(expression)) {
+      const [temp, elseValue] = expression.split(' : ');
+      const [comparison, ifValue] = temp.split(' ? ');
 
-    const $comparison = comparison;
-    let $boolean = false;
-    if (isComparisonOperation($comparison))
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      $boolean = evaluateComparison(object, $comparison);
-    else
-      $boolean = !!parse(object, $comparison);
-
-    return $boolean
-      ? parse(object, ifValue)
-      : parse(object, elseValue);
-  }
-
-  // Strings can have spaces, so try parsing
-  // as a string before we treat is a complex expression
-  if (isString(expression)) {
-    const primitive = parsePrimitive(expression);
-    if (primitive !== undefined) return primitive;
-  }
-
-  const parts = expression.split(' ');
-  if (parts.length > 1) {
-    // Spaces imply we're chaining values with && and || operators
-    let result = parse(object, parts[0]);
-    for (let i = 1; i < parts.length; i += 2) {
-      const operator = parts[i];
-      const exp = parts[i + 1];
-      const value = parse(object, exp);
-
-      if (operator === '&&')
-        result = result && value;
-      else if (operator === '||')
-        result = result || value;
+      const $comparison = comparison;
+      let $boolean = false;
+      if (isComparisonOperation($comparison))
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        $boolean = evaluateComparison(object, $comparison);
       else
-        throw new VivereError(`Tried to parse unknown operator: ${operator}`);
+        $boolean = !!parse(object, $comparison);
+
+      return $boolean
+        ? parse(object, ifValue)
+        : parse(object, elseValue);
     }
 
-    return result;
+    // Strings can have spaces, so try parsing
+    // as a string before we treat is a complex expression
+    if (isString(expression)) {
+      const primitive = parsePrimitive(expression);
+      if (primitive !== undefined) return primitive;
+    }
+
+    const parts = expression.split(' ');
+    if (parts.length > 1) {
+      // Spaces imply we're chaining values with && and || operators
+      let result = parse(object, parts[0]);
+      for (let i = 1; i < parts.length; i += 2) {
+        const operator = parts[i];
+        const exp = parts[i + 1];
+        const value = parse(object, exp);
+
+        if (operator === '&&')
+          result = result && value;
+        else if (operator === '||')
+          result = result || value;
+        else
+          throw new VivereError(`Tried to parse unknown operator: ${operator}`);
+      }
+
+      return result;
+    }
+
+    const primitive = parsePrimitive(expression);
+    if (primitive !== undefined) return primitive;
+
+    return read(object, expression);
+  } catch (err) {
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    console.log('VivereError');
+    console.log('Unable to parse expression');
+    console.log('-----------------------------------');
+    console.log(expression);
+    console.log('-----------------------------------');
+    console.log(object);
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    throw err;
   }
-
-  const primitive = parsePrimitive(expression);
-  if (primitive !== undefined) return primitive;
-
-  return read(object, expression);
 };
 
 /**
@@ -273,8 +285,22 @@ export default {
    * @param value The value we want to assign
    */
   assign(object: object, expression: string, value: unknown): void {
-    const { obj, key } = digShallow(object, expression);
-    obj[key] = value;
+    try {
+      const { obj, key } = digShallow(object, expression);
+      obj[key] = value;
+    } catch (err) {
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+      console.log('VivereError');
+      console.log('Unable to assign value');
+      console.log('-----------------------------------');
+      console.log(expression);
+      console.log('-----------------------------------');
+      console.log(object);
+      console.log('-----------------------------------');
+      console.log(value);
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+      throw err;
+    }
   },
 
   /**
@@ -286,16 +312,28 @@ export default {
    * @param args The value we want to assign
    */
   execute(object: object, expression: string, ...args: unknown[]): void {
-    const { obj, key } = digShallow(object, expression);
+    try {
+      const { obj, key } = digShallow(object, expression);
 
-    // If we've passed an arg, we need to extract and parse it
-    if (isExecutionSymbol(key)) {
-      const [method, $argString] = key.split('(');
-      const $args = $argString.slice(0, -1).split(',').map((s) => parse(object, s.trim()));
+      // If we've passed an arg, we need to extract and parse it
+      if (isExecutionSymbol(key)) {
+        const [method, $argString] = key.split('(');
+        const $args = $argString.slice(0, -1).split(',').map((s) => parse(object, s.trim()));
 
-      obj[method](...$args);
-    } else
-      // Otherwise we can just pass the default args
-      obj[key](...args);
+        obj[method](...$args);
+      } else
+        // Otherwise we can just pass the default args
+        obj[key](...args);
+    } catch (err) {
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+      console.log('VivereError');
+      console.log('Unable to execute expression');
+      console.log('-----------------------------------');
+      console.log(expression);
+      console.log('-----------------------------------');
+      console.log(object);
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+      throw err;
+    }
   },
 };

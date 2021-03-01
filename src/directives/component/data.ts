@@ -19,14 +19,15 @@ export default class DataDirective extends Directive {
     }
 
     this.camelKey = Utility.camelCase(this.key);
-    this.component.$set(this.camelKey, expression);
+    this.context.$set(this.camelKey, expression);
   }
 
 
   // Dehydration
 
   dehydrate(): void {
-    const jsonValue = JSON.stringify(this.component[this.camelKey]);
+    const value = this.context[this.camelKey];
+    const jsonValue = JSON.stringify(value);
     this.element.setAttribute(`v-data:${this.key}`, jsonValue);
   }
 }

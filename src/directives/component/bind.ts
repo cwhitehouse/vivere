@@ -7,6 +7,6 @@ export default class BindDirective extends Directive {
   // Parsing
 
   parse(): void {
-    this.component.$bindings[this.key] = this.expression;
+    this.context.bindings[this.key] = this.expression;
   }
 }

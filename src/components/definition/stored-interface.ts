@@ -1,6 +1,5 @@
-export interface StoredInterface {
-  key: string;
-  version: number;
-  defaultValue: (string | number | boolean | (() => (string | number | boolean)));
-  type: ('local' | 'session');
+export default interface StoredInterface {
+  type: string;
+  default?: (string | number | boolean | (() => (string | number | boolean)));
+  version?: number;
 }

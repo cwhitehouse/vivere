@@ -10,8 +10,8 @@ export default class PassDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { component, expression } = this;
-    const parent = component.$parent;
+    const { context, expression } = this;
+    const { parent } = context;
     const key = Utility.camelCase(this.key);
 
     if (parent == null)
@@ -21,12 +21,12 @@ export default class PassDirective extends Directive {
     if (expression != null && expression.length > 0) readKey = expression;
     else readKey = key;
 
-    const reactive: Reactive = parent.$reactives[readKey] || parent.$computeds[readKey];
+    const reactive: Reactive = parent.$reactives[readKey] || parent.computeds[readKey];
     if (reactive == null)
       throw new VivereError(`Cannot pass property, parent does not define ${readKey}`);
 
-    reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => component.$react(key, newValue, oldValue));
+    reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => context.react(key, newValue, oldValue));
 
-    component.$pass(key, reactive);
+    context.pass(key, reactive);
   }
 }

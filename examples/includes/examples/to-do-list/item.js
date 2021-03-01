@@ -4,118 +4,108 @@ const State = {
   EDIT: 'edit',
 };
 
-export default {
-  passed: {
+export default class {
+  text = null;
+  toDo = null;
+  state = State.SHOW;
+  states = [State.SHOW];
+  label = null;
+
+  passed = {
     text: {
       type: String,
-      default: null,
     },
-  },
+  };
 
-  data() {
-    return {
-      toDo: null,
-      state: State.SHOW,
-      states: [State.SHOW],
-      label: null,
-    };
-  },
+  get fauxState() {
+    return this.states[0];
+  }
 
-  computed: {
-    fauxState() {
-      return this.states[0];
-    },
+  get taggedUrgent() {
+    const { toDo } = this;
+    const { tags } = toDo;
 
-    taggedUrgent() {
-      const { toDo } = this;
-      const { tags } = toDo;
+    return tags?.indexOf('urgent') >= 0;
+  }
 
-      return tags?.indexOf('urgent') >= 0;
-    },
+  get taggedBlocked() {
+    const { toDo } = this;
+    const { tags } = toDo;
 
-    taggedBlocked() {
-      const { toDo } = this;
-      const { tags } = toDo;
+    return tags?.indexOf('blocked') >= 0;
+  }
 
-      return tags?.indexOf('blocked') >= 0;
-    },
+  get taggedNotifies() {
+    const { toDo } = this;
+    const { tags } = toDo;
 
-    taggedNotifies() {
-      const { toDo } = this;
-      const { tags } = toDo;
+    return tags?.indexOf('notifies') >= 0;
+  }
 
-      return tags?.indexOf('notifies') >= 0;
-    },
+  get lowerText() {
+    const { text } = this;
+    return text && text.toLowerCase();
+  }
 
-    lowerText() {
-      const { text } = this;
-      return text && text.toLowerCase();
-    },
+  get lowerLabel() {
+    const { toDo } = this;
+    const { label } = toDo;
+    return label?.toLowerCase();
+  }
 
-    lowerLabel() {
-      const { toDo } = this;
-      const { label } = toDo;
-      return label?.toLowerCase();
-    },
+  get matchesText() {
+    const { lowerText, lowerLabel } = this;
 
-    matchesText() {
-      const { lowerText, lowerLabel } = this;
+    if (lowerText == null || lowerText.length <= 0)
+      return true;
 
-      if (lowerText == null || lowerText.length <= 0)
-        return true;
+    return lowerLabel.includes(lowerText);
+  }
 
-      return lowerLabel.includes(lowerText);
-    },
+  get isShowing() {
+    return this.fauxState === State.SHOW;
+  }
 
-    isShowing() {
-      return this.fauxState === State.SHOW;
-    },
+  get isEditing() {
+    return this.fauxState === State.EDIT;
+  }
 
-    isEditing() {
-      return this.fauxState === State.EDIT;
-    },
+  get hasLabel() {
+    const { label } = this;
+    return !!label;
+  }
 
-    hasLabel() {
-      const { label } = this;
-      return !!label;
-    },
+  get isDeleting() {
+    return this.fauxState === State.DELETE;
+  }
 
-    isDeleting() {
-      return this.fauxState === State.DELETE;
-    },
-  },
+  onIsEditingChanged() {
+    if (this.isEditing) {
+      this.label = this.toDo.label;
+      this.$nextRender(() => {
+        this.$refs.input.focus();
+      });
+    }
+  }
 
-  watch: {
-    isEditing() {
-      if (this.isEditing) {
-        this.label = this.toDo.label;
-        this.$nextRender(() => {
-          this.$refs.input.focus();
-        });
-      }
-    },
-  },
+  startEditing() {
+    this.states.unshift(State.EDIT);
+  }
 
-  methods: {
-    startEditing() {
-      this.states.unshift(State.EDIT);
-    },
+  save() {
+    this.toDo.label = this.label;
+    this.reset();
+  }
 
-    save() {
-      this.toDo.label = this.label;
-      this.reset();
-    },
+  confirmDelete() {
+    this.states.unshift(State.DELETE);
+  }
 
-    confirmDelete() {
-      this.states.unshift(State.DELETE);
-    },
+  delete() {
+    this.$destroy();
+  }
 
-    delete() {
-      this.$destroy();
-    },
-
-    reset() {
-      this.states.unshift(State.SHOW);
-    },
-  },
+  reset() {
+    this.states.unshift(State.SHOW);
+  }
 };

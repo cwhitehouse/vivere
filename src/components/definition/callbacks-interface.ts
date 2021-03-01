@@ -1,4 +1,4 @@
-export interface CallbacksInterface {
+export default interface CallbacksInterface {
   beforeConnected?: () => void;
   connected?: () => void;
 

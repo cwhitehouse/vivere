@@ -1,17 +1,14 @@
-import Component from '../components/component';
+import ComponentContext from '../components/component-context';
 import Watcher from './watcher';
 import Registry from './registry';
 import ReactiveArray from './array';
 import ReactiveObject from './object';
 import VivereError from '../error';
 import Coordinator from './coordinator';
-
-interface Reactable {
-  $reactives?: { prop?: Reactive };
-}
+import Reactable from './reactable';
 
 export default class Reactive implements Reactable {
-  $reactives: { prop: Reactive };
+  $reactives: { [key: string]: Reactive };
   value: unknown;
   registry: Registry<object, (newValue: unknown, oldValue: unknown) => void>;
 
@@ -88,7 +85,7 @@ export default class Reactive implements Reactable {
 
   $report(newValue: unknown, oldValue: unknown): void {
     this.registry.forEach((entity, hook) => {
-      if (entity instanceof Component)
+      if (entity instanceof ComponentContext)
         Coordinator.trackComponent(entity, hook, newValue, oldValue);
       else
         hook(newValue, oldValue);
@@ -100,7 +97,7 @@ export default class Reactive implements Reactable {
 
   // Helper method for automatically making a property reactive
 
-  static set(host: unknown, key: string | number | symbol, value: unknown): Reactive {
+  static set(host: unknown, key: string, value: unknown, obj?: object): Reactive {
     const $host = host as Reactable;
 
     // Ensure $reactives property exists
@@ -118,13 +115,14 @@ export default class Reactive implements Reactable {
       $host.$reactives[key] = reactive;
 
       // Override property definitions
-      Object.defineProperty($host, key, {
+      Object.defineProperty((obj || $host), key, {
+        configurable: true,
         get() { return $host.$reactives[key] && $host.$reactives[key].get(); },
-        set(newValue) { $host.$reactives[key].set(newValue, key); },
+        set(newValue) { $host.$reactives[key].set(newValue); },
       });
     } else
       // Simple assignment is sufficient
-      host[key] = value;
+      (obj || host)[key] = value;
 
     return reactive;
   }
@@ -132,16 +130,17 @@ export default class Reactive implements Reactable {
 
   // Helper method for tracking passed properties
 
-  static pass(component: Component, key: string, reactive: Reactive): void {
+  static pass(context: ComponentContext, key: string, reactive: Reactive): void {
     // Track the Reactive on the Passed info
-    const passed = component.$passed[key];
-    if (passed == null)
+    const passed = context.passed[key];
+  if (passed == null)
       throw new VivereError(`Value passed to component for unknown key ${key}`);
 
     passed.$reactive = reactive;
 
     // Pass down Reactive property
-    Object.defineProperty(component, key, {
+    Object.defineProperty(context.component, key, {
+      configurable: true,
       get() {
         if (passed == null)
           throw new VivereError(`Value passed to component for unknown key ${key}`);
@@ -163,7 +162,7 @@ export default class Reactive implements Reactable {
 
     // Invoke once to ensure Watcher is initialized
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    component[key];
+    context.component[key];
   }
 
 

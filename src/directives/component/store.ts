@@ -10,7 +10,7 @@ export default class StoreDirective extends Directive {
   // Parsing
 
   parse(): void {
-    let expression: unknown;
+    let expression: any;
     try {
       expression = JSON.parse(this.expression);
     } catch (err) {
@@ -21,9 +21,9 @@ export default class StoreDirective extends Directive {
 
     // Store the storage definition on the component
     const storageType = this.modifiers[0] || 'session';
-    this.component.$stored[camelKey] = { type: storageType, defaultValue: expression };
+    this.context.stored[camelKey] = { type: storageType, default: expression };
 
     // Add the reactive property
-    this.component.$set(camelKey, expression);
+    this.context.$set(camelKey, expression);
   }
 }

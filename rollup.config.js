@@ -71,6 +71,7 @@ export default [
         "examples/**/*.js",
         "examples/**/*.ts",
         "dist/**/*.js",
+        "src/**/*.ts",
       ]
     }
   },

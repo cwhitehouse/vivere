@@ -7,8 +7,8 @@ export default class DisplayDirective extends Directive {
   // Evaluation
 
   parseExpression(): unknown {
-    const { component, expression } = this;
-    const callback = (): void => { component.$queueRender(this); };
+    const { context, component, expression } = this;
+    const callback = (): void => { context.queueRender(this); };
 
     let value: unknown;
     Watcher.watch(this, callback, () => {

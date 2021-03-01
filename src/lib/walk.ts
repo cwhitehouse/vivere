@@ -1,4 +1,4 @@
-import Component from '../components/component';
+import ComponentContext from '../components/component-context';
 import Directive from '../directives/directive';
 import ComponentDirective from '../directives/component/component';
 import BindDirective from '../directives/component/bind';
@@ -41,9 +41,9 @@ const directives: (typeof Directive)[] = [
 ];
 
 const Walk = {
-  tree(element: Element, component?: Component): void {
+  tree(element: Element, context?: ComponentContext): void {
     const { attributes } = element;
-    let $component = component;
+    let $context = context;
 
     // v-static stops tree walking for improved performance
     if (attributes['v-static'] != null) return;
@@ -56,24 +56,24 @@ const Walk = {
 
         if (name.startsWith(Dir.id)) {
           // Initialize and parse the directive
-          const directive = new Dir(element, name, value, $component);
+          const directive = new Dir(element, name, value, $context);
 
           // Re-assign component (for v-component directives)
-          $component = directive.component;
+          $context = directive.context;
         }
       });
     });
 
-    Walk.children(element, $component);
+    Walk.children(element, $context);
   },
 
-  children(element: Element, component: Component): void {
+  children(element: Element, context: ComponentContext): void {
     Object.values(element.children).forEach((child) => {
       // Continue checking the
       // element's children
       if (typeof child === 'object')
         // Only check nodes
-        Walk.tree(child, component);
+        Walk.tree(child, context);
     });
   },
 };

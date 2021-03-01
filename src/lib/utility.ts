@@ -35,4 +35,9 @@ export default {
       return 0;
     });
   },
+
+  jsonCopy(value: any): any {
+    if (value == null) return null;
+    return JSON.parse(JSON.stringify(value));
+  },
 };
