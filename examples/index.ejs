@@ -1,17 +1,90 @@
 ---
 layout: default
+allTags:
+  - v-event
+  - v-ref
+  - v-bind
+  - v-data
+  - v-pass
+  - v-store
+  - v-class
+  - v-disabled
+  - v-filter
+  - v-href
+  - v-if
+  - v-show
+  - v-sort
+  - v-src
+  - v-style
+  - v-sync
+  - v-text
+  - data
+  - stored
+  - passed
+  - computed
+  - watch
+  - methods
+  - beforeConnected
+  - connected
+  - beforeDestroy
+  - destroy
+  - beforeDehydrated
+  - dehydrated
 ---
 
-<div class="grid grid-cols-3 gap-x-6 gap-y-8">
+<div
+  v-component="index"
+  class="grid grid-cols-3 gap-x-6 gap-y-8"
+>
+  <div class="col-span-3">
+    <input
+      v-sync="filterText"
+      type="text"
+      class="w-full"
+      placeholder="Search examples..."
+    ></input>
+    <div class="flex flex-wrap items-center mt-4">
+      <% for (tag of allTags) { %>
+        <%
+          let classesOff, classesOn;
+          if (tag.startsWith('v-')) {
+            classesOff = ['bg-emerald-100', 'text-emerald-900', 'hover:bg-emerald-500', 'hover:text-white'];
+            classesOn = ['bg-emerald-500', 'text-white'];
+          } else {
+            classesOff = ['bg-indigo-100', 'text-indigo-900', 'hover:bg-indigo-500', 'hover:text-white'];
+            classesOn = ['bg-indigo-500', 'text-white'];
+          }
+        %>
+        <button
+          v-component="filter-tag"
+          v-bind:update-filter
+          v-data:tag="<%= JSON.stringify(tag) %>"
+          v-pass:filter-tag
+          v-event:click="toggleFilter"
+          v-class:<%= classesOff.join('.') %>="filterTag !== tag"
+          v-class:<%= classesOn.join('.') %>="filterTag === tag"
+          class="rounded text-xs uppercase font-semibold px-2 py-1 mr-1 mt-1"
+        ><%= tag %></button>
+      <% } %>
+    </div>
+  </div>
+
   <% examples.forEach(exampleGroup => { %>
     <%
-      const tags = exampleGroup.examples
+      const groupTags = exampleGroup.examples
         .map(e => (e.tags || []))
         .flat()
         .filter(list.uniqueness)
         .sort(list.directives);
     %>
-    <div>
+    <div
+      v-component="example-group"
+      v-if="shouldShow"
+      v-data:example-group="<%= JSON.stringify(exampleGroup) %>"
+      v-data:tags="<%= JSON.stringify(groupTags) %>"
+      v-pass:filter-tag
+      v-pass:filter-text
+    >
       <a href="<%= exampleGroup.id %>">
         <div class="border rounded bg-white shadow-md hover:shadow-xl active:shadow-none p-4">
           <p class="text-xl font-medium"><%= exampleGroup.name %></p>
@@ -19,7 +92,7 @@ layout: default
         </div>
       </a>
       <div class="flex flex-wrap items-center mt-1 ml-2 mr-1">
-        <%- include('/tags', { tags }); %>
+        <%- include('/tags', { tags: groupTags }); %>
       </div>
     </div>
   <% }); %>

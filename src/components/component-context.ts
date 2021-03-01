@@ -171,7 +171,13 @@ export default class ComponentContext implements Reactable {
   $emit(event: string, arg: unknown): void {
     // Check bindings
     const method = this.bindings[event];
-    this.parent.component[method](arg);
+    if (method == null)
+      throw new VivereError(`Tried to emit unbound event, ${event}`);
+
+    if (this.parent.component[method] != null)
+      this.parent.component[method](arg);
+    else
+      throw new VivereError(`Parent does not implement ${method}`);
   }
 
   invokeBinding(event: string, arg: unknown): void {
