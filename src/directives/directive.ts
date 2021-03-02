@@ -5,7 +5,8 @@ import DirectiveError from '../errors/directive-error';
 export default class Directive {
   static id: string;
   static forComponent: boolean;
-  static needsComponent: boolean;
+  static requiresComponent: boolean;
+  static requiresKey = false;
   static shouldRehydrate = true;
 
   context?: ComponentContext;
@@ -17,19 +18,23 @@ export default class Directive {
   // Constructor
 
   constructor(element: Element, name: string, expression: string, context?: ComponentContext) {
-    // Extract key and modifiers from attribute name
-    const [, ...key] = name.split(':');
-    if (key != null)
-      [this.key, ...this.modifiers] = key.join(':').split('.');
-
     this.context = context;
     this.element = element;
     this.expression = expression;
 
+    // Extract key and modifiers from attribute name
+    const [, ...key] = name.split(':');
+
+    if (key)
+      [this.key, ...this.modifiers] = key.join(':').split('.');
+
+    if (!this.key && this.requiresKey())
+      throw new DirectiveError(`A key is required for ${this.id()} directives`, this);
+
     // Check the directive if it's valid
     if (this.id() == null) throw new DirectiveError('Directives must have an identifier', this);
     if (this.forComponent() && !this.onComponent()) throw new DirectiveError(`${name} only applies to component roots`, this);
-    if (this.needsComponent() && this.context == null) throw new DirectiveError(`${name} requires a component`, this);
+    if (this.requiresComponent() && this.context == null) throw new DirectiveError(`${name} requires a component`, this);
 
     // Register directive on the component (if necessary)
     if (this.context != null) this.context.directives.add(this);
@@ -93,8 +98,12 @@ export default class Directive {
     return (this.constructor as typeof Directive).forComponent;
   }
 
-  needsComponent(): boolean {
-    return (this.constructor as typeof Directive).needsComponent;
+  requiresComponent(): boolean {
+    return (this.constructor as typeof Directive).requiresComponent;
+  }
+
+  requiresKey(): boolean {
+    return (this.constructor as typeof Directive).requiresKey;
   }
 
   onComponent(): boolean {

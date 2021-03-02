@@ -5,14 +5,13 @@ class Printer {
   constructor(value: any, keys: string[]) {
     this.value = value;
     this.keys = keys;
-
-    console.log('');
-    console.log('CONSTRUCTING PRINTER');
-    console.log(keys);
   }
 
   get typeLabel(): string {
     const { value } = this;
+
+    if (value == null)
+      return 'null';
 
     if (typeof value === 'object')
       if (value.constructor != null)
@@ -23,6 +22,9 @@ class Printer {
 
   get properties(): { key: string; value: any }[] {
     const { keys, value } = this;
+
+    if (value == null)
+      return [];
 
     return Object.getOwnPropertyNames(value).sort().map((key) => {
       if (!keys || keys.includes(key)) {

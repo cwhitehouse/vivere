@@ -5,6 +5,7 @@ import Evaluator from '../../lib/evaluator';
 export default class StoreDirective extends Directive {
   static id = 'v-store';
   static forComponent = true;
+  static requiresKey = true;
   static shouldRehydrate = false;
 
   // Parsing

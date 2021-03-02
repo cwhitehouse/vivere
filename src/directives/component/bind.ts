@@ -4,6 +4,7 @@ import Directive from '../directive';
 export default class BindDirective extends Directive {
   static id = 'v-bind';
   static forComponent = true;
+  static requiresKey = true;
 
   // Parsing
 
