@@ -68,10 +68,12 @@ const factory = (context: ComponentContext, definition: ComponentInterface): Com
 
   let entity;
   try {
-    entity = new definition();
+    const Definition = definition as any;
+
+    entity = new Definition();
     parseProperties(entity, context, instance);
 
-    entity = definition.prototype;
+    entity = Definition.prototype;
     parseProperties(entity, context, instance);
   } catch (err) {
     entity = definition;

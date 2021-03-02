@@ -23,7 +23,7 @@ export default class ReactiveObject {
         }
       },
       set(target, p, value): boolean {
-        Reactive.set(target, p, value);
+        Reactive.set(target, p.toString(), value);
         return true;
       },
     });

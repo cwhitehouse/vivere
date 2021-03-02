@@ -103,7 +103,7 @@ const $parse = (object: object, expression: string): unknown => {
     let $boolean = false;
     if (isComparisonOperation($comparison))
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      $boolean = evaluateComparison(object, $comparison);
+      $boolean = $evaluateComparison(object, $comparison);
     else
       $boolean = !!$parse(object, $comparison);
 
@@ -152,12 +152,12 @@ const $parse = (object: object, expression: string): unknown => {
  * @param object A Javascript object to dig into
  * @param expression An expression passed to a Directive via an HTML attribute
  */
-const evaluateComparison = (component: Component, expression: string): boolean => {
+const $evaluateComparison = (object: object, expression: string): boolean => {
   const splitRegex = new RegExp(` ${comparisonSymbolRegex} `);
 
   const [lhExp, operator, rhExp] = expression.split(splitRegex);
-  const lhValue = $parse(component, lhExp);
-  const rhValue = $parse(component, rhExp);
+  const lhValue = $parse(object, lhExp);
+  const rhValue = $parse(object, rhExp);
 
   switch (operator) {
     case '==':
@@ -179,7 +179,7 @@ const evaluateComparison = (component: Component, expression: string): boolean =
     case '<=':
       return lhValue <= rhValue;
     default:
-      throw new EvaluatorError(`Failed to evaluate unknown operator: ${operator}`, component, expression, null);
+      throw new EvaluatorError(`Failed to evaluate unknown operator: ${operator}`, object, expression, null);
   }
 };
 
@@ -256,7 +256,13 @@ export default {
  */
   isComparisonOperation,
 
-  evaluateComparison,
+  evaluateComparison(component: Component, expression: string): boolean {
+    try {
+      return $evaluateComparison(component, expression);
+    } catch (err) {
+      throw new EvaluatorError('Failed to evaluate comparison expression', component, expression, err);
+    }
+  },
 
 
   // Reading, writing, and executing expressions

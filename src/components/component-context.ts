@@ -10,10 +10,10 @@ import ComponentInterface from './interface';
 import Storage from '../reactivity/storage';
 import Component from './component';
 import ComponentFactory from './component-factory';
-import PassedInterface from './definition/passed-interface';
 import StoredInterface from './definition/stored-interface';
 import Reactable from '../reactivity/reactable';
 import ComponentError from '../errors/component-error';
+import ReactivePassedInterface from './definition/reactive-passed-interface';
 
 declare global {
   interface Element {
@@ -35,7 +35,7 @@ export default class ComponentContext implements Reactable {
   element: Element;
   name: string;
   parent?: ComponentContext;
-  passed: { [key: string]: PassedInterface };
+  passed: { [key: string]: ReactivePassedInterface };
   refs: { [key: string]: (Element | Component) };
   stored: { [key: string]: StoredInterface };
 

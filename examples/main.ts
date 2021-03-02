@@ -1,5 +1,5 @@
-// eslint-disable-next-line
-import * as Turbo from '@hotwired/turbo';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import '@hotwired/turbo';
 
 import { Vivere } from '../src/vivere';
 
