@@ -1,8 +1,14 @@
 class Printer {
   value: any;
+  keys: string[];
 
-  constructor(value) {
+  constructor(value: any, keys: string[]) {
     this.value = value;
+    this.keys = keys;
+
+    console.log('');
+    console.log('CONSTRUCTING PRINTER');
+    console.log(keys);
   }
 
   get typeLabel(): string {
@@ -16,12 +22,15 @@ class Printer {
   }
 
   get properties(): { key: string; value: any }[] {
-    const { value } = this;
+    const { keys, value } = this;
 
     return Object.getOwnPropertyNames(value).sort().map((key) => {
-      const val = value[key];
-      return { key, value: val };
-    });
+      if (!keys || keys.includes(key)) {
+        const val = value[key];
+        return { key, value: val };
+      }
+      return null;
+    }).filter(v => v != null);
   }
 
   get propertiesString(): string {
@@ -31,6 +40,7 @@ class Printer {
 
   valueString(val: any): string {
     if (val == null) return 'null';
+    if (Array.isArray(val)) return '[]';
     if (typeof val === 'function') return 'f()';
     return JSON.stringify(val);
   }
@@ -50,7 +60,7 @@ class Printer {
 }
 
 export default {
-  print(value: any) {
-    return new Printer(value).print();
+  print(value: any, keys?: string[]): string {
+    return new Printer(value, keys).print();
   },
 };

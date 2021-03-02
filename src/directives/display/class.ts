@@ -8,7 +8,7 @@ export default class ClassDirective extends DisplayDirective {
   // Parsing
 
   parse(): void {
-    if (this.key == null)
+    if (!this.key)
       throw new DirectiveError('Class directive requires a key', this);
   }
 

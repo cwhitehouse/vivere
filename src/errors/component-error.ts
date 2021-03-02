@@ -6,10 +6,11 @@ export default class ComponentError extends VivereError {
   constructor(message: string, component: Component, error?: Error) {
     let errorMessage = `${message}
 
-    ${Printer.print(component)}`;
+  ${Printer.print(component)}
+`;
 
     if (error != null)
-      errorMessage += `\n  ${error}`;
+      errorMessage += `  ${error}`;
 
     super(errorMessage);
   }

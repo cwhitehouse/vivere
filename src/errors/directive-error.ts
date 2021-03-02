@@ -6,12 +6,13 @@ export default class DirectiveError extends VivereError {
   constructor(message: string, directive: Directive, error?: Error) {
     let errorMessage = `${message}
 
-    ${Printer.print(directive.component)}
+  ${Printer.print(directive.component)}
 
-    ${Printer.print(directive)}`;
+  ${Printer.print(directive, ['key', 'modifiers', 'expression'])}
+`;
 
     if (error != null)
-      errorMessage += `\n  ${error}`;
+      errorMessage += `  ${error}`;
 
     super(errorMessage);
   }
