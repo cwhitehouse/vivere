@@ -1,7 +1,6 @@
 import DisplayDirective from './display';
 import Watcher from '../../reactivity/watcher';
 import Evaluator from '../../lib/evaluator';
-import VivereError from '../../errors/error';
 import Utility from '../../lib/utility';
 import DirectiveError from '../../errors/directive-error';
 
@@ -23,7 +22,7 @@ export default class SortDirective extends DisplayDirective {
 
       // Sort expression needs to be an object
       if (!Array.isArray(value))
-        throw new VivereError('Sort directive requires an array of options');
+        throw new DirectiveError('Sort directive requires an array of options', this);
 
       let [sortKeys] = value;
       const [, sortOrders] = value;

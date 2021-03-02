@@ -3,9 +3,9 @@ import Watcher from './watcher';
 import Registry from './registry';
 import ReactiveArray from './array';
 import ReactiveObject from './object';
-import VivereError from '../errors/error';
 import Coordinator from './coordinator';
 import Reactable from './reactable';
+import ComponentError from '../errors/component-error';
 
 export default class Reactive implements Reactable {
   $reactives: { [key: string]: Reactive };
@@ -134,7 +134,7 @@ export default class Reactive implements Reactable {
     // Track the Reactive on the Passed info
     const passed = context.passed[key];
     if (passed == null)
-      throw new VivereError(`Value passed to component for unknown key ${key}`);
+      throw new ComponentError(`Value passed to component for unknown key ${key}`, context.component);
 
     passed.$reactive = reactive;
 
@@ -143,12 +143,12 @@ export default class Reactive implements Reactable {
       configurable: true,
       get() {
         if (passed == null)
-          throw new VivereError(`Value passed to component for unknown key ${key}`);
+          throw new ComponentError(`Value passed to component for unknown key ${key}`, context.component);
 
         let value = reactive.get();
         if (value == null) {
           if (passed.required)
-            throw new VivereError(`${key} is required to be passed`);
+            throw new ComponentError(`${key} is required to be passed`, context.component);
 
           value = passed.default;
         }
@@ -156,7 +156,7 @@ export default class Reactive implements Reactable {
         return value;
       },
       set() {
-        throw new VivereError('Cannot update passed values from a child');
+        throw new ComponentError('Cannot update passed values from a child', context.component);
       },
     });
 

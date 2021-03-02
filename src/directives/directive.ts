@@ -1,7 +1,6 @@
 import Component from '../components/component';
 import ComponentContext from '../components/component-context';
 import DirectiveError from '../errors/directive-error';
-import VivereError from '../errors/error';
 
 export default class Directive {
   static id: string;
@@ -28,7 +27,7 @@ export default class Directive {
     this.expression = expression;
 
     // Check the directive if it's valid
-    if (this.id() == null) throw new VivereError('Directives must have an identifier');
+    if (this.id() == null) throw new DirectiveError('Directives must have an identifier', this);
     if (this.forComponent() && !this.onComponent()) throw new DirectiveError(`${name} only applies to component roots`, this);
     if (this.needsComponent() && this.context == null) throw new DirectiveError(`${name} requires a component`, this);
 

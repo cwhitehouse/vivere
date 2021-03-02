@@ -1,8 +1,8 @@
 import Reactive from './reactive';
 import ComponentContext from '../components/component-context';
 import Watcher from './watcher';
-import VivereError from '../errors/error';
 import Component from '../components/component';
+import ComponentError from '../errors/component-error';
 
 export default class Computed extends Reactive {
   $computed = false;
@@ -63,11 +63,11 @@ export default class Computed extends Reactive {
       Object.defineProperty(component, key, {
         configurable: true,
         get() { return context.computeds[key].get(); },
-        set() { throw new VivereError(`Cannot assign to computed property ${key}`); },
+        set() { throw new ComponentError(`Cannot assign to computed property ${key}`, context.component); },
       });
     } else
       // Property is already computed
-      throw new VivereError(`Cannot assign to computed property ${key}`);
+      throw new ComponentError(`Cannot assign to computed property ${key}`, context.component);
 
 
     return computed;
