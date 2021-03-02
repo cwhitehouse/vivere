@@ -1,5 +1,5 @@
 import DisplayDirective from './display';
-import VivereError from '../../error';
+import DirectiveError from '../../errors/directive-error';
 
 export default class DisabledDirective extends DisplayDirective {
   static id = 'v-disabled';
@@ -10,7 +10,8 @@ export default class DisabledDirective extends DisplayDirective {
   parse(): void {
     // Validate our element node
     const { nodeName } = this.element;
-    if (nodeName !== 'INPUT' && nodeName !== 'BUTTON') throw new VivereError('Sync directives only work on input elements');
+    if (nodeName !== 'INPUT' && nodeName !== 'BUTTON')
+      throw new DirectiveError(`Disabled directives only work on inputs and buttons, not ${nodeName}`, this);
   }
 
 

@@ -1,6 +1,6 @@
 import DisplayDirective from './display';
-import VivereError from '../../error';
 import Utility from '../../lib/utility';
+import DirectiveError from '../../errors/directive-error';
 
 export default class ClassDirective extends DisplayDirective {
   static id = 'v-style';
@@ -8,7 +8,8 @@ export default class ClassDirective extends DisplayDirective {
   // Parsing
 
   parse(): void {
-    if (this.key == null) throw new VivereError('Style directive requires a key');
+    if (this.key == null)
+      throw new DirectiveError('Style directive requires a key', this);
   }
 
 

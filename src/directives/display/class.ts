@@ -1,6 +1,6 @@
 import DisplayDirective from './display';
-import VivereError from '../../error';
 import DOM from '../../lib/dom';
+import DirectiveError from '../../errors/directive-error';
 
 export default class ClassDirective extends DisplayDirective {
   static id = 'v-class';
@@ -8,7 +8,8 @@ export default class ClassDirective extends DisplayDirective {
   // Parsing
 
   parse(): void {
-    if (this.key == null) throw new VivereError('Class directive requires a key');
+    if (this.key == null)
+      throw new DirectiveError('Class directive requires a key', this);
   }
 
 

@@ -1,7 +1,7 @@
 import Reactive from './reactive';
 import ComponentContext from '../components/component-context';
 import Watcher from './watcher';
-import VivereError from '../error';
+import VivereError from '../errors/error';
 import Component from '../components/component';
 
 export default class Computed extends Reactive {

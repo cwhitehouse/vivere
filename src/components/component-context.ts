@@ -5,7 +5,7 @@ import Walk from '../lib/walk';
 import Directive from '../directives/directive';
 import Computed from '../reactivity/computed';
 import Renderer from '../renderer';
-import VivereError from '../error';
+import VivereError from '../errors/error';
 import ComponentInterface from './interface';
 import Storage from '../reactivity/storage';
 import Component from './component';
@@ -13,6 +13,7 @@ import ComponentFactory from './component-factory';
 import PassedInterface from './definition/passed-interface';
 import StoredInterface from './definition/stored-interface';
 import Reactable from '../reactivity/reactable';
+import ComponentError from '../errors/component-error';
 
 declare global {
   interface Element {
@@ -172,12 +173,12 @@ export default class ComponentContext implements Reactable {
     // Check bindings
     const method = this.bindings[event];
     if (method == null)
-      throw new VivereError(`Tried to emit unbound event, ${event}`);
+      throw new ComponentError(`Tried to emit unbound event: ${event}`, this.component);
 
     if (this.parent.component[method] != null)
       this.parent.component[method](arg);
     else
-      throw new VivereError(`Parent does not implement ${method}`);
+      throw new ComponentError(`Parent does not implement ${method}`, this.component);
   }
 
   invokeBinding(event: string, arg: unknown): void {
@@ -193,7 +194,7 @@ export default class ComponentContext implements Reactable {
   $attach(html: string, ref: string): void {
     const $ref = this.refs[ref];
     if ($ref == null)
-      throw new VivereError(`No reference named ${ref} found`);
+      throw new ComponentError(`No reference named ${ref} found`, this.component);
 
     let element: Element;
     if ($ref instanceof Element)

@@ -1,5 +1,5 @@
 import StoredInterface from '../components/definition/stored-interface';
-import VivereError from '../error';
+import VivereError from '../errors/error';
 
 const getStorage = (definition: StoredInterface): Storage => {
   const { type } = definition;

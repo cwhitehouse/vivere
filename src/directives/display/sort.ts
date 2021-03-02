@@ -1,8 +1,9 @@
 import DisplayDirective from './display';
 import Watcher from '../../reactivity/watcher';
 import Evaluator from '../../lib/evaluator';
-import VivereError from '../../error';
+import VivereError from '../../errors/error';
 import Utility from '../../lib/utility';
+import DirectiveError from '../../errors/directive-error';
 
 interface Sorter {
   element: Element;
@@ -28,9 +29,9 @@ export default class SortDirective extends DisplayDirective {
       const [, sortOrders] = value;
 
       if (!Array.isArray(sortKeys))
-        throw new VivereError('Sort directive requires an array of keys to sort by');
+        throw new DirectiveError('Sort directive requires an array of keys to sort by', this);
       if (!Array.isArray(sortOrders))
-        throw new VivereError('Sort directive requires an array of orders to sort by');
+        throw new DirectiveError('Sort directive requires an array of orders to sort by', this);
 
       // Loop through and evaluate necessary information
       const children: Sorter[] = [];
@@ -38,11 +39,11 @@ export default class SortDirective extends DisplayDirective {
         const { $component } = element;
 
         if ($component == null)
-          throw new VivereError('Sort directive requires all children to be components');
+          throw new DirectiveError('Sort directive requires all children to be components', this);
 
         const child: Sorter = { element };
         sortKeys.forEach((expression) => {
-          const sortValue = Evaluator.read($component, expression);
+          const sortValue = Evaluator.parse($component, expression);
           const sortKey = this.finalPart(expression);
 
           child[sortKey] = sortValue;

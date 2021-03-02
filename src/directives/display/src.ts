@@ -1,5 +1,5 @@
 import DisplayDirective from './display';
-import VivereError from '../../error';
+import DirectiveError from '../../errors/directive-error';
 
 export default class SrcDirective extends DisplayDirective {
   static id = 'v-src';
@@ -12,7 +12,7 @@ export default class SrcDirective extends DisplayDirective {
     // Validate our element node
     const { nodeName } = this.element;
     if (nodeName !== 'IMG')
-      throw new VivereError(`Src directives only work on image elements, not ${nodeName}`);
+      throw new DirectiveError(`Src directives only work on image elements, not ${nodeName}`, this);
   }
 
   // Evaluation

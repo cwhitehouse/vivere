@@ -1,4 +1,5 @@
-import VivereError from '../error';
+import Component from '../components/component';
+import EvaluatorError from '../errors/evaluator-error';
 
 const stringRegex = '\'[^\']*\'|"[^"]*"';
 const basicSymbolRegex = `(${stringRegex}|[a-zA-z.\\-_0-9]+)`;
@@ -33,7 +34,7 @@ const isComparisonOperation = (expression: string): boolean => expression.match(
 const isTernaryOperationRegx = new RegExp(`^${complexSymbolRegex} [?] ${standardSymbolRegex} [:] ${standardSymbolRegex}$`);
 const isTernaryExpression = (expression: string): boolean => expression.match(isTernaryOperationRegx) != null;
 
-const parsePrimitive = (expression: string): unknown => {
+const $parsePrimitive = (expression: string): unknown => {
   // Check if the expression is a number
   const number = Number(expression);
   if (!Number.isNaN(number)) return number;
@@ -93,67 +94,55 @@ const read = (object: object, expression: string): unknown => {
  * @param object A Javascript object to dig into
  * @param expression An expression passed to a Directive via an HTML attribute
  */
-const parse = (object: object, expression: string): unknown => {
-  try {
-    if (isTernaryExpression(expression)) {
-      const [temp, elseValue] = expression.split(' : ');
-      const [comparison, ifValue] = temp.split(' ? ');
+const $parse = (object: object, expression: string): unknown => {
+  if (isTernaryExpression(expression)) {
+    const [temp, elseValue] = expression.split(' : ');
+    const [comparison, ifValue] = temp.split(' ? ');
 
-      const $comparison = comparison;
-      let $boolean = false;
-      if (isComparisonOperation($comparison))
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        $boolean = evaluateComparison(object, $comparison);
-      else
-        $boolean = !!parse(object, $comparison);
+    const $comparison = comparison;
+    let $boolean = false;
+    if (isComparisonOperation($comparison))
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      $boolean = evaluateComparison(object, $comparison);
+    else
+      $boolean = !!$parse(object, $comparison);
 
-      return $boolean
-        ? parse(object, ifValue)
-        : parse(object, elseValue);
-    }
-
-    // Strings can have spaces, so try parsing
-    // as a string before we treat is a complex expression
-    if (isString(expression)) {
-      const primitive = parsePrimitive(expression);
-      if (primitive !== undefined) return primitive;
-    }
-
-    const parts = expression.split(' ');
-    if (parts.length > 1) {
-      // Spaces imply we're chaining values with && and || operators
-      let result = parse(object, parts[0]);
-      for (let i = 1; i < parts.length; i += 2) {
-        const operator = parts[i];
-        const exp = parts[i + 1];
-        const value = parse(object, exp);
-
-        if (operator === '&&')
-          result = result && value;
-        else if (operator === '||')
-          result = result || value;
-        else
-          throw new VivereError(`Tried to parse unknown operator: ${operator}`);
-      }
-
-      return result;
-    }
-
-    const primitive = parsePrimitive(expression);
-    if (primitive !== undefined) return primitive;
-
-    return read(object, expression);
-  } catch (err) {
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    console.log('VivereError');
-    console.log('Unable to parse expression');
-    console.log('-----------------------------------');
-    console.log(expression);
-    console.log('-----------------------------------');
-    console.log(object);
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    throw err;
+    return $boolean
+      ? $parse(object, ifValue)
+      : $parse(object, elseValue);
   }
+
+  // Strings can have spaces, so try parsing
+  // as a string before we treat is a complex expression
+  if (isString(expression)) {
+    const primitive = $parsePrimitive(expression);
+    if (primitive !== undefined) return primitive;
+  }
+
+  const parts = expression.split(' ');
+  if (parts.length > 1) {
+    // Spaces imply we're chaining values with && and || operators
+    let result = $parse(object, parts[0]);
+    for (let i = 1; i < parts.length; i += 2) {
+      const operator = parts[i];
+      const exp = parts[i + 1];
+      const value = $parse(object, exp);
+
+      if (operator === '&&')
+        result = result && value;
+      else if (operator === '||')
+        result = result || value;
+      else
+        throw new Error(`Failed to parse unknown operator: ${operator}`);
+    }
+
+    return result;
+  }
+
+  const primitive = $parsePrimitive(expression);
+  if (primitive !== undefined) return primitive;
+
+  return read(object, expression);
 };
 
 /**
@@ -163,12 +152,12 @@ const parse = (object: object, expression: string): unknown => {
  * @param object A Javascript object to dig into
  * @param expression An expression passed to a Directive via an HTML attribute
  */
-const evaluateComparison = (object: object, expression: string): boolean => {
+const evaluateComparison = (component: Component, expression: string): boolean => {
   const splitRegex = new RegExp(` ${comparisonSymbolRegex} `);
 
   const [lhExp, operator, rhExp] = expression.split(splitRegex);
-  const lhValue = parse(object, lhExp);
-  const rhValue = parse(object, rhExp);
+  const lhValue = $parse(component, lhExp);
+  const rhValue = $parse(component, rhExp);
 
   switch (operator) {
     case '==':
@@ -190,7 +179,7 @@ const evaluateComparison = (object: object, expression: string): boolean => {
     case '<=':
       return lhValue <= rhValue;
     default:
-      throw new VivereError('Failed to evaluate comparison, unknown operator!');
+      throw new EvaluatorError(`Failed to evaluate unknown operator: ${operator}`, component, expression, null);
   }
 };
 
@@ -228,9 +217,9 @@ export default {
    * @param object A Javascript object to dig into
    * @param expression An expression passed to a Directive via an HTML attribute
    */
-  executeAssignment(object: object, expression: string): void {
+  executeAssignment(component: Component, expression: string): void {
     const [lhExp, operator, rhExp] = expression.split(' ');
-    const { obj, key } = digShallow(object, lhExp);
+    const { obj, key } = digShallow(component, lhExp);
 
     let $rhExp = rhExp;
     let inversions = 0;
@@ -238,7 +227,7 @@ export default {
       $rhExp = $rhExp.slice(1);
       inversions += 1;
     }
-    let value = parse(object, $rhExp);
+    let value = $parse(component, $rhExp);
     for (let i = 0; i < inversions; i += 1)
       value = !value;
 
@@ -251,12 +240,12 @@ export default {
         break;
       case '-=':
         if (typeof value !== 'number')
-          throw new VivereError('Can only perform -= operation on numbers');
+          throw new EvaluatorError(`Operator only applies to numbers: "${operator}"`, component, expression, null);
 
         obj[key] -= value;
         break;
       default:
-        throw new VivereError('Failed to excute assignment, unknown operator!');
+        throw new EvaluatorError(`Failed to parse unknown operator: "${operator}"`, component, expression, null);
     }
   },
 
@@ -273,8 +262,22 @@ export default {
   // Reading, writing, and executing expressions
 
   read,
-  parse,
-  parsePrimitive,
+
+  parsePrimitive(component: Component, expression: string): unknown {
+    try {
+      return $parsePrimitive(expression);
+    } catch (err) {
+      throw new EvaluatorError('Failed to parse expression', component, expression, err);
+    }
+  },
+
+  parse(component: Component, expression: string): unknown {
+    try {
+      return $parse(component, expression);
+    } catch (err) {
+      throw new EvaluatorError('Failed to parse expression', component, expression, err);
+    }
+  },
 
   /**
    * Evaluates a Directive expression, and then assigns a value
@@ -284,22 +287,12 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    * @param value The value we want to assign
    */
-  assign(object: object, expression: string, value: unknown): void {
+  assign(component: Component, expression: string, value: unknown): void {
     try {
-      const { obj, key } = digShallow(object, expression);
+      const { obj, key } = digShallow(component, expression);
       obj[key] = value;
     } catch (err) {
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-      console.log('VivereError');
-      console.log('Unable to assign value');
-      console.log('-----------------------------------');
-      console.log(expression);
-      console.log('-----------------------------------');
-      console.log(object);
-      console.log('-----------------------------------');
-      console.log(value);
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-      throw err;
+      throw new EvaluatorError('Failed to assign value', component, expression, err);
     }
   },
 
@@ -311,29 +304,24 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    * @param args The value we want to assign
    */
-  execute(object: object, expression: string, ...args: unknown[]): void {
+  execute(component: Component, expression: string, ...args: unknown[]): void {
+    let obj: unknown;
+    let key: string;
+
     try {
-      const { obj, key } = digShallow(object, expression);
+      ({ obj, key } = digShallow(component, expression));
 
       // If we've passed an arg, we need to extract and parse it
       if (isExecutionSymbol(key)) {
         const [method, $argString] = key.split('(');
-        const $args = $argString.slice(0, -1).split(',').map((s) => parse(object, s.trim()));
+        const $args = $argString.slice(0, -1).split(',').map((s) => $parse(component, s.trim()));
 
         obj[method](...$args);
       } else
         // Otherwise we can just pass the default args
         obj[key](...args);
     } catch (err) {
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-      console.log('VivereError');
-      console.log('Unable to execute expression');
-      console.log('-----------------------------------');
-      console.log(expression);
-      console.log('-----------------------------------');
-      console.log(object);
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-      throw err;
+      throw new EvaluatorError('Failed to execute expression', component, expression, err);
     }
   },
 };

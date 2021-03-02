@@ -1,8 +1,8 @@
 import DisplayDirective from './display';
 import Watcher from '../../reactivity/watcher';
 import Evaluator from '../../lib/evaluator';
-import VivereError from '../../error';
 import DOM, { NodeHost } from '../../lib/dom';
+import DirectiveError from '../../errors/directive-error';
 
 interface Filtered {
   host: NodeHost;
@@ -37,7 +37,7 @@ export default class FilterDirective extends DisplayDirective {
     const callback = (): void => { context.queueRender(this); };
     Watcher.watch(this, callback, () => {
       if (value != null && typeof value !== 'string')
-        throw new VivereError('Filter directive requires a string expression');
+        throw new DirectiveError('Filter directive requires a string expression', this);
 
       // We know value is null or a string
       const $value: string = value as string;
@@ -49,11 +49,11 @@ export default class FilterDirective extends DisplayDirective {
         const { $component } = element;
 
         if ($component == null)
-          throw new VivereError('Filter directive requires all children to be components');
+          throw new DirectiveError('Filter directive requires all children to be components', this);
 
         let filtered: boolean;
         if ($value != null)
-          filtered = !Evaluator.read($component, $value);
+          filtered = !Evaluator.parse($component, $value);
         else
           filtered = false;
 

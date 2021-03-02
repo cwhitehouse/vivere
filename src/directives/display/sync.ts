@@ -1,6 +1,6 @@
 import DisplayDirective from './display';
 import Evaluator from '../../lib/evaluator';
-import VivereError from '../../error';
+import DirectiveError from '../../errors/directive-error';
 
 export default class SyncDirective extends DisplayDirective {
   static id = 'v-sync';
@@ -15,7 +15,7 @@ export default class SyncDirective extends DisplayDirective {
     // Validate our element node
     const { nodeName } = this.element;
     if (nodeName !== 'INPUT' && nodeName !== 'SELECT' && nodeName !== 'TEXTAREA')
-      throw new VivereError(`Sync directives only work on input elements, not ${nodeName}`);
+      throw new DirectiveError(`Sync directives only work on input elements, not ${nodeName}`, this);
 
     // Bind the sync function
     this.event = 'input';

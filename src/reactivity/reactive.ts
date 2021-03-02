@@ -3,7 +3,7 @@ import Watcher from './watcher';
 import Registry from './registry';
 import ReactiveArray from './array';
 import ReactiveObject from './object';
-import VivereError from '../error';
+import VivereError from '../errors/error';
 import Coordinator from './coordinator';
 import Reactable from './reactable';
 
