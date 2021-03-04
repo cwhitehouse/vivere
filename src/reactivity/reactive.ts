@@ -63,8 +63,10 @@ export default class Reactive implements Reactable {
     if (Array.isArray(value))
       return new ReactiveArray(value, this);
 
-    if (typeof value === 'object')
+    if (typeof value === 'object') {
+      Object.entries(value).forEach(([k, v]) => Reactive.set(value, k, v));
       return new ReactiveObject(value);
+    }
 
     return value;
   }
