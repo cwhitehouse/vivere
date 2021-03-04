@@ -23,7 +23,7 @@ const assignmentSymbolRegex = '[+-]?=';
 const isAssignmentOperationRegex = new RegExp(`^${basicSymbolRegex} ${assignmentSymbolRegex} ${complexSymbolRegex}$`);
 const isAssignmentOperation = (expression: string): boolean => expression.match(isAssignmentOperationRegex) != null;
 
-const isExecutionSymbolRegex = new RegExp(`^${basicSymbolRegex}\\(${standardSymbolRegex}\\)`);
+const isExecutionSymbolRegex = new RegExp(`^${basicSymbolRegex}\\(${standardSymbolRegex}?\\)`);
 const isExecutionSymbol = (expression: string): boolean => expression.match(isExecutionSymbolRegex) != null;
 
 const comparisonSymbolRegex = '([<>]=?|!==?|===?)';
@@ -218,10 +218,10 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    */
   executeAssignment(component: Component, expression: string): void {
-    const [lhExp, operator, rhExp] = expression.split(' ');
+    const [lhExp, operator, ...rhExp] = expression.split(' ');
     const { obj, key } = digShallow(component, lhExp);
 
-    let $rhExp = rhExp;
+    let $rhExp = rhExp.join(' ');
     let inversions = 0;
     while ($rhExp.startsWith('!')) {
       $rhExp = $rhExp.slice(1);

@@ -1,0 +1,25 @@
+<div
+  v-component
+  v-data:text="null"
+  class="flex items-center space-x-4"
+>
+  <div class="flex-1">
+    <input
+      type='text'
+      v-sync="text"
+      v-event:keydown.esc="$refs.text.blur()"
+      v-ref="text"
+      class="w-full"
+    />
+  </div>
+  <div class="flex-1">
+    <p
+      v-text="text"
+      class="w-full"
+    ></p>
+  </div>
+  <button
+    v-event:click="text = 'Reset text...'"
+    class="button"
+  >Reset</button>
+</div>

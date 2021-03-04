@@ -13,6 +13,17 @@ const exampleGroups = [
     ],
   },
   {
+    id: 'inputs',
+    name: 'Inputs',
+    description: 'Handling and syncing data with inputs',
+    examples: [
+      {
+        id: 'text',
+        name: 'Syncing Text',
+      },
+    ],
+  },
+  {
     id: 'links',
     name: 'Link Magic',
     description: 'Magically on demand link behavior',
