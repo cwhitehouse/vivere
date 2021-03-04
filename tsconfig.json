@@ -5,11 +5,11 @@
     "module": "es2015",
     "moduleResolution": "node",
     "noUnusedLocals": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": false,
     "target": "es2017",
     "noEmit": true,
     "removeComments": true,
   },
-  "exclude": [ "dist" ]
+  "exclude": [ "dist", "temp", "_examples" ]
 }
