@@ -140,9 +140,6 @@ export default class Reactive implements Reactable {
     Object.defineProperty(context.component, key, {
       configurable: true,
       get() {
-        if (passed == null)
-          throw new ComponentError(`Value passed to component for unknown key ${key}`, context.component);
-
         let value = reactive.get();
         if (value == null) {
           if (passed.required)

@@ -4,6 +4,9 @@ import Watcher from '../../reactivity/watcher';
 import DirectiveError from '../../errors/directive-error';
 
 export default class DisplayDirective extends Directive {
+  lastValue: any;
+
+
   // Evaluation
 
   parseExpression(): unknown {
@@ -22,7 +25,12 @@ export default class DisplayDirective extends Directive {
   }
 
   evaluate(): void {
-    this.evaluateValue(this.parseExpression());
+    const value = this.parseExpression();
+
+    if (value != this.lastValue) {
+      this.lastValue = value;
+      this.evaluateValue(value);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -6,6 +6,7 @@ export default class DataDirective extends Directive {
   static id = 'v-data';
   static forComponent = true;
   static requiresKey = true;
+  static shouldRehydrate = false;
 
   camelKey: string;
 
@@ -23,14 +24,5 @@ export default class DataDirective extends Directive {
 
     this.camelKey = Utility.camelCase(this.key);
     this.component.$set(this.camelKey, $expression);
-  }
-
-
-  // Dehydration
-
-  dehydrate(): void {
-    const value = this.context[this.camelKey];
-    const jsonValue = JSON.stringify(value);
-    this.element.setAttribute(`v-data:${this.key}`, jsonValue);
   }
 }

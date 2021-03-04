@@ -2,6 +2,7 @@ import Directive from '../directive';
 import Utility from '../../lib/utility';
 import DirectiveError from '../../errors/directive-error';
 import ComponentError from '../../errors/component-error';
+import Reactive from '../../reactivity/reactive';
 
 export default class PassDirective extends Directive {
   static id = 'v-pass';
@@ -11,9 +12,8 @@ export default class PassDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { component, context, expression } = this;
+    const { context, expression } = this;
     const { parent } = context;
-    const { component: parentComponent } = parent;
     const key = Utility.camelCase(this.key);
 
     if (parent == null)
@@ -27,24 +27,12 @@ export default class PassDirective extends Directive {
     if (expression != null && expression.length > 0) readKey = expression;
     else readKey = key;
 
-    Object.defineProperty(component, readKey, {
-      get() {
-        let value = parentComponent[readKey];
-        if (value == null) {
-          if (passedProperties.required)
-            throw new ComponentError(`${key} is required to be passed`, context.component);
+    const reactive: Reactive = parent.$reactives[readKey] || parent.computeds[readKey];
+    if (reactive == null)
+      throw new DirectiveError(`Cannot pass property, parent does not define ${readKey}`, this);
 
-          value = passedProperties.default;
-        }
+    reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => context.react(key, newValue, oldValue));
 
-        return value;
-      },
-      set() {
-        throw new ComponentError('Cannot update passed values from a child', context.component);
-      },
-    });
-
-    // TODO: Solution for watching passed properties
-    // reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => context.react(key, newValue, oldValue));
+    context.pass(key, reactive);
   }
 }
