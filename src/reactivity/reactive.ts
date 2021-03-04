@@ -160,6 +160,7 @@ export default class Reactive implements Reactable {
     context.component[key];
   }
 
+
   // Better JSON rendering
 
   toJSON(): string {

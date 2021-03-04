@@ -6,15 +6,16 @@ import EventBus from './lib/events/bus';
 import Event from './lib/events/event';
 import Renderer from './renderer';
 import Component from './components/component';
+import ComponentDefinition from './components/definition/definition';
 
 interface VivereInterface {
   $components?: Set<ComponentContext>;
-  $definitions?: Registry<string, ComponentInterface>;
+  $definitions?: Registry<string, typeof Component | ComponentInterface>;
 
-  register: (name: string, definition: typeof Component) => void;
+  register: (name: string, definition: typeof Component | ComponentInterface) => void;
   $track: (component: ComponentContext) => void;
   $untrack: (component: ComponentContext) => void;
-  $getDefinition: (name: string) => typeof Component;
+  $getDefinition: (name: string) => typeof Component | ComponentInterface;
 }
 
 declare global {
@@ -24,7 +25,7 @@ declare global {
 }
 
 const $components: Set<ComponentContext> = new Set();
-const $definitions: Registry<string, typeof Component> = new Registry();
+const $definitions: Registry<string, typeof Component | ComponentInterface> = new Registry();
 
 // Setup logic
 
@@ -87,7 +88,7 @@ document.addEventListener('click', (e: Event) => {
 const Vivere: VivereInterface = {
   // Track components and definitions
 
-  register(name: string, definition: typeof Component): void {
+  register(name: string, definition: typeof Component | ComponentDefinition): void {
     $definitions.register(name, definition);
   },
 
@@ -99,7 +100,7 @@ const Vivere: VivereInterface = {
     $components.delete(component);
   },
 
-  $getDefinition(name: string): typeof Component {
+  $getDefinition(name: string): typeof Component | ComponentInterface {
     if (name == null || name.length <= 0)
       return Component;
 

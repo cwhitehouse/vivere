@@ -1,5 +1,5 @@
 import Utility from '../lib/utility';
-import { Vivere } from '../vivere';
+import { ComponentInterface, Vivere } from '../vivere';
 import Reactive from '../reactivity/reactive';
 import Walk from '../lib/walk';
 import Directive from '../directives/directive';
@@ -43,7 +43,7 @@ export default class ComponentContext implements Reactable {
   bindings: object;
   children: [ComponentContext?];
   component: Component;
-  definition: typeof Component;
+  definition: typeof Component | ComponentInterface;
   computeds: { [key: string]: Computed };
   directives: Set<Directive>;
   element: Element;

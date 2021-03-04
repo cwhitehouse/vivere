@@ -1,14 +1,14 @@
-export default class {
-  tag = null;
+export default {
+  tag: null,
 
-  passed = {
+  passed: {
     filterTag: {},
-  };
+  },
 
   get isOn() {
     const { filterTag, tag } = this;
     return filterTag === tag;
-  }
+  },
 
   toggleFilter() {
     const { filterTag, tag } = this;
@@ -19,5 +19,5 @@ export default class {
 
     this.$emit('updateFilter', newFilter);
     this.$element.blur();
-  }
+  },
 };

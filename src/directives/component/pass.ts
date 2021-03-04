@@ -1,7 +1,6 @@
 import Directive from '../directive';
 import Utility from '../../lib/utility';
 import DirectiveError from '../../errors/directive-error';
-import ComponentError from '../../errors/component-error';
 import Reactive from '../../reactivity/reactive';
 
 export default class PassDirective extends Directive {
