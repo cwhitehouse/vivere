@@ -17,8 +17,8 @@
     "dist/*.js.map",
     "dist/types/**/*"
   ],
-  "module": "dist/turbo.es2017-esm.js",
-  "main": "dist/turbo.es5-umd.js",
+  "module": "dist/vivere.es2017-esm.js",
+  "main": "dist/vivere.es5-umd.js",
   "types": "dist/types/vivere.d.ts",
   "license": "MIT",
   "scripts": {
