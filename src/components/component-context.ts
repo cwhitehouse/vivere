@@ -258,7 +258,7 @@ export default class ComponentContext implements Reactable {
 
     // Callback hook
     if (beforeConnected != null)
-      beforeConnected.bind(component);
+      beforeConnected.call(component);
 
     // Load data from storage
     loadStoredData.call(this);
@@ -268,7 +268,7 @@ export default class ComponentContext implements Reactable {
 
     // Callback hook
     if (connected != null)
-      connected.bind(component);
+      connected.call(component);
   }
 
   $destroy(shallow = false): void {
@@ -277,7 +277,7 @@ export default class ComponentContext implements Reactable {
 
     // Callback hook
     if (beforeDestroyed != null)
-      beforeDestroyed.bind(component);
+      beforeDestroyed.call(component);
 
     // Destroy directives
     directives.forEach((d) => d.destroy());
@@ -301,7 +301,7 @@ export default class ComponentContext implements Reactable {
 
     // Callback hook
     if (destroyed != null)
-      destroyed.bind(component);
+      destroyed.call(component);
   }
 
 
@@ -322,15 +322,18 @@ export default class ComponentContext implements Reactable {
 
   dehydrate(shallow = false): void {
     const { component, children, dehydrateData, directives, parent } = this;
-    const { beforeDehydrated, dehydrated } = component;
+    const { beforeDehydrated, beforeDestroyed, dehydrated, destroyed } = component;
 
     // Callback hook
     if (beforeDehydrated != null)
-      beforeDehydrated.bind(component);
+      beforeDehydrated.call(component);
+
+    if (beforeDestroyed != null)
+      beforeDestroyed.call(component);
 
     // Dehydrate this component
     dehydrateData.call(this);
-    directives.forEach((d) => { d.dehydrate(); });
+    directives.forEach((d) => { d.dehydrate(); d.destroy(); });
 
     if (!shallow)
       // Dehydrate children
@@ -346,8 +349,11 @@ export default class ComponentContext implements Reactable {
     // Remove from global component registry
     Vivere.$untrack(this);
 
-    // Callback hook
+    // Callback hooks
     if (dehydrated != null)
-      dehydrated.bind(component);
+      dehydrated.call(component);
+
+    if (destroyed != null)
+      destroyed.call(component);
   }
 }
