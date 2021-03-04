@@ -33,7 +33,8 @@
     "build:rollup": "tsc --noEmit false --declaration true --emitDeclarationOnly true --outDir dist/types && rollup -c",
     "build:postcss": "NODE_ENV=production postcss examples/main.css --o tmp/main.css",
     "build:eleventy": "ELEVENTY_ENV=production eleventy",
-    "build": "run-s clean:* build:*"
+    "build": "run-s clean:* build:*",
+    "lint": "yarn eslint ./src --ext .js,.jsx,.ts,.tsx"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.1",

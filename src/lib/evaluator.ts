@@ -327,8 +327,7 @@ export default {
         // Otherwise we can just pass the default args
         obj[key](...args);
     } catch (err) {
-      throw err
-      // throw new EvaluatorError('Failed to execute expression', component, expression, err);
+      throw new EvaluatorError('Failed to execute expression', component, expression, err);
     }
   },
 };

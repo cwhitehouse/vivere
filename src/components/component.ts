@@ -16,14 +16,19 @@ export default class Component implements ComponentInterface {
   beforeDehydrated?(): void;
   dehydrated?(): void;
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+
   get $element(): Element { throw new ComponentError('Components must implement `$element`', this); }
   get $parent(): Component { throw new ComponentError('Components must implement `$parent`', this); }
   get $children(): Component[] { throw new ComponentError('Components must implement `$children`', this); }
   get $refs(): { [key: string]: (Element | Component) } { throw new ComponentError('Components must implement `$refs`', this); }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   $set(key: string, value: any): void { throw new ComponentError('Components must implement `$set`', this); }
   $emit(event: string, arg: unknown): void { throw new ComponentError('Components must implement `$emit`', this); }
   $attach(html: string, ref: string): void { throw new ComponentError('Components must implement `$attach`', this); }
   $nextRender(func: () => void): void { throw new ComponentError('Components must implement `$nextRender`', this); }
   $destroy(): void { throw new ComponentError('Components must implement `$destroy`', this); }
+
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }

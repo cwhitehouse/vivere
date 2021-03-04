@@ -1,4 +1,4 @@
-const $parse = (entity: any, handler: (key: string, descriptor: PropertyDescriptor) => void, seenKeys: string[]): void => {
+const $parse = (entity: object, handler: (key: string, descriptor: PropertyDescriptor) => void, seenKeys: string[]): void => {
   const propertyDescriptors = Object.getOwnPropertyDescriptors(entity);
   const propertyDescriptorEntries = Object.entries(propertyDescriptors);
   propertyDescriptorEntries.forEach(([key, descriptor]) => {

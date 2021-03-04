@@ -13,6 +13,7 @@ export default class StoreDirective extends Directive {
   parse(): void {
     const { component, context, expression, key, modifiers } = this;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let $expression: any;
     try {
       $expression = JSON.parse(expression);

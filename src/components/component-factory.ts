@@ -27,6 +27,7 @@ const factory = (context: ComponentContext, name: string, definition: (typeof Co
       return name;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $set(key: string, value: any): void {
       context.$set(key, value, this);
       // Track this data so we can save it
@@ -54,10 +55,10 @@ const factory = (context: ComponentContext, name: string, definition: (typeof Co
 
   // We need to create an instance of a class if our definition
   // was a class, or we fallback to assuming a definition object
-  let entity;
+  let entity: object;
   try {
     const Definition = definition as typeof Component;
-    entity = new Definition()
+    entity = new Definition();
   } catch (err) {
     entity = definition;
   }

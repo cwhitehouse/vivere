@@ -4,16 +4,19 @@ import Watcher from '../../reactivity/watcher';
 import DirectiveError from '../../errors/directive-error';
 
 export default class DisplayDirective extends Directive {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lastValue: any;
 
 
   // Evaluation
 
-  parseExpression(): unknown {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parseExpression(): any {
     const { context, component, expression } = this;
     const callback = (): void => { context.queueRender(this); };
 
-    let value: unknown;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let value: any;
     Watcher.watch(this, callback, () => {
       if (Evaluator.isComparisonOperation(expression))
         value = Evaluator.evaluateComparison(component, expression);

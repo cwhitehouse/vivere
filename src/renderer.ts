@@ -20,6 +20,7 @@ const render: () => void = () => {
   $directives.clear();
   $dirty = false;
 
+  // eslint-disable-next-line no-console
   console.log(`Vivere | Directives rendered: ${new Date().getTime() - start.getTime()}ms`);
 
   // Run all waiting ticks

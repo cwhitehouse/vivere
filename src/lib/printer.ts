@@ -1,8 +1,10 @@
 class Printer {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   except: string[];
   only: string[];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(value: any, except: string[], only: string[]) {
     this.value = value;
     this.except = except;
@@ -26,6 +28,7 @@ class Printer {
     return typeof value;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get properties(): { key: string; value: any }[] {
     const { except, only, value } = this;
 
@@ -42,7 +45,7 @@ class Printer {
         return { key, value: val };
       }
       return null;
-    }).filter(v => v != null);
+    }).filter((v) => v != null);
   }
 
   get propertiesString(): string {
@@ -50,6 +53,7 @@ class Printer {
     return properties.map((p) => `· ${p.key}\n\t  ↳ ${valueString(p.value)}`).join('\n  ');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   valueString(val: any): string {
     if (val == null) return 'null';
     if (Array.isArray(val)) return '[]';
@@ -72,6 +76,7 @@ class Printer {
 }
 
 export default {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   print(value: any, except?: string[], only?: string[]): string {
     return new Printer(value, except, only).print();
   },

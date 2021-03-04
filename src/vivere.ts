@@ -38,6 +38,7 @@ const $setup = (element: Element): void => {
   // Finalize connecting our components
   $components.forEach((c) => { c.connect(); });
 
+  // eslint-disable-next-line no-console
   console.log(`Vivere | Document parsed: ${new Date().getTime() - start.getTime()}ms`);
 };
 
@@ -68,6 +69,7 @@ document.addEventListener('DOMContentLoaded', $binding);
 document.addEventListener('turbo:before-cache', () => {
   dehydrate();
 });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 document.addEventListener('turbo:before-render', (event: Record<string, any>) => {
   const { newBody } = event.detail;
 
