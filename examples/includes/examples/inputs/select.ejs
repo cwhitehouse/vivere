@@ -1,0 +1,28 @@
+<div
+  v-component="input-select"
+  class="flex items-center space-x-4"
+>
+  <div class="flex-1">
+    <select
+      v-sync="value"
+      class="w-full"
+    >
+    <option value="rome">Rome</option>
+    <option value="paris">Paris</option>
+    <option value="london">London</option>
+    <option value="berlin">Berlin</option>
+    <option value="tokyo">Tokyo</option>
+    <option value="abuja">Abuja</option>
+    </select>
+  </div>
+  <div class="flex-1">
+    <p
+      v-text="value"
+      class="w-full"
+    ></p>
+  </div>
+  <button
+    v-event:click="reset"
+    class="button"
+  >Reset</button>
+</div>

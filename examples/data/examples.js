@@ -21,6 +21,10 @@ const exampleGroups = [
         id: 'text',
         name: 'Syncing Text',
       },
+      {
+        id: 'select',
+        name: 'Syncing Dropdown',
+      },
     ],
   },
   {

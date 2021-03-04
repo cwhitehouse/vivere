@@ -172,10 +172,8 @@ export default class ComponentContext implements Reactable {
     // we expect to be in storage
     Object.entries(this.stored).forEach(([key, definition]) => {
       const storedValue = Storage.retrieve(key, definition);
-
-      // Update the value if we had a stored value
-      if (storedValue !== undefined)
-        this.component[key] = storedValue;
+      const defaultValue = definition.default || this.component[key];
+      this.$set(key, storedValue || defaultValue);
     });
   }
 
