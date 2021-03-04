@@ -22,7 +22,7 @@ export default class DataDirective extends Directive {
     }
 
     this.camelKey = Utility.camelCase(this.key);
-    this.context.$set(this.camelKey, $expression);
+    this.component.$set(this.camelKey, $expression);
   }
 
 

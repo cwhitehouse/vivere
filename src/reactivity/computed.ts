@@ -6,21 +6,14 @@ import ComponentError from '../errors/component-error';
 
 export default class Computed extends Reactive {
   $computed = false;
-  context: ComponentContext;
+  object: object;
   evaluator: () => unknown;
 
-  constructor(context: ComponentContext, evaluator: () => unknown) {
+  constructor(object: object, evaluator: () => unknown) {
     super(null);
 
-    this.context = context;
+    this.object = object;
     this.evaluator = evaluator;
-  }
-
-
-  // Component access
-
-  get component(): Component {
-    return this.context.component;
   }
 
 
@@ -33,7 +26,7 @@ export default class Computed extends Reactive {
   computeValue(): void {
     const callback = (): void => { this.dirty(); };
     Watcher.watch(this, callback, () => {
-      const newValue = this.evaluator.call(this.component);
+      const newValue = this.evaluator.call(this.object);
       this.set(newValue);
       this.$computed = true;
     });
@@ -44,6 +37,10 @@ export default class Computed extends Reactive {
       this.computeValue();
 
     return this.value;
+  }
+
+  set(value: unknown): void {
+    super.set(value);
   }
 
 
@@ -57,17 +54,17 @@ export default class Computed extends Reactive {
     if (context.computeds[key] == null) {
       // Set up this property to use
       // a reactive value under the hood
-      computed = new Computed(context, evaluator);
+      computed = new Computed(component, evaluator);
       context.computeds[key] = computed;
 
       Object.defineProperty(component, key, {
         configurable: true,
         get() { return context.computeds[key].get(); },
-        set() { throw new ComponentError(`Cannot assign to computed property ${key}`, context.component); },
+        set() { throw new ComponentError(`Cannot assign to computed property ${key}`, component); },
       });
     } else
       // Property is already computed
-      throw new ComponentError(`Cannot assign to computed property ${key}`, context.component);
+      throw new ComponentError(`Cannot assign to computed property ${key}`, component);
 
 
     return computed;

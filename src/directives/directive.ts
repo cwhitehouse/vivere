@@ -56,6 +56,13 @@ export default class Directive {
     return null;
   }
 
+  get $component(): Component {
+    const { context } = this;
+
+    if (console != null) return context.$component;
+    return null;
+  }
+
 
   // Interface
 

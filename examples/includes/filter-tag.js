@@ -5,6 +5,11 @@ export default class {
     filterTag: {},
   };
 
+  get isOn() {
+    const { filterTag, tag } = this;
+    return filterTag === tag;
+  }
+
   toggleFilter() {
     const { filterTag, tag } = this;
 

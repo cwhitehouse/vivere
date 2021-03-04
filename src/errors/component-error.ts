@@ -7,6 +7,7 @@ export default class ComponentError extends VivereError {
     let errorMessage = `${message}
 
   ${Printer.print(component)}
+
 `;
 
     if (error != null)

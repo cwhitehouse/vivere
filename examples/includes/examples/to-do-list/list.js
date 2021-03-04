@@ -1,10 +1,10 @@
 let id = 4;
 
-export default {
-  creating: false,
-  filter: null,
-  sort: null,
-  text: null,
+export default class {
+  creating = false;
+  filter = null;
+  sort = null;
+  text = null;
 
   get orderBy() {
     const { sort } = this;
@@ -17,7 +17,7 @@ export default {
       default:
         return [['toDo.id'], ['asc']];
     };
-  },
+  }
 
   get filterBy() {
     const { filter } = this;
@@ -32,30 +32,30 @@ export default {
       default:
         return 'matchesText';
     };
-  },
+  }
 
   get filtering() {
     const { filter } = this;
     return filter != null
       && filter.length > 0;
-  },
+  }
 
   onFilterChanged() {
     if (this.filter != null)
         this.text = null;
-  },
+  }
 
   startCreating() {
     this.creating = true;
-  },
+  }
 
   stopCreating() {
     this.creating = false;
-  },
+  }
 
   updateText(text) {
     this.text = text;
-  },
+  }
 
   create(label) {
     id += 1;
@@ -111,5 +111,5 @@ export default {
     `;
 
     this.$attach(html, 'list');
-  },
+  }
 };

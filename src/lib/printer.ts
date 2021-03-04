@@ -1,10 +1,12 @@
 class Printer {
   value: any;
-  keys: string[];
+  except: string[];
+  only: string[];
 
-  constructor(value: any, keys: string[]) {
+  constructor(value: any, except: string[], only: string[]) {
     this.value = value;
-    this.keys = keys;
+    this.except = except;
+    this.only = only;
   }
 
   get typeLabel(): string {
@@ -13,22 +15,30 @@ class Printer {
     if (value == null)
       return 'null';
 
-    if (typeof value === 'object')
+    if (typeof value === 'object') {
+      if (value.$name != null)
+        return value.$name;
+
       if (value.constructor != null)
         return value.constructor.name;
+    }
 
     return typeof value;
   }
 
   get properties(): { key: string; value: any }[] {
-    const { keys, value } = this;
+    const { except, only, value } = this;
 
     if (value == null)
       return [];
 
     return Object.getOwnPropertyNames(value).sort().map((key) => {
-      if (!keys || keys.includes(key)) {
-        const val = value[key];
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (typeof descriptor.value === 'function')
+        return null;
+
+      if ((!only || only.includes(key)) && (!except || !except.includes(key))) {
+        const { value: val } = descriptor;
         return { key, value: val };
       }
       return null;
@@ -62,7 +72,7 @@ class Printer {
 }
 
 export default {
-  print(value: any, keys?: string[]): string {
-    return new Printer(value, keys).print();
+  print(value: any, except?: string[], only?: string[]): string {
+    return new Printer(value, except, only).print();
   },
 };

@@ -1,14 +1,14 @@
-export default {
-  exampleGroup: {},
-  tags: [],
+export default class {
+  exampleGroup = {};
+  tags = [];
 
-  filterTag: null,
-  filterText: null,
+  filterTag = null;
+  filterText = null;
 
-  passed: {
+  passed = {
     filterTag: {},
     filterText: {},
-  },
+  }
 
   get shouldShow() {
     const { exampleGroup, filterTag, filterText, tags } = this;
@@ -25,5 +25,5 @@ export default {
       lowerDescription.includes(lowerText);
 
     return matchesTag && matchesText;
-  },
+  }
 };

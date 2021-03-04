@@ -1,7 +1,7 @@
 import Directive from '../directive';
-import Reactive from '../../reactivity/reactive';
 import Utility from '../../lib/utility';
 import DirectiveError from '../../errors/directive-error';
+import ComponentError from '../../errors/component-error';
 
 export default class PassDirective extends Directive {
   static id = 'v-pass';
@@ -11,23 +11,40 @@ export default class PassDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { context, expression } = this;
+    const { component, context, expression } = this;
     const { parent } = context;
+    const { component: parentComponent } = parent;
     const key = Utility.camelCase(this.key);
 
     if (parent == null)
       throw new DirectiveError('Cannot pass properties to a parentless component', this);
 
+    const passedProperties = context.passed[key];
+    if (passedProperties == null)
+      throw new DirectiveError(`Value passed to component for unknown key ${key}`, this);
+
     let readKey: string;
     if (expression != null && expression.length > 0) readKey = expression;
     else readKey = key;
 
-    const reactive: Reactive = parent.$reactives[readKey] || parent.computeds[readKey];
-    if (reactive == null)
-      throw new DirectiveError(`Cannot pass property, parent does not define ${readKey}`, this);
+    Object.defineProperty(component, readKey, {
+      get() {
+        let value = parentComponent[readKey];
+        if (value == null) {
+          if (passedProperties.required)
+            throw new ComponentError(`${key} is required to be passed`, context.component);
 
-    reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => context.react(key, newValue, oldValue));
+          value = passedProperties.default;
+        }
 
-    context.pass(key, reactive);
+        return value;
+      },
+      set() {
+        throw new ComponentError('Cannot update passed values from a child', context.component);
+      },
+    });
+
+    // TODO: Solution for watching passed properties
+    // reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => context.react(key, newValue, oldValue));
   }
 }

@@ -3,17 +3,16 @@ import { Vivere } from '../vivere';
 import Reactive from '../reactivity/reactive';
 import Walk from '../lib/walk';
 import Directive from '../directives/directive';
-import Computed from '../reactivity/computed';
 import Renderer from '../renderer';
 import VivereError from '../errors/error';
-import ComponentInterface from './interface';
 import Storage from '../reactivity/storage';
 import Component from './component';
 import ComponentFactory from './component-factory';
 import StoredInterface from './definition/stored-interface';
-import Reactable from '../reactivity/reactable';
 import ComponentError from '../errors/component-error';
 import ReactivePassedInterface from './definition/reactive-passed-interface';
+import Computed from '../reactivity/computed';
+import Reactable from '../reactivity/reactable';
 
 declare global {
   interface Element {
@@ -22,15 +21,30 @@ declare global {
 }
 
 export default class ComponentContext implements Reactable {
+  static $reserved = [
+    'constructor',
+    'stored',
+    'passed',
+    'arguments',
+    'caller',
+    'callee',
+    '__proto__',
+    '$children',
+    '$element',
+    '$name',
+    '$parent',
+    '$refs',
+    '$name',
+  ];
+
   $reactives: { [key: string]: Reactive };
-  $reserved = ['constructor', 'stored', 'passed', 'arguments', 'caller', 'callee', '__proto__'];
 
   dataKeys: Set<string>;
   bindings: object;
   children: [ComponentContext?];
   component: Component;
+  definition: typeof Component;
   computeds: { [key: string]: Computed };
-  definition: ComponentInterface;
   directives: Set<Directive>;
   element: Element;
   name: string;
@@ -69,7 +83,8 @@ export default class ComponentContext implements Reactable {
 
     // Set up our component instance, a version of this component
     // only exposing the public interface
-    this.component = ComponentFactory(this, definition);
+    this.component = ComponentFactory(this, componentName, definition);
+
     // Attach the component to the DOM
     element.$component = this.component;
 
@@ -160,7 +175,7 @@ export default class ComponentContext implements Reactable {
 
       // Update the value if we had a stored value
       if (storedValue !== undefined)
-        this.$set(key, storedValue);
+        this.component[key] = storedValue;
     });
   }
 

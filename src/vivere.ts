@@ -11,10 +11,10 @@ interface VivereInterface {
   $components?: Set<ComponentContext>;
   $definitions?: Registry<string, ComponentInterface>;
 
-  register: (name: string, definition: ComponentInterface) => void;
+  register: (name: string, definition: typeof Component) => void;
   $track: (component: ComponentContext) => void;
   $untrack: (component: ComponentContext) => void;
-  $getDefinition: (name: string) => ComponentInterface;
+  $getDefinition: (name: string) => typeof Component;
 }
 
 declare global {
@@ -24,7 +24,7 @@ declare global {
 }
 
 const $components: Set<ComponentContext> = new Set();
-const $definitions: Registry<string, ComponentInterface> = new Registry();
+const $definitions: Registry<string, typeof Component> = new Registry();
 
 // Setup logic
 
@@ -87,7 +87,7 @@ document.addEventListener('click', (e: Event) => {
 const Vivere: VivereInterface = {
   // Track components and definitions
 
-  register(name: string, definition: ComponentInterface): void {
+  register(name: string, definition: typeof Component): void {
     $definitions.register(name, definition);
   },
 
@@ -99,9 +99,9 @@ const Vivere: VivereInterface = {
     $components.delete(component);
   },
 
-  $getDefinition(name: string): ComponentInterface {
+  $getDefinition(name: string): typeof Component {
     if (name == null || name.length <= 0)
-      return {};
+      return Component;
 
     return $definitions.get(name);
   },

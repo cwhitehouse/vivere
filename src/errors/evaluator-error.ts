@@ -7,7 +7,9 @@ export default class EvaluatorError extends VivereError {
 
   ${Printer.print(object)}
 
-  ${Printer.print(expression)}
+  Expression
+    ${Printer.print(expression)}
+
 `;
 
     if (error != null)

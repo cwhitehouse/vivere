@@ -8,7 +8,8 @@ export default class DirectiveError extends VivereError {
 
   ${Printer.print(directive.component)}
 
-  ${Printer.print(directive, ['key', 'modifiers', 'expression'])}
+  ${Printer.print(directive, [], ['key', 'modifiers', 'expression'])}
+
 `;
 
     if (error != null)

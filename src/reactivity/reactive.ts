@@ -10,10 +10,10 @@ import ComponentError from '../errors/component-error';
 export default class Reactive implements Reactable {
   $reactives: { [key: string]: Reactive };
   value: unknown;
-  registry: Registry<object, (newValue: unknown, oldValue: unknown) => void>;
+  listeners: Registry<object, (newValue: unknown, oldValue: unknown) => void>;
 
   constructor(value: unknown) {
-    this.registry = new Registry();
+    this.listeners = new Registry();
     this.updateValue(value);
   }
 
@@ -60,13 +60,11 @@ export default class Reactive implements Reactable {
     if (value == null)
       return null;
 
-    if (value instanceof Array)
+    if (Array.isArray(value))
       return new ReactiveArray(value, this);
 
-    if (typeof value === 'object') {
-      Object.entries(value).forEach(([k, v]) => Reactive.set(value, k, v));
+    if (typeof value === 'object')
       return new ReactiveObject(value);
-    }
 
     return value;
   }
@@ -75,7 +73,7 @@ export default class Reactive implements Reactable {
   // Reporting
 
   registerHook(object: object, hook: (newValue: unknown, oldValue: unknown) => void): void {
-    this.registry.register(object, hook);
+    this.listeners.register(object, hook);
   }
 
   report(newValue: unknown, oldValue: unknown): void {
@@ -84,7 +82,7 @@ export default class Reactive implements Reactable {
   }
 
   $report(newValue: unknown, oldValue: unknown): void {
-    this.registry.forEach((entity, hook) => {
+    this.listeners.forEach((entity, hook) => {
       if (entity instanceof ComponentContext)
         Coordinator.trackComponent(entity, hook, newValue, oldValue);
       else
@@ -164,7 +162,6 @@ export default class Reactive implements Reactable {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     context.component[key];
   }
-
 
   // Better JSON rendering
 
