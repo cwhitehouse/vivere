@@ -17,6 +17,7 @@ import StyleDirective from '../directives/display/style';
 import SyncDirective from '../directives/display/sync';
 import TextDirective from '../directives/display/text';
 import EventDirective from '../directives/event';
+import HideDirective from '../directives/hide';
 import RefDirective from '../directives/ref';
 
 const directives: (typeof Directive)[] = [
@@ -37,6 +38,7 @@ const directives: (typeof Directive)[] = [
   SyncDirective,
   TextDirective,
   EventDirective,
+  HideDirective,
   RefDirective,
 ];
 
