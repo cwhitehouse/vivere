@@ -1,5 +1,5 @@
 import Utility from '../lib/utility';
-import { ComponentInterface, Vivere } from '../vivere';
+import { Vivere } from '../vivere';
 import Reactive from '../reactivity/reactive';
 import Walk from '../lib/walk';
 import Directive from '../directives/directive';
@@ -13,6 +13,7 @@ import ComponentError from '../errors/component-error';
 import ReactivePassedInterface from './definition/reactive-passed-interface';
 import Computed from '../reactivity/computed';
 import Reactable from '../reactivity/reactable';
+import ComponentInterface from './interface';
 
 declare global {
   interface Element {
@@ -35,6 +36,11 @@ export default class ComponentContext implements Reactable {
     '$parent',
     '$refs',
     '$name',
+    '$set',
+    '$emit',
+    '$attach',
+    '$nextRender',
+    '$destroy',
   ];
 
   $reactives: { [key: string]: Reactive };

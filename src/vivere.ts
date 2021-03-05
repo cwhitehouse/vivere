@@ -110,4 +110,4 @@ const Vivere: VivereInterface = {
   },
 };
 
-export { Vivere, Component as VivereComponent, ComponentInterface };
+export { Vivere, Component as VivereComponent };
