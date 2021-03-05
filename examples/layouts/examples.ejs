@@ -4,7 +4,7 @@ layout: default
 
 <% const exampleGroup = examples.find(eg => eg.id === id); %>
 
-<div class="grid grid-cols-2 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
   <% exampleGroup.examples.forEach(example => { %>
     <%- include('/examples/example', { id, example }); %>
   <% }); %>
