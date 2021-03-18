@@ -83,6 +83,9 @@ export default class Directive {
       if (this.key)
         attributeName += `:${this.key}`;
 
+      if (this.modifiers && this.modifiers.length)
+        attributeName += `.${this.modifiers.join('.')}`;
+
       this.element.setAttribute(attributeName, this.expression);
     }
   }
