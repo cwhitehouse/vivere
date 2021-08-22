@@ -5,13 +5,13 @@
     "front-end",
     "framework"
   ],
-  "version": "0.1.9",
+  "version": "0.1.10",
   "author": {
     "name": "Christian Whitehouse",
     "email": "kippy@skippy.works",
     "url": "https://skippy.works"
   },
-  "repository": "github:cwhitehouse/vivere",
+  "repository": "github:cwhitehouse/vivacere",
   "files": [
     "dist/*.js",
     "dist/*.js.map",

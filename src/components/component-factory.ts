@@ -74,7 +74,7 @@ const factory = (context: ComponentContext, name: string, definition: (typeof Co
     // A getter implies a computed property
     if (get != null)
       context.compute(key, get, instance);
-    else if (typeof value !== 'function' && !key.startsWith('@'))
+    else if (typeof value !== 'function' && !key.startsWith('$'))
       instance.$set(key, value);
     else
       instance[key] = value;
