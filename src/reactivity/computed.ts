@@ -40,7 +40,7 @@ export default class Computed extends Reactive {
   }
 
   set(value: unknown): void {
-    super.set(value);
+    super.set(value, false);
   }
 
 

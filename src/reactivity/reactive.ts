@@ -37,7 +37,7 @@ export default class Reactive implements Reactable {
 
   // Assigning values, and reacting
 
-  set(value: unknown): void {
+  set(value: unknown, makeReactive: boolean): void {
     const oldValue = this.value;
 
     // Deal with undefined/null confusion
@@ -47,7 +47,12 @@ export default class Reactive implements Reactable {
     // Don't bother reporting if nothing changed
     if (value !== this.value) {
       Coordinator.chanReactionStarted();
-      this.updateValue(value);
+
+      if (makeReactive)
+        this.updateValue(value);
+      else
+        this.value = value;
+
       this.$report(value, oldValue);
     }
   }
@@ -118,7 +123,7 @@ export default class Reactive implements Reactable {
       Object.defineProperty((obj || $host), key, {
         configurable: true,
         get() { return $host.$reactives[key] && $host.$reactives[key].get(); },
-        set(newValue) { $host.$reactives[key].set(newValue); },
+        set(newValue) { $host.$reactives[key].set(newValue, true); },
       });
     } else
       // Simple assignment is sufficient
