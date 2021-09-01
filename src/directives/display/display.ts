@@ -30,8 +30,8 @@ export default class DisplayDirective extends Directive {
   evaluate(): void {
     const value = this.parseExpression();
 
-    this.lastValue = value;
     this.evaluateValue(value);
+    this.lastValue = value;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
