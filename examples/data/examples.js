@@ -10,6 +10,10 @@ const exampleGroups = [
         id: 'basic',
         name: 'Basic Toggle',
       },
+      {
+        id: 'colorful',
+        name: 'Colorful Toggle',
+      },
     ],
   },
   {
@@ -102,6 +106,7 @@ exampleGroups.forEach(eg => {
     const { directives, scripts } = fileParser.parseDirectives(`examples/includes/examples/${eg.id}/${e.id}.ejs`);
     e.tags = directives;
     e.scripts = scripts;
+    e.group = eg.id
   });
 });
 
