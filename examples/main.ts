@@ -17,6 +17,8 @@ import ToDoList from './includes/examples/to-do-list/list';
 import ToDoNewItem from './includes/examples/to-do-list/new-item';
 import ToDoSearch from './includes/examples/to-do-list/search';
 
+import ToggleButtonColorful from './includes/examples/toggle-button/colorful';
+
 import InputSelect from './includes/examples/inputs/select';
 
 Vivere.register('Index', Index);
@@ -32,5 +34,7 @@ Vivere.register('ToDoItem', ToDoItem);
 Vivere.register('ToDoList', ToDoList);
 Vivere.register('ToDoNewItem', ToDoNewItem);
 Vivere.register('ToDoSearch', ToDoSearch);
+
+Vivere.register('ToggleButtonColorful', ToggleButtonColorful);
 
 Vivere.register('InputSelect', InputSelect);
