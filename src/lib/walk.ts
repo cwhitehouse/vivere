@@ -5,6 +5,7 @@ import BindDirective from '../directives/component/bind';
 import DataDirective from '../directives/component/data';
 import PassDirective from '../directives/component/pass';
 import StoreDirective from '../directives/component/store';
+import AttrDirective from '../directives/display/attr';
 import ClassDirective from '../directives/display/class';
 import DisabledDirective from '../directives/display/disabled';
 import FilterDirective from '../directives/display/filter';
@@ -26,6 +27,7 @@ const directives: (typeof Directive)[] = [
   DataDirective,
   PassDirective,
   StoreDirective,
+  AttrDirective,
   ClassDirective,
   DisabledDirective,
   FilterDirective,
