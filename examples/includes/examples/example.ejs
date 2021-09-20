@@ -18,14 +18,14 @@
     </div>
     <div class="border-t-2 flex items-center py-2 px-3 bg-white space-x-1 text-sm">
       <a
-        href="https://github.com/cwhitehouse/vivere/blob/master/examples/includes/examples/<%= example.group %>/<%= example.id %>.ejs"
+        href="https://github.com/cwhitehouse/vivere/blob/main/examples/includes/examples/<%= example.group %>/<%= example.id %>.ejs"
         class="text-link p-1"
         target="_blank"
       ><%= example.id %>.ejs</a>
       <% if (!!example.scripts.length) { %>
         <% for (script of example.scripts) { %>
           <a
-            href="https://github.com/cwhitehouse/vivere/blob/master/<%= script %>"
+            href="https://github.com/cwhitehouse/vivere/blob/main/<%= script %>"
             class="text-link p-1"
             target="_blank"
           ><%= script.split('/').pop() %></a>

@@ -3,9 +3,9 @@ name: Linters
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 jobs:
   es-lint:
     runs-on: ubuntu-latest
