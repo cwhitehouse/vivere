@@ -27,7 +27,6 @@ export default class StoreDirective extends Directive {
     const storageType = modifiers[0] || 'session';
     context.stored[camelKey] = { type: storageType, default: $expression };
 
-    // Add the reactive property
-    context.$set(camelKey, $expression);
+    // The stored property will be set once the component connects
   }
 }
