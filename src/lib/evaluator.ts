@@ -199,7 +199,6 @@ const digShallow = (object: object, expression: string): { obj: unknown; key: st
   return { obj: $object, key };
 };
 
-
 // Core API...
 
 export default {
@@ -263,7 +262,6 @@ export default {
       throw new EvaluatorError('Failed to evaluate comparison expression', component, expression, err);
     }
   },
-
 
   // Reading, writing, and executing expressions
 

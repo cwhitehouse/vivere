@@ -52,13 +52,11 @@ const $setupDocument = (): void => {
 };
 const $binding = $setupDocument.bind(this);
 
-
 // Dehydrate Vivere
 
 const dehydrate = (): void => {
   $components.forEach((c) => c.dehydrate.call(c, true));
 };
-
 
 // SETUP VIVERE AUTOMATICALLY
 
@@ -83,7 +81,6 @@ document.addEventListener('turbo:before-render', (event: Record<string, any>) =>
 document.addEventListener('click', (e: Event) => {
   EventBus.broadcast(Event.CLICK, e);
 });
-
 
 // Root logic
 

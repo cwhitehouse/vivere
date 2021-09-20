@@ -99,7 +99,6 @@ export default class ComponentContext implements Reactable {
       parent.children.push(this);
   }
 
-
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // DEFINITION MANAGEMENT
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,7 +114,6 @@ export default class ComponentContext implements Reactable {
       default:
     }
   }
-
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // REACTIVE DATA
@@ -168,7 +166,6 @@ export default class ComponentContext implements Reactable {
     }
   }
 
-
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // STORED DATA
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,7 +179,6 @@ export default class ComponentContext implements Reactable {
       this.$set(key, storedValue || defaultValue);
     });
   }
-
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // EVENT PASSING
@@ -204,7 +200,6 @@ export default class ComponentContext implements Reactable {
     const method = this.bindings[event];
     this.component[method](arg);
   }
-
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // DOM MANIPULATION
@@ -233,7 +228,6 @@ export default class ComponentContext implements Reactable {
     this.forceRender();
   }
 
-
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // RENDERING
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -250,7 +244,6 @@ export default class ComponentContext implements Reactable {
     this.directives.forEach((d) => Renderer.$queueRender(d));
     if (!shallow) this.children.forEach((child) => child.forceRender());
   }
-
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // LIFE CYCLE
@@ -296,7 +289,6 @@ export default class ComponentContext implements Reactable {
         parent.children.splice(childIdx, 1);
     }
 
-
     // Remove from global component registry
     Vivere.$untrack(this);
 
@@ -307,7 +299,6 @@ export default class ComponentContext implements Reactable {
     if (destroyed != null)
       destroyed.call(component);
   }
-
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // DEHYDRATION

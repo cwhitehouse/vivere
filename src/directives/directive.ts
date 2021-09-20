@@ -46,7 +46,6 @@ export default class Directive {
     this.element.removeAttribute(name);
   }
 
-
   // Component
 
   get component(): Component {
@@ -55,7 +54,6 @@ export default class Directive {
     if (context != null) return context.component;
     return null;
   }
-
 
   // Interface
 
@@ -74,7 +72,6 @@ export default class Directive {
     // - e.g. remove event listeners
   }
 
-
   // For turbolinks,
 
   dehydrate(): void {
@@ -89,7 +86,6 @@ export default class Directive {
       this.element.setAttribute(attributeName, this.expression);
     }
   }
-
 
   // Utiility methods
 

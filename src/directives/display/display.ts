@@ -7,7 +7,6 @@ export default class DisplayDirective extends Directive {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lastValue: any;
 
-
   // Evaluation
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -16,7 +16,6 @@ export default class Computed extends Reactive {
     this.evaluator = evaluator;
   }
 
-
   // Value management
 
   dirty(): void {
@@ -43,7 +42,6 @@ export default class Computed extends Reactive {
     super.set(value, false);
   }
 
-
   // Static helpers
 
   static set(context: ComponentContext, key: string, evaluator: () => unknown, component: Component): Computed {
@@ -65,7 +63,6 @@ export default class Computed extends Reactive {
     } else
       // Property is already computed
       throw new ComponentError(`Cannot assign to computed property ${key}`, component);
-
 
     return computed;
   }

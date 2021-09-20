@@ -23,14 +23,12 @@ export default class EventDirective extends Directive {
       this.element.addEventListener(this.key, this.binding);
   }
 
-
   // Destruction (detach event listeners)
 
   destroy(): void {
     this.element.removeEventListener(this.key, this.binding);
     EventBus.deregister(Event.CLICK, this.clickOutsideBinding);
   }
-
 
   // Execution
 

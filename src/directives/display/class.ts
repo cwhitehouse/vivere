@@ -4,7 +4,6 @@ import DOM from '../../lib/dom';
 export default class ClassDirective extends DisplayDirective {
   static id = 'v-class';
 
-
   // Evaluation
 
   evaluateValue(value: unknown): void {

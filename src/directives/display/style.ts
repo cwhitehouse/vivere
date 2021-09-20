@@ -5,7 +5,6 @@ export default class ClassDirective extends DisplayDirective {
   static id = 'v-style';
   static requiresKey = true;
 
-
   // Evaluation
 
   evaluateValue(value: unknown): void {

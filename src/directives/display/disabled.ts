@@ -14,7 +14,6 @@ export default class DisabledDirective extends DisplayDirective {
       throw new DirectiveError(`Disabled directives only work on inputs and buttons, not ${nodeName}`, this);
   }
 
-
   // Evaluation
 
   evaluateValue(value: unknown): void {

@@ -17,7 +17,6 @@ export default class Reactive implements Reactable {
     this.updateValue(value);
   }
 
-
   // Accessing the value, and tracking updates
 
   getValue(): unknown {
@@ -33,7 +32,6 @@ export default class Reactive implements Reactable {
 
     return this.getValue();
   }
-
 
   // Assigning values, and reacting
 
@@ -76,7 +74,6 @@ export default class Reactive implements Reactable {
     return value;
   }
 
-
   // Reporting
 
   registerHook(object: object, hook: (newValue: unknown, oldValue: unknown) => void): void {
@@ -98,7 +95,6 @@ export default class Reactive implements Reactable {
 
     Coordinator.chainReactionEnded();
   }
-
 
   // Helper method for automatically making a property reactive
 
@@ -131,7 +127,6 @@ export default class Reactive implements Reactable {
 
     return reactive;
   }
-
 
   // Helper method for tracking passed properties
 
@@ -166,7 +161,6 @@ export default class Reactive implements Reactable {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     context.component[key];
   }
-
 
   // Better JSON rendering
 

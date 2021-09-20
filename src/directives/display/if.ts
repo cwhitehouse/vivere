@@ -18,13 +18,11 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
     this.element.removeAttribute('hidden');
   }
 
-
   // Evaluation
 
   evaluateValue(value: unknown): void {
     DOM.conditionallyRender(this, !!value);
   }
-
 
   // Dehdyration
 

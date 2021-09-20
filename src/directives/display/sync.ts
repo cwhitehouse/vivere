@@ -33,7 +33,6 @@ export default class SyncDirective extends DisplayDirective {
       this.sync();
   }
 
-
   // Evaluation
 
   evaluateValue(value: unknown): void {
@@ -44,14 +43,12 @@ export default class SyncDirective extends DisplayDirective {
       this.element.value = value as string;
   }
 
-
   // Destruction
   // - detach the event listener
 
   destroy(): void {
     this.element.removeEventListener(this.event, this.binding);
   }
-
 
   // Syncing
 

@@ -10,7 +10,6 @@ export default class Watcher {
     this.callback = callback;
   }
 
-
   // Singleton management
 
   static current?: Watcher;

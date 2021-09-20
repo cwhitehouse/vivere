@@ -28,7 +28,6 @@ export default class FilterDirective extends DisplayDirective {
     });
   }
 
-
   // Evaluation
 
   evaluateValue(value: unknown): void {
@@ -69,7 +68,6 @@ export default class FilterDirective extends DisplayDirective {
       DOM.toggleClass(this.element, 'v-filter-empty', !hasChild);
     });
   }
-
 
   // Dehdyration
 

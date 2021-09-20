@@ -7,7 +7,6 @@ export default class Registry<T, V> {
     this.$map = {};
   }
 
-
   // Hook registration
 
   register(key: T, value: V): void {
@@ -30,14 +29,12 @@ export default class Registry<T, V> {
     this.$array.splice(index, 1);
   }
 
-
   // Retrieving hooks
 
   get(key: T): V {
     const index = this.$array.indexOf(key);
     return this.$map[index];
   }
-
 
   // Iterator
 
