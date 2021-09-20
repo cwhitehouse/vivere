@@ -25,7 +25,12 @@ export default class StoreDirective extends Directive {
 
     // Store the storage definition on the component
     const storageType = modifiers[0] || 'session';
-    context.stored[camelKey] = { type: storageType, default: $expression };
+    const storageModifier = modifiers[1]
+    context.stored[camelKey] = {
+      type: storageType,
+      default: $expression,
+      modifier: storageModifier,
+    };
 
     // The stored property will be set once the component connects
   }

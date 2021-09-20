@@ -4,6 +4,7 @@ export default class {
   stored = {
     count: {
       type: 'session',
+      modifier: 'fancy-counter',
     },
   };
 

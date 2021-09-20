@@ -15,10 +15,14 @@ const getStorage = (definition: StoredInterface): Storage => {
 };
 
 const getStoreKey = (key: string, definition: StoredInterface): string => {
-  let { version } = definition;
+  let { version, modifier } = definition;
   version = version || 0;
 
-  return `vivere-store-v${version}-${key}`;
+  let storeKey = `vivere-store-v${version}-${key}`;
+  if (modifier != null)
+  storeKey = `${storeKey}-${modifier}`
+
+  return storeKey;
 };
 
 export default {
