@@ -1,7 +1,9 @@
-export default class {
+import { VivereComponent } from "../../../../src/vivere";
+
+export default class extends VivereComponent {
   label = null;
 
-  passed = {
+  $passed = {
     showing: {
       type: Boolean,
       default: true,

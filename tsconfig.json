@@ -7,7 +7,7 @@
     "noUnusedLocals": true,
     "rootDir": ".",
     "strict": false,
-    "target": "es2017",
+    "target": "es6",
     "noEmit": true,
     "removeComments": true,
   },

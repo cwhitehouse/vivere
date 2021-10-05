@@ -1,7 +1,9 @@
 class Printer {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
+
   except: string[];
+
   only: string[];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,22 +37,20 @@ class Printer {
     if (value == null)
       return [];
 
-    return Object.getOwnPropertyNames(value).sort().map((key) => {
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
-      if (typeof descriptor.value === 'function')
-        return null;
+    return Object.entries(value).sort().map(([k, v]) => {
+      if ((!only || only.includes(k)) && (!except || !except.includes(k)))
+        return { key: k, value: v };
 
-      if ((!only || only.includes(key)) && (!except || !except.includes(key))) {
-        const { value: val } = descriptor;
-        return { key, value: val };
-      }
       return null;
     }).filter((v) => v != null);
   }
 
   get propertiesString(): string {
     const { properties, valueString } = this;
-    return properties.map((p) => `· ${p.key}\n\t  ↳ ${valueString(p.value)}`).join('\n  ');
+    return properties
+      .filter((p) => !p.key.startsWith('$'))
+      .map((p) => `· ${p.key}\n\t  ↳ ${valueString(p.value)}`)
+      .join('\n  ');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,8 +76,7 @@ class Printer {
 }
 
 export default {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  print(value: any, except?: string[], only?: string[]): string {
+  print(value: unknown, except?: string[], only?: string[]): string {
     return new Printer(value, except, only).print();
   },
 };

@@ -6,7 +6,9 @@ export default class SyncDirective extends DisplayDirective {
   static id = 'v-sync';
 
   element: (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement);
+
   event: string;
+
   binding: (event: Event) => boolean;
 
   // Parsing

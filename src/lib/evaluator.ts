@@ -1,5 +1,5 @@
-import Component from '../components/component';
 import EvaluatorError from '../errors/evaluator-error';
+import VivereComponent from '../components/vivere-component';
 
 const stringRegex = '\'[^\']*\'|"[^"]*"';
 const basicSymbolRegex = `(${stringRegex}|[a-zA-z.\\-_0-9]+)`;
@@ -45,6 +45,7 @@ const $parsePrimitive = (expression: string): unknown => {
 
   // Check if expression is null
   if (expression === 'null') return null;
+  if (expression === 'undefined') return null;
 
   // Check if the expression is a string (with quotes)
   if (expression.match(/^(('.*')|(".*"))$/))
@@ -59,7 +60,7 @@ const $parsePrimitive = (expression: string): unknown => {
  * @param object A Javascript object to dig into
  * @param expressionParts An array of strings presenting the keys to dig into
  */
-const dig = (object: object, expressionParts: string[]): unknown => {
+const dig = (object: unknown, expressionParts: string[]): unknown => {
   let result = object;
   expressionParts.forEach((part) => { result = result[part]; });
   return result;
@@ -71,7 +72,7 @@ const dig = (object: object, expressionParts: string[]): unknown => {
  * @param object A Javascript object to dig into
  * @param expression An expression passed to a Directive via an HTML attribute
  */
-const read = (object: object, expression: string): unknown => {
+const read = (object: unknown, expression: string): unknown => {
   let $expression = expression;
   let inversions = 0;
   while ($expression.startsWith('!')) {
@@ -94,7 +95,7 @@ const read = (object: object, expression: string): unknown => {
  * @param object A Javascript object to dig into
  * @param expression An expression passed to a Directive via an HTML attribute
  */
-const $parse = (object: object, expression: string): unknown => {
+const $parse = (object: unknown, expression: string): unknown => {
   if (isTernaryExpression(expression)) {
     const [temp, elseValue] = expression.split(' : ');
     const [comparison, ifValue] = temp.split(' ? ');
@@ -152,7 +153,7 @@ const $parse = (object: object, expression: string): unknown => {
  * @param object A Javascript object to dig into
  * @param expression An expression passed to a Directive via an HTML attribute
  */
-const $evaluateComparison = (object: object, expression: string): boolean => {
+const $evaluateComparison = (object: unknown, expression: string): boolean => {
   const splitRegex = new RegExp(` ${comparisonSymbolRegex} `);
 
   const [lhExp, operator, rhExp] = expression.split(splitRegex);
@@ -190,7 +191,7 @@ const $evaluateComparison = (object: object, expression: string): boolean => {
  * @param object A Javascript object to dig into
  * @param expression An expression passed to a Directive via an HTML attribute
  */
-const digShallow = (object: object, expression: string): { obj: unknown; key: string } => {
+const digShallow = (object: unknown, expression: string): { obj: unknown; key: string } => {
   const parts = expression.split('.');
 
   const $object = dig(object, parts.slice(0, -1));
@@ -216,7 +217,7 @@ export default {
    * @param object A Javascript object to dig into
    * @param expression An expression passed to a Directive via an HTML attribute
    */
-  executeAssignment(component: Component, expression: string): void {
+  executeAssignment(component: VivereComponent, expression: string): void {
     const [lhExp, operator, ...rhExp] = expression.split(' ');
     const { obj, key } = digShallow(component, lhExp);
 
@@ -255,7 +256,7 @@ export default {
  */
   isComparisonOperation,
 
-  evaluateComparison(component: Component, expression: string): boolean {
+  evaluateComparison(component: VivereComponent, expression: string): boolean {
     try {
       return $evaluateComparison(component, expression);
     } catch (err) {
@@ -267,7 +268,7 @@ export default {
 
   read,
 
-  parsePrimitive(component: Component, expression: string): unknown {
+  parsePrimitive(component: VivereComponent, expression: string): unknown {
     try {
       return $parsePrimitive(expression);
     } catch (err) {
@@ -275,7 +276,7 @@ export default {
     }
   },
 
-  parse(component: Component, expression: string): unknown {
+  parse(component: VivereComponent, expression: string): unknown {
     try {
       return $parse(component, expression);
     } catch (err) {
@@ -291,7 +292,7 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    * @param value The value we want to assign
    */
-  assign(component: Component, expression: string, value: unknown): void {
+  assign(component: VivereComponent, expression: string, value: unknown): void {
     try {
       const { obj, key } = digShallow(component, expression);
       obj[key] = value;
@@ -308,7 +309,7 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    * @param args The value we want to assign
    */
-  execute(component: Component, expression: string, ...args: unknown[]): void {
+  execute(component: VivereComponent, expression: string, ...args: unknown[]): void {
     let obj: unknown;
     let key: string;
 

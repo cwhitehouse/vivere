@@ -1,17 +1,19 @@
+import { VivereComponent } from "../../../../src/vivere";
+
 const State = {
   SHOW: 'show',
   DELETE: 'delete',
   EDIT: 'edit',
 };
 
-export default class {
+export default class extends VivereComponent {
   text = null;
   toDo = null;
   state = State.SHOW;
   states = [State.SHOW];
   label = null;
 
-  passed = {
+  $passed = {
     text: {
       type: String,
     },

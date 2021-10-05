@@ -11,35 +11,13 @@ export default [
     output: [
       {
         name: "vivere",
-        file: "dist/vivere.es5-umd.js",
-        format: "umd",
-        sourcemap: true,
-        banner
-      }
-    ],
-    plugins: [
-      resolve(),
-      typescript({
-        target: "es5",
-        downlevelIteration: true,
-      }),
-    ],
-    watch: {
-      include: "src/**"
-    }
-  },
-  {
-    input: "src/vivere.ts",
-    output: [
-      {
-        name: "vivere",
-        file: "dist/vivere.es2017-umd.js",
+        file: "dist/vivere.es6-umd.js",
         format: "umd",
         sourcemap: true,
         banner
       },
       {
-        file: "dist/vivere.es2017-esm.js",
+        file: "dist/vivere.es6-esm.js",
         format: "es",
         sourcemap: true,
         banner

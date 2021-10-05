@@ -11,8 +11,8 @@ export default class DisplayDirective extends Directive {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseExpression(): any {
-    const { context, component, expression } = this;
-    const callback = (): void => { context.queueRender(this); };
+    const { component, expression } = this;
+    const callback = (): void => { component.$queueRender(this); };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any;

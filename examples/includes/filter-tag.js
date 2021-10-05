@@ -1,14 +1,16 @@
-export default {
-  tag: null,
+import { VivereComponent } from '../../src/vivere';
 
-  passed: {
+export default class extends VivereComponent {
+  tag = null;
+
+  $passed = {
     filterTag: {},
-  },
+  };
 
   get isOn() {
     const { filterTag, tag } = this;
     return filterTag === tag;
-  },
+  }
 
   toggleFilter() {
     const { filterTag, tag } = this;
@@ -19,5 +21,5 @@ export default {
 
     this.$emit('updateFilter', newFilter);
     this.$element.blur();
-  },
+  }
 };

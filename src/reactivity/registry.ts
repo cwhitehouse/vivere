@@ -1,5 +1,6 @@
 export default class Registry<T, V> {
   $array: Array<T>;
+
   $map: { [prop: number]: V };
 
   constructor() {

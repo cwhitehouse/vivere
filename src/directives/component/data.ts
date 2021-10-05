@@ -4,8 +4,11 @@ import Evaluator from '../../lib/evaluator';
 
 export default class DataDirective extends Directive {
   static id = 'v-data';
+
   static forComponent = true;
+
   static requiresKey = true;
+
   static shouldRehydrate = false;
 
   camelKey: string;
@@ -17,10 +20,13 @@ export default class DataDirective extends Directive {
 
     let $expression: unknown;
     try {
-      $expression = JSON.parse(this.expression);
+      $expression = JSON.parse(expression);
     } catch (err) {
-      $expression = Evaluator.parsePrimitive(component, expression) || expression;
+      $expression = Evaluator.parsePrimitive(component, expression);
     }
+
+    if ($expression === undefined)
+      $expression = expression;
 
     this.camelKey = Utility.camelCase(this.key);
     this.component.$set(this.camelKey, $expression);

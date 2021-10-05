@@ -1,24 +1,31 @@
-import Component from '../components/component';
-import ComponentContext from '../components/component-context';
 import DirectiveError from '../errors/directive-error';
+import VivereComponent from '../components/vivere-component';
 
 export default class Directive {
   static id: string;
+
   static forComponent: boolean;
+
   static requiresComponent: boolean;
+
   static requiresKey = false;
+
   static shouldRehydrate = true;
 
-  context?: ComponentContext;
+  component?: VivereComponent;
+
   element: Element;
+
   expression: string;
+
   key?: string;
+
   modifiers?: string[];
 
   // Constructor
 
-  constructor(element: Element, name: string, expression: string, context?: ComponentContext) {
-    this.context = context;
+  constructor(element: Element, name: string, expression: string, component?: VivereComponent) {
+    this.component = component;
     this.element = element;
     this.expression = expression;
 
@@ -34,25 +41,16 @@ export default class Directive {
     // Check the directive if it's valid
     if (this.id() == null) throw new DirectiveError('Directives must have an identifier', this);
     if (this.forComponent() && !this.onComponent()) throw new DirectiveError(`${name} only applies to component roots`, this);
-    if (this.requiresComponent() && this.context == null) throw new DirectiveError(`${name} requires a component`, this);
+    if (this.requiresComponent() && this.component == null) throw new DirectiveError(`${name} requires a component`, this);
 
     // Register directive on the component (if necessary)
-    if (this.context != null) this.context.directives.add(this);
+    if (this.component != null) this.component.$directives.add(this);
 
     // Finish parsing directive
     this.parse();
 
     // Strip the attribute once it's been processed
     this.element.removeAttribute(name);
-  }
-
-  // Component
-
-  get component(): Component {
-    const { context } = this;
-
-    if (context != null) return context.component;
-    return null;
   }
 
   // Interface
@@ -107,7 +105,7 @@ export default class Directive {
 
   onComponent(): boolean {
     // Check if component is registered to element
-    return this.context != null && this.element === this.context.element;
+    return this.component != null && this.element === this.component.$element;
   }
 
   shouldRehydrate(): boolean {

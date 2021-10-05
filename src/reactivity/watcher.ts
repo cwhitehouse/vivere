@@ -1,11 +1,12 @@
 import Directive from '../directives/directive';
-import Computed from './computed';
+import Reactive from './reactive';
 
 export default class Watcher {
-  context: Directive | Computed;
+  context: Directive | Reactive;
+
   callback: () => void;
 
-  constructor(context: Directive | Computed, callback: () => void) {
+  constructor(context: Directive | Reactive, callback: () => void) {
     this.context = context;
     this.callback = callback;
   }
@@ -14,7 +15,7 @@ export default class Watcher {
 
   static current?: Watcher;
 
-  static watch(context: Directive | Computed, callback: () => void, watch: () => void): void {
+  static watch(context: Directive | Reactive, callback: () => void, watch: () => void): void {
     // Save current Watcher
     const { current } = Watcher;
 

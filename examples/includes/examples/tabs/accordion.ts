@@ -4,7 +4,7 @@ import Section from './section';
 export default class Accordion extends VivereComponent {
   activeSection?: string = null;
 
-  stored = {
+  $stored = {
     activeSection: {
       type: 'local',
     },

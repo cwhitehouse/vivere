@@ -9,6 +9,8 @@ export default class ReactiveArray {
           case 'push':
           case 'splice':
           case 'unshift':
+          case 'pop':
+          case 'shift':
             // Mutating methods should force a report
             return (...args: unknown[]): unknown => {
               const oldValue = [...target];
