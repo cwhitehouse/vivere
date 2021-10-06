@@ -1,10 +1,12 @@
-export default class {
+import { VivereComponent } from "../../../../src/vivere";
+
+export default class extends VivereComponent {
   inputText = null;
 
   filtering = false;
   text = null;
 
-  passed = {
+  $passed = {
     filtering: {
       type: Boolean,
     },

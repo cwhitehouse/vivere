@@ -1,31 +1,10 @@
 import Walk from './lib/walk';
-import ComponentContext from './components/component-context';
-import Registry from './reactivity/registry';
-import ComponentInterface from './components/interface';
 import EventBus from './lib/events/bus';
 import Event from './lib/events/event';
 import Renderer from './renderer';
-import Component from './components/component';
-import ComponentDefinition from './components/definition/definition';
-
-interface VivereInterface {
-  $components?: Set<ComponentContext>;
-  $definitions?: Registry<string, (typeof Component | ComponentInterface)>;
-
-  register: (name: string, definition: typeof Component | ComponentInterface) => void;
-  $track: (component: ComponentContext) => void;
-  $untrack: (component: ComponentContext) => void;
-  $getDefinition: (name: string) => (typeof Component | ComponentInterface);
-}
-
-declare global {
-  interface Window {
-    $vivere: VivereInterface;
-  }
-}
-
-const $components: Set<ComponentContext> = new Set();
-const $definitions: Registry<string, (typeof Component | ComponentInterface)> = new Registry();
+import VivereComponent from './components/vivere-component';
+import ComponentRegistry from './components/registry';
+import ComponentDefinitions from './components/definitions';
 
 // Setup logic
 
@@ -36,7 +15,7 @@ const $setup = (element: Element): void => {
   Walk.tree(element);
 
   // Finalize connecting our components
-  $components.forEach((c) => { c.connect(); });
+  ComponentRegistry.components.forEach((c) => { c.$connect(); });
 
   // eslint-disable-next-line no-console
   console.log(`Vivere | Document parsed: ${new Date().getTime() - start.getTime()}ms`);
@@ -50,18 +29,17 @@ const $setupDocument = (): void => {
   // Stop listening to DOMContentLoaded
   document.removeEventListener('DOMContentLoaded', $setupDocument);
 };
-const $binding = $setupDocument.bind(this);
 
 // Dehydrate Vivere
 
 const dehydrate = (): void => {
-  $components.forEach((c) => c.dehydrate.call(c, true));
+  ComponentRegistry.components.forEach((c) => c.$dehydrate.call(c, true));
 };
 
 // SETUP VIVERE AUTOMATICALLY
 
 // Listen for class DOM loaded event
-document.addEventListener('DOMContentLoaded', $binding);
+document.addEventListener('DOMContentLoaded', $setupDocument);
 
 // Turbolinks listeners for compatibility
 document.addEventListener('turbo:before-cache', () => {
@@ -84,27 +62,12 @@ document.addEventListener('click', (e: Event) => {
 
 // Root logic
 
-const Vivere: VivereInterface = {
+const Vivere = {
   // Track components and definitions
 
-  register(name: string, definition: (typeof Component | ComponentDefinition)): void {
-    $definitions.register(name, definition);
-  },
-
-  $track(component: ComponentContext): void {
-    $components.add(component);
-  },
-
-  $untrack(component: ComponentContext): void {
-    $components.delete(component);
-  },
-
-  $getDefinition(name: string): (typeof Component | ComponentInterface) {
-    if (name == null || name.length <= 0)
-      return {};
-
-    return $definitions.get(name);
+  register(name: string, definition: (typeof VivereComponent)): void {
+    ComponentDefinitions.register(name, definition);
   },
 };
 
-export { Vivere, Component as VivereComponent };
+export { Vivere, VivereComponent };

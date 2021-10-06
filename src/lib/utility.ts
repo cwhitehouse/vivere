@@ -36,8 +36,7 @@ export default {
     });
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  jsonCopy(value: any): any {
+  jsonCopy(value: unknown): unknown {
     if (value == null) return null;
     return JSON.parse(JSON.stringify(value));
   },

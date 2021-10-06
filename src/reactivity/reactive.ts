@@ -1,25 +1,50 @@
-import ComponentContext from '../components/component-context';
 import Watcher from './watcher';
 import Registry from './registry';
 import ReactiveArray from './array';
 import ReactiveObject from './object';
 import Coordinator from './coordinator';
-import Reactable from './reactable';
-import ComponentError from '../errors/component-error';
+import VivereComponent from '../components/vivere-component';
 
-export default class Reactive implements Reactable {
-  $reactives: { [key: string]: Reactive };
+export default class Reactive {
+  listeners: Registry<unknown, (newValue: unknown, oldValue: unknown) => void> = new Registry();
+
+  host: unknown;
+
   value: unknown;
-  listeners: Registry<object, (newValue: unknown, oldValue: unknown) => void>;
 
-  constructor(value: unknown) {
-    this.listeners = new Registry();
-    this.updateValue(value);
+  computed = false;
+
+  getter: () => unknown;
+
+  constructor(host: unknown, value: unknown, getter: () => unknown) {
+    this.host = host;
+
+    this.getter = getter;
+    if (this.getter == null)
+      this.set(value, true);
+  }
+
+  // Dirty value
+
+  dirty(): void {
+    this.computeValue();
+  }
+
+  computeValue(): void {
+    const callback = (): void => { this.dirty(); };
+    Watcher.watch(this, callback, () => {
+      const newValue = this.getter.call(this.host);
+      this.set(newValue, false);
+      this.computed = true;
+    });
   }
 
   // Accessing the value, and tracking updates
 
   getValue(): unknown {
+    if (this.getter != null && !this.computed)
+      this.computeValue();
+
     return this.value;
   }
 
@@ -66,17 +91,15 @@ export default class Reactive implements Reactable {
     if (Array.isArray(value))
       return new ReactiveArray(value, this);
 
-    if (typeof value === 'object') {
-      Object.entries(value).forEach(([k, v]) => Reactive.set(value, k, v));
+    if (typeof value === 'object')
       return new ReactiveObject(value);
-    }
 
     return value;
   }
 
   // Reporting
 
-  registerHook(object: object, hook: (newValue: unknown, oldValue: unknown) => void): void {
+  registerHook(object: unknown, hook: (newValue: unknown, oldValue: unknown) => void): void {
     this.listeners.register(object, hook);
   }
 
@@ -87,79 +110,13 @@ export default class Reactive implements Reactable {
 
   $report(newValue: unknown, oldValue: unknown): void {
     this.listeners.forEach((entity, hook) => {
-      if (entity instanceof ComponentContext)
+      if (entity instanceof VivereComponent)
         Coordinator.trackComponent(entity, hook, newValue, oldValue);
       else
         hook(newValue, oldValue);
     });
 
     Coordinator.chainReactionEnded();
-  }
-
-  // Helper method for automatically making a property reactive
-
-  static set(host: unknown, key: string, value: unknown, obj?: object): Reactive {
-    const $host = host as Reactable;
-
-    // Ensure $reactives property exists
-    if ($host.$reactives == null)
-      $host.$reactives = {};
-
-    // Check if we've already set up reactivity
-    // for this property and component
-    let reactive: Reactive = $host.$reactives[key];
-    if (reactive == null) {
-      // Initialize a Reactive object
-      reactive = new Reactive(value);
-
-      // Track the reactive object on the host
-      $host.$reactives[key] = reactive;
-
-      // Override property definitions
-      Object.defineProperty((obj || $host), key, {
-        configurable: true,
-        get() { return $host.$reactives[key] && $host.$reactives[key].get(); },
-        set(newValue) { $host.$reactives[key].set(newValue, true); },
-      });
-    } else
-      // Simple assignment is sufficient
-      (obj || host)[key] = value;
-
-    return reactive;
-  }
-
-  // Helper method for tracking passed properties
-
-  static pass(context: ComponentContext, key: string, reactive: Reactive): void {
-    // Track the Reactive on the Passed info
-    const passed = context.passed[key];
-    if (passed == null)
-      throw new ComponentError(`Value passed to component for unknown key ${key}`, context.component);
-
-    passed.$reactive = reactive;
-
-    // Pass down Reactive property
-    Object.defineProperty(context.component, key, {
-      configurable: true,
-      get() {
-        let value = reactive.get();
-        if (value == null) {
-          if (passed.required)
-            throw new ComponentError(`${key} is required to be passed`, context.component);
-
-          value = passed.default;
-        }
-
-        return value;
-      },
-      set() {
-        throw new ComponentError('Cannot update passed values from a child', context.component);
-      },
-    });
-
-    // Invoke once to ensure Watcher is initialized
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    context.component[key];
   }
 
   // Better JSON rendering

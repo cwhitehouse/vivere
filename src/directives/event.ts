@@ -5,9 +5,11 @@ import Event from '../lib/events/event';
 
 export default class EventDirective extends Directive {
   static id = 'v-event';
+
   static requiresKey = true;
 
   binding: (event: Event) => boolean;
+
   clickOutsideBinding: (event: Event) => void;
 
   // Parsing

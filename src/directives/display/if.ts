@@ -5,7 +5,9 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
   static id = 'v-if';
 
   container: Node;
+
   current: Node;
+
   placeholder: Node;
 
   // Parsing

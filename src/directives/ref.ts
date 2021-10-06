@@ -7,10 +7,10 @@ export default class RefDirective extends Directive {
 
   parse(): void {
     if (this.onComponent()) {
-      const { parent } = this.context;
-      if (parent != null) parent.refs[this.expression] = this.component;
+      const { $parent } = this.component;
+      if ($parent != null) $parent.$refs[this.expression] = this.component;
     }
 
-    this.context.refs[this.expression] = this.element;
+    this.component.$refs[this.expression] = this.element;
   }
 }

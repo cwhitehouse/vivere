@@ -1,4 +1,3 @@
-import ComponentContext from '../components/component-context';
 import Directive from '../directives/directive';
 import ComponentDirective from '../directives/component/component';
 import BindDirective from '../directives/component/bind';
@@ -20,6 +19,7 @@ import TextDirective from '../directives/display/text';
 import EventDirective from '../directives/event';
 import HideDirective from '../directives/hide';
 import RefDirective from '../directives/ref';
+import VivereComponent from '../components/vivere-component';
 
 const directives: (typeof Directive)[] = [
   ComponentDirective,
@@ -45,9 +45,9 @@ const directives: (typeof Directive)[] = [
 ];
 
 const Walk = {
-  tree(element: Element, context?: ComponentContext): void {
+  tree(element: Element, component?: VivereComponent): void {
     const { attributes } = element;
-    let $context = context;
+    let $component = component;
 
     // v-static stops tree walking for improved performance
     if (attributes['v-static'] != null) return;
@@ -60,24 +60,24 @@ const Walk = {
 
         if (name.startsWith(Dir.id)) {
           // Initialize and parse the directive
-          const directive = new Dir(element, name, value, $context);
+          const directive = new Dir(element, name, value, $component);
 
           // Re-assign component (for v-component directives)
-          $context = directive.context;
+          $component = directive.component;
         }
       });
     });
 
-    Walk.children(element, $context);
+    Walk.children(element, $component);
   },
 
-  children(element: Element, context: ComponentContext): void {
+  children(element: Element, component: VivereComponent): void {
     Object.values(element.children).forEach((child) => {
       // Continue checking the
       // element's children
       if (typeof child === 'object')
         // Only check nodes
-        Walk.tree(child, context);
+        Walk.tree(child, component);
     });
   },
 };

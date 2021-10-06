@@ -1,4 +1,4 @@
-import ComponentContext from '../components/component-context';
+import VivereComponent from '../components/vivere-component';
 
 const delayedHooks = [];
 let chainReactions = 0;
@@ -8,7 +8,7 @@ export default {
     chainReactions += 1;
   },
 
-  trackComponent(component: ComponentContext, hook: (newValue: unknown, oldValue: unknown) => void, newValue: unknown, oldValue: unknown): void {
+  trackComponent(component: VivereComponent, hook: (newValue: unknown, oldValue: unknown) => void, newValue: unknown, oldValue: unknown): void {
     delayedHooks.push({
       component,
       hook,

@@ -4,7 +4,7 @@ export default class Section extends VivereComponent {
   value?: string = null;
   activeSection?: string;
 
-  passed = {
+  $passed = {
     activeSection: {},
   };
 

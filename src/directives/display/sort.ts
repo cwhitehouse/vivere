@@ -15,7 +15,7 @@ export default class SortDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    const callback = (): void => { this.context.queueRender(this); };
+    const callback = (): void => { this.component.$queueRender(this); };
     Watcher.watch(this, callback, () => {
       // Ignore null values
       if (value == null) return;

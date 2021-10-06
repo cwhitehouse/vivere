@@ -3,6 +3,7 @@ import DirectiveError from '../../errors/directive-error';
 
 export default class DisabledDirective extends DisplayDirective {
   static id = 'v-disabled';
+
   element: HTMLInputElement | HTMLButtonElement;
 
   // Parsing

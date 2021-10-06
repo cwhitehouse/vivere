@@ -1,5 +1,6 @@
 import resolve from "@rollup/plugin-node-resolve"
 import typescript from "@rollup/plugin-typescript"
+import dts from "rollup-plugin-dts"
 
 import { version } from "./package.json"
 const year = new Date().getFullYear()
@@ -11,35 +12,13 @@ export default [
     output: [
       {
         name: "vivere",
-        file: "dist/vivere.es5-umd.js",
-        format: "umd",
-        sourcemap: true,
-        banner
-      }
-    ],
-    plugins: [
-      resolve(),
-      typescript({
-        target: "es5",
-        downlevelIteration: true,
-      }),
-    ],
-    watch: {
-      include: "src/**"
-    }
-  },
-  {
-    input: "src/vivere.ts",
-    output: [
-      {
-        name: "vivere",
-        file: "dist/vivere.es2017-umd.js",
+        file: "dist/vivere.es6-umd.js",
         format: "umd",
         sourcemap: true,
         banner
       },
       {
-        file: "dist/vivere.es2017-esm.js",
+        file: "dist/vivere.es6-esm.js",
         format: "es",
         sourcemap: true,
         banner
@@ -52,6 +31,18 @@ export default [
     watch: {
       include: "src/**"
     }
+  },
+  {
+    input: "dist/types/src/vivere.d.ts",
+    output: [
+      {
+        file: "dist/vivere.d.ts",
+        format: "es",
+      },
+    ],
+    plugins: [
+      dts(),
+    ],
   },
   {
     input: "examples/main.ts",

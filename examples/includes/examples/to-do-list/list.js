@@ -1,6 +1,8 @@
+import { VivereComponent } from "../../../../src/vivere";
+
 let id = 4;
 
-export default class {
+export default class extends VivereComponent {
   creating = false;
   filter = null;
   sort = null;
@@ -64,8 +66,36 @@ export default class {
       <div
         v-component="to-do-item"
         v-data:to-do='{ "id": ${id}, "label": "${label}" }'
+        v-pass:text
         class="to-do-item h-12 flex items-stretch"
       >
+        <!-- MODE = EDITING -->
+        <div
+          v-if="isEditing"
+          class="flex items-center w-full space-x-2"
+        >
+          <input
+            type="text"
+            class="flex-1"
+            placeholder="Edit label..."
+            v-sync="label"
+            v-ref="input"
+            v-event:keydown.ent="save"
+            v-event:keydown.esc="reset"
+          ></input>
+          <button
+            class="button-indigo"
+            v-event:click="save"
+            v-disabled="!hasLabel"
+          >Save</button>
+          <button
+            class="button"
+            v-event:click="reset"
+          >Cancel</button>
+        </div>
+
+
+        <!-- MODE = SHOW -->
         <div
           v-if="isShowing"
           class="flex items-center w-full"
@@ -85,25 +115,34 @@ export default class {
           </div>
           <div class="to-do-tags flex-1 flex items-center">
           </div>
-          <div class="flex-1 flex items-center justify-end">
+          <div class="flex-1 flex items-center justify-end space-x-2">
             <button
               v-disabled="toDo.checked"
-              class="text-white bg-pink-600 px-3 py-2 rounded hover:shadow-md active:shadow-none disabled:opacity-50"
+              class="button"
+              v-event:click="startEditing"
+            >Edit</button>
+            <button
+              v-disabled="toDo.checked"
+              class="button-rosy"
               v-event:click="confirmDelete"
             >Delete</button>
           </div>
         </div>
+
+
+        <!-- MODE = DELETING -->
         <div
           v-if="isDeleting"
           class="flex items-center w-full"
+          hidden
         >
-          <p class="flex-1 text-red-600">Are you sure you want to delete this?</p>
+          <p class="flex-1 text-rose-600">Are you sure you want to delete this?</p>
           <button
-            class="text-white bg-pink-600 px-3 py-2 rounded hover:shadow-md active:shadow-none mr-2"
+            class="button-rose mr-2"
             v-event:click="delete"
           >Confirm</button>
           <button
-            class="bg-gray-400 px-3 py-2 rounded hover:shadow-md active:shadow-none"
+            class="button"
             v-event:click="reset"
           >Cancel</button>
         </div>

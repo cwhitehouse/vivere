@@ -1,11 +1,13 @@
-export default class {
+import { VivereComponent } from "../../src/vivere";
+
+export default class extends VivereComponent {
   exampleGroup = {};
   tags = [];
 
   filterTag = null;
   filterText = null;
 
-  passed = {
+  $passed = {
     filterTag: {},
     filterText: {},
   }
