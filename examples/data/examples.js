@@ -103,10 +103,11 @@ const exampleGroups = [
 
 exampleGroups.forEach(eg => {
   eg.examples.forEach(e => {
-    const { directives, scripts } = fileParser.parseDirectives(`examples/includes/examples/${eg.id}/${e.id}.ejs`);
-    e.tags = directives;
+    const { directives, scripts, partials, properties } = fileParser.parseDirectives(`examples/includes/examples/${eg.id}/${e.id}.ejs`);
+    e.tags = directives.concat(properties);
     e.scripts = scripts;
-    e.group = eg.id
+    e.partials = partials;
+    e.group = eg.id;
   });
 });
 

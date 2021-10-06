@@ -62,6 +62,8 @@ module.exports = {
   parseDirectives(fileName) {
     const directives = [];
     const scripts = [];
+    const partials = [];
+    const properties = [];
 
     // Read the file
     const fileContent = fs.readFileSync(fileName, {
@@ -71,16 +73,24 @@ module.exports = {
 
     // Check for included partials
     const includeMatches = fileContent
-      .matchAll(/<%- include\('([/A-z-]+)/g);
+      .matchAll(/<%- include\('([\/A-z-]+)/g);
     for (let match of includeMatches) {
       const filePart = match[1];
       const parsed = this.parseDirectives(`examples/includes${filePart}.ejs`);
 
-      for (script of parsed.scripts)
+      for (let partial of parsed.partials)
+        partials.push(partial);
+
+      for (let script of parsed.scripts)
         scripts.push(script);
 
-      for (directive of parsed.directives)
+      for (let directive of parsed.directives)
         directives.push(directive);
+
+      for (let property of parsed.properties)
+        properties.push(property);
+
+      partials.push(`${filePart}.ejs`);
     }
 
     // Parse HTML directives
@@ -98,13 +108,58 @@ module.exports = {
       const componentCode = match[1];
       const componentName = strings.pascalCase(componentCode);
       const componentDetails = components[componentName];
+      const filePath = componentDetails.filePath;
 
       if (componentDetails != null) {
-        scripts.push(componentDetails.filePath);
+        scripts.push(filePath);
 
         for (let attribute of componentDetails.attributes)
           directives.push(attribute);
       }
+
+      const scriptContent = fs.readFileSync(filePath, {
+        encoding:'utf8',
+        flag:'r'
+      });
+
+      if (scriptContent.match(/(\s|^)\$stored {/))
+        properties.push('stored');
+
+      if (scriptContent.match(/(\s|^)\$passed {/))
+        properties.push('passed');
+
+      if (scriptContent.match(/(\s|^)get [A-z]+\(\) {/))
+        properties.push('computed');
+
+      if (scriptContent.match(/(\s|^)on[A-z]+Changed\(/))
+        properties.push('watch');
+
+      if (scriptContent.match(/(\s|^)beforeConnected\(\) {/))
+        properties.push('beforeConnected');
+
+      if (scriptContent.match(/(\s|^)connected\(\) {/))
+        properties.push('connected');
+
+      if (scriptContent.match(/(\s|^)beforeDestroyed\(\) {/))
+        properties.push('beforeDestroyed');
+
+      if (scriptContent.match(/(\s|^)destroyed\(\) {/))
+        properties.push('destroyed');
+
+      if (scriptContent.match(/(\s|^)beforeDehydrated\(\) {/))
+        properties.push('beforeDehydrated');
+
+      if (scriptContent.match(/(\s|^)dehydrated\(\) {/))
+        properties.push('dehydrated');
+
+      if (scriptContent.match(/\$attach\(/))
+        properties.push('$attach');
+
+      if (scriptContent.match(/\$refs/))
+        properties.push('$refs');
+
+      if (scriptContent.match(/\$emit\(/))
+        properties.push('$emit');
     }
 
     return {
@@ -114,6 +169,12 @@ module.exports = {
         .sort(list.directives),
       scripts: scripts
         .filter(uniqueness)
+        .sort(),
+      partials: partials
+        .filter(list.uniqueness)
+        .sort(),
+      properties: properties
+        .filter(list.uniqueness)
         .sort(),
     };
   },

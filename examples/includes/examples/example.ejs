@@ -19,9 +19,18 @@
     <div class="border-t-2 flex items-center py-2 px-3 bg-white space-x-1 text-sm">
       <a
         href="https://github.com/cwhitehouse/vivere/blob/main/examples/includes/examples/<%= example.group %>/<%= example.id %>.ejs"
-        class="text-link p-1"
+        class="text-link green p-1"
         target="_blank"
       ><%= example.id %>.ejs</a>
+      <% if (!!example.partials.length) { %>
+        <% for (partial of example.partials) { %>
+          <a
+            href="https://github.com/cwhitehouse/vivere/blob/main/examples/includes<%= partial %>"
+            class="text-link green p-1"
+            target="_blank"
+          ><%= partial.split('/').pop() %></a>
+        <% } %>
+      <% } %>
       <% if (!!example.scripts.length) { %>
         <% for (script of example.scripts) { %>
           <a

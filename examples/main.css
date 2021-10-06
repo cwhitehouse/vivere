@@ -28,6 +28,11 @@ a > * { @apply transition-all; }
 .text-link:hover { @apply text-indigo-900 -translate-y-0.5; }
 .dark .text-link:hover { @apply text-indigo-400; }
 
+.text-link.green { @apply text-emerald-700; }
+.dark .text-link.green { @apply text-emerald-300; }
+.text-link.green:hover { @apply text-emerald-900; }
+.dark .text-link.gree:hover { @apply text-emerald-400; }
+
 
 /* BUTTONS */
 
