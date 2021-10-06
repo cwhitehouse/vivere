@@ -7,7 +7,6 @@ import StoreDirective from '../directives/component/store';
 import AttrDirective from '../directives/display/attr';
 import ClassDirective from '../directives/display/class';
 import DisabledDirective from '../directives/display/disabled';
-import FilterDirective from '../directives/display/filter';
 import HrefDirective from '../directives/display/href';
 import IfDirective from '../directives/display/if';
 import ShowDirective from '../directives/display/show';
@@ -30,7 +29,6 @@ const directives: (typeof Directive)[] = [
   AttrDirective,
   ClassDirective,
   DisabledDirective,
-  FilterDirective,
   HrefDirective,
   IfDirective,
   ShowDirective,

@@ -21,21 +21,6 @@ export default class extends VivereComponent {
     };
   }
 
-  get filterBy() {
-    const { filter } = this;
-
-    switch (filter) {
-      case 'urgent':
-        return 'taggedUrgent';
-      case 'blocked':
-        return 'taggedBlocked';
-      case 'notifies':
-        return 'taggedNotifies';
-      default:
-        return 'matchesText';
-    };
-  }
-
   get filtering() {
     const { filter } = this;
     return filter != null
@@ -67,6 +52,8 @@ export default class extends VivereComponent {
         v-component="to-do-item"
         v-data:to-do='{ "id": ${id}, "label": "${label}" }'
         v-pass:text
+        v-pass:filter
+        v-if="shouldShow"
         class="to-do-item h-12 flex items-stretch"
       >
         <!-- MODE = EDITING -->

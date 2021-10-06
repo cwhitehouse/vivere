@@ -8,19 +8,34 @@ const State = {
 
 export default class extends VivereComponent {
   text = null;
+  filter = null;
+
   toDo = null;
   state = State.SHOW;
-  states = [State.SHOW];
   label = null;
 
   $passed = {
     text: {
-      type: String,
+      default: null,
+    },
+    filter: {
+      default: null,
     },
   };
 
-  get fauxState() {
-    return this.states[0];
+  get shouldShow() {
+    const { filter, taggedBlocked, taggedNotifies, taggedUrgent, matchesText } = this;
+
+    switch (filter) {
+      case 'urgent':
+        return taggedUrgent && matchesText;
+      case 'blocked':
+        return taggedBlocked && matchesText;
+      case 'notifies':
+        return taggedNotifies && matchesText;
+      default:
+        return matchesText;
+    };
   }
 
   get taggedUrgent() {
@@ -65,11 +80,11 @@ export default class extends VivereComponent {
   }
 
   get isShowing() {
-    return this.fauxState === State.SHOW;
+    return this.state === State.SHOW;
   }
 
   get isEditing() {
-    return this.fauxState === State.EDIT;
+    return this.state === State.EDIT;
   }
 
   get hasLabel() {
@@ -78,20 +93,22 @@ export default class extends VivereComponent {
   }
 
   get isDeleting() {
-    return this.fauxState === State.DELETE;
+    return this.state === State.DELETE;
   }
 
   onIsEditingChanged() {
     if (this.isEditing) {
       this.label = this.toDo.label;
       this.$nextRender(() => {
-        this.$refs.input.focus();
+        const input = this.$refs.input;
+        if (input instanceof Element)
+          input.focus();
       });
     }
   }
 
   startEditing() {
-    this.states.unshift(State.EDIT);
+    this.state = State.EDIT;
   }
 
   save() {
@@ -100,7 +117,7 @@ export default class extends VivereComponent {
   }
 
   confirmDelete() {
-    this.states.unshift(State.DELETE);
+    this.state = State.DELETE;
   }
 
   delete() {
@@ -108,6 +125,6 @@ export default class extends VivereComponent {
   }
 
   reset() {
-    this.states.unshift(State.SHOW);
+    this.state = State.SHOW;
   }
 };
