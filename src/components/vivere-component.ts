@@ -6,11 +6,10 @@ import Renderer from '../renderer';
 import Storage from '../reactivity/storage';
 import StoredInterface from './definition/stored-interface';
 import ComponentError from '../errors/component-error';
-import ReactivePassedInterface from './definition/reactive-passed-interface';
 import ReactiveHost from '../reactivity/reactive-host';
-import ComponentInterface from './interface';
 import Properties from '../lib/properties';
 import ComponentRegistry from './registry';
+import PassedInterface from './definition/passed-interface';
 
 declare global {
   interface Element {
@@ -28,7 +27,7 @@ const reservedKeywords = [
   'name',
 ];
 
-export default class VivereComponent extends ReactiveHost implements ComponentInterface {
+export default class VivereComponent extends ReactiveHost {
   #dataKeys: Set<string> = new Set();
 
   $name: string;
@@ -45,7 +44,7 @@ export default class VivereComponent extends ReactiveHost implements ComponentIn
 
   $refs: { [key: string]: (Element | VivereComponent) } = {};
 
-  $passed: { [key: string]: ReactivePassedInterface } = {};
+  $passed: { [key: string]: PassedInterface } = {};
 
   $stored: { [key: string]: StoredInterface } = {};
 
