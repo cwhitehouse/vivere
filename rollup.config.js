@@ -36,7 +36,7 @@ export default [
     input: "dist/types/src/vivere.d.ts",
     output: [
       {
-        file: "dist/vivere.d.ts",
+        file: "dist/types/vivere.d.ts",
         format: "es",
       },
     ],

@@ -15,11 +15,11 @@
   "files": [
     "dist/*.js",
     "dist/*.js.map",
-    "dist/vivere.d.ts"
+    "dist/types/vivere.d.ts"
   ],
-  "module": "dist/vivere.es2017-esm.js",
-  "main": "dist/vivere.es5-umd.js",
-  "types": "dist/vivere.d.ts",
+  "module": "dist/vivere.es6-esm.js",
+  "main": "dist/vivere.es6-umd.js",
+  "types": "dist/types/vivere.d.ts",
   "license": "MIT",
   "scripts": {
     "clean:_examples": "rimraf _examples",
