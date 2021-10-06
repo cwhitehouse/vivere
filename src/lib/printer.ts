@@ -49,8 +49,8 @@ class Printer {
     const { properties, valueString } = this;
     return properties
       .filter((p) => !p.key.startsWith('$'))
-      .map((p) => `· ${p.key}\n\t  ↳ ${valueString(p.value)}`)
-      .join('\n  ');
+      .map((p) => `  · ${p.key}\n\t  ↳ ${valueString(p.value)}`)
+      .join('\n\t  ');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
