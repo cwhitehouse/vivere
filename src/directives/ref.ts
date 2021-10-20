@@ -6,11 +6,13 @@ export default class RefDirective extends Directive {
   // Parsing
 
   parse(): void {
+    const { component, element, expression } = this;
+
     if (this.onComponent()) {
-      const { $parent } = this.component;
-      if ($parent != null) $parent.$refs[this.expression] = this.component;
+      const { $parent } = component;
+      if ($parent != null) $parent.$refs[expression] = component;
     }
 
-    this.component.$refs[this.expression] = this.element;
+    component.$refs[expression] = element;
   }
 }
