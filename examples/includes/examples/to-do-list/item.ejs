@@ -1,9 +1,7 @@
 <div
+  v-list="toDo of filteredList"
   v-component="to-do-item"
-  v-data:to-do="<%= JSON.stringify(toDo) %>"
-  v-pass:text
-  v-pass:filter
-  v-if="shouldShow"
+  v-bind:remove="removeItem"
   class="to-do-item h-12 flex items-stretch"
 >
   <!-- MODE = EDITING -->
@@ -51,9 +49,11 @@
       ></p>
     </div>
     <div class="to-do-tags flex-1 flex items-center">
-      <% toDo.tags.forEach((tag) => { %>
-        <%- include('/tag', { tag }) %>
-      <% }); %>
+      <p
+        v-list="tag of toDo.tags"
+        v-text="tag"
+        class="rounded text-xs uppercase font-semibold px-2 py-1 mr-1 mt-1 bg-indigo-100 text-indigo-900"
+      ></p>
     </div>
     <div class="flex-1 flex items-center justify-end space-x-2">
       <button

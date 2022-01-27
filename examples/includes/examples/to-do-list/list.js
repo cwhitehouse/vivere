@@ -1,8 +1,11 @@
 import { VivereComponent } from "../../../../src/vivere";
+import _ from 'lodash';
 
 let id = 4;
 
 export default class extends VivereComponent {
+  toDos;
+
   creating = false;
   filter = null;
   sort = null;
@@ -13,12 +16,33 @@ export default class extends VivereComponent {
 
     switch (sort) {
       case 'alphaAsc':
-        return [['toDo.label'], ['asc']];
+        return [['label'], ['asc']];
       case 'alphaDesc':
-        return [['toDo.label'], ['desc']];
+        return [['label'], ['desc']];
       default:
-        return [['toDo.id'], ['asc']];
+        return [['id'], ['asc']];
     };
+  }
+
+  get sortedList() {
+    const { orderBy, toDos } = this;
+
+    return this.orderArrayBy(toDos, orderBy[0], orderBy[1]);
+  }
+
+  get lowerText() {
+    const { text } = this;
+    return text && text.toLowerCase();
+  }
+
+  get filteredList() {
+    const { filter, lowerText, sortedList } = this;
+
+    return sortedList.filter((toDo) => {
+        const lowerLabel = toDo.label?.toLowerCase();
+        return (!filter?.length || toDo.tags?.includes(filter)) &&
+          (!lowerText?.length || lowerLabel?.includes(lowerText));
+    });
   }
 
   get filtering() {
@@ -27,9 +51,13 @@ export default class extends VivereComponent {
       && filter.length > 0;
   }
 
+  connected() {
+    console.log(this.toDos);
+  }
+
   onFilterChanged() {
     if (this.filter != null)
-        this.text = null;
+      this.text = null;
   }
 
   startCreating() {
@@ -44,98 +72,38 @@ export default class extends VivereComponent {
     this.text = text;
   }
 
+  orderArrayBy(array, keys, directions){
+    return [...array].sort((a, b) => {
+      for (let i = 0; i < keys.length; i += 1) {
+        const key = keys[i];
+        const aVal = a[key];
+        const bVal = b[key];
+
+        const direction = directions[i];
+        const ascending = direction === 'asc';
+
+        if (aVal > bVal) return ascending ? 1 : -1;
+        if (bVal > aVal) return ascending ? -1 : 1;
+      }
+
+      return 0;
+    });
+  }
+
   create(label) {
     id += 1;
+    this.toDos.push({ id, label });
+  }
 
-    const html = `
-      <div
-        v-component="to-do-item"
-        v-data:to-do='{ "id": ${id}, "label": "${label}" }'
-        v-pass:text
-        v-pass:filter
-        v-if="shouldShow"
-        class="to-do-item h-12 flex items-stretch"
-      >
-        <!-- MODE = EDITING -->
-        <div
-          v-if="isEditing"
-          class="flex items-center w-full space-x-2"
-        >
-          <input
-            type="text"
-            class="flex-1"
-            placeholder="Edit label..."
-            v-sync="label"
-            v-ref="input"
-            v-event:keydown.ent="save"
-            v-event:keydown.esc="reset"
-          ></input>
-          <button
-            class="button-indigo"
-            v-event:click="save"
-            v-disabled="!hasLabel"
-          >Save</button>
-          <button
-            class="button"
-            v-event:click="reset"
-          >Cancel</button>
-        </div>
+  removeItem(toDo) {
+    console.log('Removing item...');
+    console.log(toDo);
+    const { toDos } = this;
 
+    const ids = toDos.map((toDo) => toDo.id);
+    const idx = ids.indexOf(toDo.id);
 
-        <!-- MODE = SHOW -->
-        <div
-          v-if="isShowing"
-          class="flex items-center w-full"
-        >
-          <div class="flex-2 flex items-center">
-            <input
-              type="checkbox"
-              class="mr-2"
-              v-sync="toDo.checked"
-            ></input>
-            <p
-              class="flex-2"
-              v-class:line-through="toDo.checked"
-              v-class:italic="toDo.checked"
-              v-text="toDo.label"
-            ></p>
-          </div>
-          <div class="to-do-tags flex-1 flex items-center">
-          </div>
-          <div class="flex-1 flex items-center justify-end space-x-2">
-            <button
-              v-disabled="toDo.checked"
-              class="button"
-              v-event:click="startEditing"
-            >Edit</button>
-            <button
-              v-disabled="toDo.checked"
-              class="button-rosy"
-              v-event:click="confirmDelete"
-            >Delete</button>
-          </div>
-        </div>
-
-
-        <!-- MODE = DELETING -->
-        <div
-          v-if="isDeleting"
-          class="flex items-center w-full"
-          hidden
-        >
-          <p class="flex-1 text-rose-600">Are you sure you want to delete this?</p>
-          <button
-            class="button-rose mr-2"
-            v-event:click="delete"
-          >Confirm</button>
-          <button
-            class="button"
-            v-event:click="reset"
-          >Cancel</button>
-        </div>
-      </div>
-    `;
-
-    this.$attach(html, 'list');
+    if (idx >= 0)
+      toDos.splice(idx, 1);
   }
 };

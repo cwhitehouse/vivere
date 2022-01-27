@@ -23,7 +23,10 @@
   ];
 %>
 
-<div v-component="to-do-list">
+<div
+  v-component="to-do-list"
+  v-data:to-dos="<%= JSON.stringify(items) %>"
+>
   <div class="flex items-center">
     <p class="text-sm text-gray-700 font-semibold uppercase">List of To-Dos</p>
     <div class="w-8"></div>
@@ -50,12 +53,9 @@
 
   <div
     class="mt-6"
-    v-sort="orderBy"
     v-ref="list"
   >
-    <% items.forEach(item => { %>
-      <%- include('/examples/to-do-list/item', { toDo: item }) %>
-    <% }); %>
+    <%- include('/examples/to-do-list/item') %>
   </div>
 
   <div class="mt-6">
