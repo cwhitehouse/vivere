@@ -43,7 +43,7 @@ const directives: (typeof Directive)[] = [
 ];
 
 const Walk = {
-  tree(element: Element, component?: VivereComponent): void {
+  tree(element: HTMLElement, component?: VivereComponent): void {
     const { attributes } = element;
     let $component = component;
 
@@ -66,14 +66,15 @@ const Walk = {
       });
     });
 
-    Walk.children(element, $component);
+    if (element.dataset[Directive.DATA_SUSPEND_PARSING] !== 'true')
+      Walk.children(element, $component);
   },
 
-  children(element: Element, component: VivereComponent): void {
+  children(element: HTMLElement, component: VivereComponent): void {
     Object.values(element.children).forEach((child) => {
       // Continue checking the
       // element's children
-      if (typeof child === 'object')
+      if (child instanceof HTMLElement)
         // Only check nodes
         Walk.tree(child, component);
     });

@@ -12,9 +12,11 @@ export default class Directive {
 
   static shouldRehydrate = true;
 
+  static DATA_SUSPEND_PARSING = 'suspendVivereParsing';
+
   component?: VivereComponent;
 
-  element: Element;
+  element: HTMLElement;
 
   expression: string;
 
@@ -24,11 +26,11 @@ export default class Directive {
 
   // Constructor
 
-  constructor(element: Element, name: string, expression: string, component?: VivereComponent) {
-    // Check to see if element is still in the DOM tree
-    if (!element.parentElement)
+  constructor(element: HTMLElement, name: string, expression: string, component?: VivereComponent) {
+    if (element.dataset[Directive.DATA_SUSPEND_PARSING] === 'true')
       return;
 
+    // Check to see if element is still in the DOM tree
     this.component = component;
     this.element = element;
     this.expression = expression;

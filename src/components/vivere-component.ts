@@ -223,15 +223,20 @@ export default class VivereComponent extends ReactiveHost {
 
     Object.values(tempNode.children).forEach((child) => {
       element.appendChild(child);
-      Walk.tree(child, this);
+
+      if (child instanceof HTMLElement)
+        Walk.tree(child, this);
     });
 
     // Force a render for children
     this.$forceRender();
   }
 
-  $attachElement(element: HTMLElement, parent: HTMLElement): void {
-    parent.appendChild(element);
+  $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node): void {
+    if (before != null)
+      parent.insertBefore(element, before);
+    else
+      parent.appendChild(element);
     Walk.tree(element, this);
 
     this.$forceRender();

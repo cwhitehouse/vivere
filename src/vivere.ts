@@ -8,7 +8,7 @@ import ComponentDefinitions from './components/definitions';
 
 // Setup logic
 
-const $setup = (element: Element): void => {
+const $setup = (element: HTMLElement): void => {
   const start = new Date();
 
   // Walk the tree to initialize components
