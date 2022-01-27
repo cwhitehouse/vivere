@@ -1,6 +1,6 @@
 import Directive from '../directives/directive';
-import ComponentDirective from '../directives/component/component';
 import ListDirective from '../directives/display/list';
+import ComponentDirective from '../directives/component/component';
 import BindDirective from '../directives/component/bind';
 import DataDirective from '../directives/component/data';
 import PassDirective from '../directives/component/pass';
@@ -21,8 +21,8 @@ import RefDirective from '../directives/ref';
 import VivereComponent from '../components/vivere-component';
 
 const directives: (typeof Directive)[] = [
-  ComponentDirective,
   ListDirective,
+  ComponentDirective,
   BindDirective,
   DataDirective,
   PassDirective,
