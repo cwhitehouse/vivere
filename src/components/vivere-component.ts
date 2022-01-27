@@ -230,6 +230,13 @@ export default class VivereComponent extends ReactiveHost {
     this.$forceRender();
   }
 
+  $attachElement(element: HTMLElement, parent: HTMLElement): void {
+    parent.appendChild(element);
+    Walk.tree(element, this);
+
+    this.$forceRender();
+  }
+
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // RENDERING
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

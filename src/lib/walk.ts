@@ -1,5 +1,6 @@
 import Directive from '../directives/directive';
 import ComponentDirective from '../directives/component/component';
+import ListDirective from '../directives/display/list';
 import BindDirective from '../directives/component/bind';
 import DataDirective from '../directives/component/data';
 import PassDirective from '../directives/component/pass';
@@ -10,7 +11,6 @@ import DisabledDirective from '../directives/display/disabled';
 import HrefDirective from '../directives/display/href';
 import IfDirective from '../directives/display/if';
 import ShowDirective from '../directives/display/show';
-import SortDirective from '../directives/display/sort';
 import SrcDirective from '../directives/display/src';
 import StyleDirective from '../directives/display/style';
 import SyncDirective from '../directives/display/sync';
@@ -22,6 +22,7 @@ import VivereComponent from '../components/vivere-component';
 
 const directives: (typeof Directive)[] = [
   ComponentDirective,
+  ListDirective,
   BindDirective,
   DataDirective,
   PassDirective,
@@ -32,7 +33,6 @@ const directives: (typeof Directive)[] = [
   HrefDirective,
   IfDirective,
   ShowDirective,
-  SortDirective,
   SrcDirective,
   StyleDirective,
   SyncDirective,
