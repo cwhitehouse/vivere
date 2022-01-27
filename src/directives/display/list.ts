@@ -21,7 +21,8 @@ export default class ListDirective extends DisplayDirective {
     const { element } = this;
 
     // Mark this element as one we want to stop processing
-    element.dataset[Directive.DATA_SUSPEND_PARSING] = 'true';
+    if (element instanceof HTMLElement)
+      element.dataset[Directive.DATA_SUSPEND_PARSING] = 'true';
 
     // Create a placeholder node to mark where our list should be inserted
     this.placeholder = document.createComment('');

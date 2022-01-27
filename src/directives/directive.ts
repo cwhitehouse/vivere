@@ -16,7 +16,7 @@ export default class Directive {
 
   component?: VivereComponent;
 
-  element: HTMLElement;
+  element: Element;
 
   expression: string;
 
@@ -26,8 +26,8 @@ export default class Directive {
 
   // Constructor
 
-  constructor(element: HTMLElement, name: string, expression: string, component?: VivereComponent) {
-    if (element.dataset[Directive.DATA_SUSPEND_PARSING] === 'true')
+  constructor(element: Element, name: string, expression: string, component?: VivereComponent) {
+    if (element instanceof HTMLElement && element.dataset[Directive.DATA_SUSPEND_PARSING] === 'true')
       return;
 
     // Check to see if element is still in the DOM tree
