@@ -88,6 +88,33 @@ const exampleGroups = [
     ],
   },
   {
+    id: 'lists',
+    name: 'Lists',
+    description: 'Dynamic lists of items',
+    examples: [
+      {
+        id: 'basic',
+        name: 'Basic List',
+        width: 1,
+      },
+      {
+        id: 'shuffle',
+        name: 'Shuffleable List',
+        width: 1,
+      },
+      {
+        id: 'filter',
+        name: 'Fitlerable List',
+        width: 1,
+      },
+      {
+        id: 'shuffle-filter',
+        name: 'Shuffleable, Fitlerable List',
+        width: 1,
+      },
+    ],
+  },
+  {
     id: 'to-do-list',
     name: 'To-Do List',
     description: 'An interactive to-do',
