@@ -18,6 +18,11 @@ export default class SrcDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    this.element.src = (value && value.toString());
+    const { element } = this;
+
+    if (value == null)
+      element.src = '';
+    else
+      element.src = value.toString();
   }
 }

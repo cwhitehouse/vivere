@@ -8,6 +8,11 @@ export default class DisabledDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    this.element.setAttribute(this.key, `${value}`);
+    const { key, element } = this;
+
+    if (value == null)
+      element.removeAttribute(key);
+    else
+      element.setAttribute(key, value.toString());
   }
 }
