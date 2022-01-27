@@ -67,8 +67,8 @@ export default class Reactive {
     if (value == null && oldValue == null)
       return;
 
-    // Don't bother reporting if nothing changed
-    if (value !== this.value) {
+    // Don't bother reporting if nothing substantive has changed
+    if (JSON.stringify(value) !== JSON.stringify(this.value)) {
       Coordinator.chanReactionStarted();
 
       if (makeReactive)
