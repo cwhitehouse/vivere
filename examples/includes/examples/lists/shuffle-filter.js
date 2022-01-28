@@ -45,8 +45,6 @@ export default class extends VivereComponent {
   toggleFilter() {
     const { toggleMode } = this;
 
-    console.log('toggling filter!');
-
     if (toggleMode === 'all')
       this.toggleMode = 'even';
     else if (toggleMode === 'even')
@@ -60,6 +58,7 @@ export default class extends VivereComponent {
   }
 
   shuffle(array) {
+    const copy = [...array];
     let currentIndex = array.length,  randomIndex;
 
     // While there remain elements to shuffle...
@@ -70,10 +69,10 @@ export default class extends VivereComponent {
       currentIndex--;
 
       // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
+      [copy[currentIndex], copy[randomIndex]] = [
+        copy[randomIndex], copy[currentIndex]];
     }
 
-    return array;
+    return copy;
   }
 }

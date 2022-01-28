@@ -18,7 +18,8 @@ export default class extends VivereComponent {
   }
 
   shuffle(array) {
-    let currentIndex = array.length,  randomIndex;
+    const copy = [...array];
+    let currentIndex = array.length, randomIndex;
 
     // While there remain elements to shuffle...
     while (currentIndex != 0) {
@@ -28,10 +29,10 @@ export default class extends VivereComponent {
       currentIndex--;
 
       // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
+      [copy[currentIndex], copy[randomIndex]] = [
+        copy[randomIndex], copy[currentIndex]];
     }
 
-    return array;
+    return copy;
   }
 }
