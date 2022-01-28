@@ -31,12 +31,6 @@ export default class extends VivereComponent {
     return this.state === State.DELETE;
   }
 
-  connected() {
-    console.log(this.toDo);
-    console.log(this.state);
-    console.log(this.isShowing);
-  }
-
   onIsEditingChanged() {
     if (this.isEditing) {
       this.label = this.toDo.label;

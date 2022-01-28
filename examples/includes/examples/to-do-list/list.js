@@ -51,10 +51,6 @@ export default class extends VivereComponent {
       && filter.length > 0;
   }
 
-  connected() {
-    console.log(this.toDos);
-  }
-
   onFilterChanged() {
     if (this.filter != null)
       this.text = null;
@@ -96,8 +92,6 @@ export default class extends VivereComponent {
   }
 
   removeItem(toDo) {
-    console.log('Removing item...');
-    console.log(toDo);
     const { toDos } = this;
 
     const ids = toDos.map((toDo) => toDo.id);
