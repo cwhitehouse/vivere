@@ -10,6 +10,7 @@ import ReactiveHost from '../reactivity/reactive-host';
 import Properties from '../lib/properties';
 import ComponentRegistry from './registry';
 import PassedInterface from './definition/passed-interface';
+import Evaluator from '../lib/evaluator';
 
 declare global {
   interface Element {
@@ -126,30 +127,43 @@ export default class VivereComponent extends ReactiveHost {
     return reactive;
   }
 
-  $pass(key: string, getter: () => unknown): void {
-    const { $passed } = this;
-    const definition = $passed[key];
+  $pass(key: string, expression: string, index?: number): void {
+    const { $passed, $reactives } = this;
+    let definition = $passed[key];
 
-    // Passed properties get from their parent, and are unsetable
-    this.$set(key, null, () => {
-      let value = getter();
-      if (value == null) {
-        if (definition?.required)
-          throw new ComponentError(`${key} is required to be passed`, this);
+    if (definition == null) {
+      definition = {};
+      $passed[key] = definition;
+    }
 
-        value = definition?.default;
-      }
+    if (!definition.expression?.length)
+      // Passed properties get from their parent, and are unsetable
+      this.$set(key, null, () => {
+        const { $parent } = this;
+        const $definition = this.$passed[key];
 
-      return value;
-    }, (): void => {
-      throw new ComponentError('Cannot assigned to a passed value', this);
-    });
+        let value = Evaluator.parse($parent, $definition.expression);
+        // If it's an array accessor, access the relevant child
+        if ($definition.index != null) value = value[$definition.index];
 
-    // We need to get the value at least once for this to listen to
-    // the chagnes in the parent's value in case we don't reference
-    // this value anywhere else in our component
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this[key];
+        if (value == null) {
+          if (definition?.required)
+            throw new ComponentError(`${key} is required to be passed`, this);
+
+          value = definition?.default;
+        }
+
+        return value;
+      }, (): void => {
+        throw new ComponentError('Cannot assigned to a passed value', this);
+      });
+
+    // Store the expression and index
+    // in the $passed definition
+    definition.expression = expression;
+    definition.index = index;
+
+    $reactives[key]?.dirty();
   }
 
   #react(key: string, newValue: unknown, oldValue: unknown): void {

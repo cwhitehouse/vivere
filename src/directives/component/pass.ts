@@ -1,8 +1,6 @@
 import Directive from '../directive';
 import Utility from '../../lib/utility';
 import DirectiveError from '../../errors/directive-error';
-import Reactive from '../../reactivity/reactive';
-import Evaluator from '../../lib/evaluator';
 
 export default class PassDirective extends Directive {
   static id = 'v-pass';
@@ -37,19 +35,7 @@ export default class PassDirective extends Directive {
       readKey = $readKey;
       idx = parseInt(index, 10);
     }
-
-    // Create a method to return the value we care about
-    // from the parent component
-    const getter = (): unknown => {
-      // Parse the passed value
-      const parentValue = Evaluator.parse($parent, readKey);
-      // If it's an array accessor, access the relevant child
-      if (idx != null)
-        return parentValue[idx];
-      return parentValue;
-    };
-
     // Pass this to the component
-    component.$pass(key, getter);
+    component.$pass(key, readKey, idx);
   }
 }
