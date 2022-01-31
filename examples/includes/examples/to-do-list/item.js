@@ -7,12 +7,17 @@ const State = {
 };
 
 export default class extends VivereComponent {
-  text = null;
-  filter = null;
-
   toDo = null;
   state = State.SHOW;
   label = null;
+
+  $passed = {
+    toDo: {
+      default: {
+        tags: [],
+      },
+    },
+  };
 
   get isShowing() {
     return this.state === State.SHOW;

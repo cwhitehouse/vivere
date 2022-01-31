@@ -39,9 +39,9 @@ export default class extends VivereComponent {
     const { filter, lowerText, sortedList } = this;
 
     return sortedList.filter((toDo) => {
-        const lowerLabel = toDo.label?.toLowerCase();
-        return (!filter?.length || toDo.tags?.includes(filter)) &&
-          (!lowerText?.length || lowerLabel?.includes(lowerText));
+      const lowerLabel = toDo.label?.toLowerCase();
+      return (!filter?.length || toDo.tags?.includes(filter)) &&
+        (!lowerText?.length || lowerLabel?.includes(lowerText));
     });
   }
 
@@ -88,7 +88,7 @@ export default class extends VivereComponent {
 
   create(label) {
     id += 1;
-    this.toDos.push({ id, label });
+    this.toDos.push({ id, label, tags: [] });
   }
 
   removeItem(toDo) {

@@ -21,7 +21,7 @@ export default class extends VivereComponent {
   }
 
   reset() {
-    this.close();
+  this.close();
   }
 
   create() {
