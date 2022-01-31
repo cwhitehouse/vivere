@@ -2,6 +2,7 @@ import Directive from '../directive';
 import Utility from '../../lib/utility';
 import DirectiveError from '../../errors/directive-error';
 import Reactive from '../../reactivity/reactive';
+import Evaluator from '../../lib/evaluator';
 
 export default class PassDirective extends Directive {
   static id = 'v-pass';
@@ -20,18 +21,35 @@ export default class PassDirective extends Directive {
     if ($parent == null)
       throw new DirectiveError('Cannot pass properties to a parentless component', this);
 
-    const passedProperties = component.$passed[key];
-    if (passedProperties == null)
-      throw new DirectiveError(`Value passed to component for unknown key ${key}`, this);
-
     let readKey: string;
+    let idx: (number | null);
+
     if (expression != null && expression.length > 0) readKey = expression;
     else readKey = key;
 
-    const reactive: Reactive = $parent.$reactives[readKey];
-    if (reactive == null)
-      throw new DirectiveError(`Cannot pass property, parent does not define ${readKey}`, this);
+    if (readKey.match(/([a-zA-Z0-9-_]+)\[([0-9]+)\]/)) {
+      // If this looks like array access, we need to separate the index
+      // and the read key (likely from a v-list directive)
+      //   e.g. toDos[2]
+      const [$readKey, rest] = readKey.split('[');
+      const [index] = rest.split(']');
 
-    component.$pass(key, reactive);
+      readKey = $readKey;
+      idx = parseInt(index, 10);
+    }
+
+    // Create a method to return the value we care about
+    // from the parent component
+    const getter = (): unknown => {
+      // Parse the passed value
+      const parentValue = Evaluator.parse($parent, readKey);
+      // If it's an array accessor, access the relevant child
+      if (idx != null)
+        return parentValue[idx];
+      return parentValue;
+    };
+
+    // Pass this to the component
+    component.$pass(key, getter);
   }
 }

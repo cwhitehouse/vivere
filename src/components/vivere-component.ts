@@ -48,6 +48,8 @@ export default class VivereComponent extends ReactiveHost {
 
   $stored: { [key: string]: StoredInterface } = {};
 
+  $destroyed = false;
+
   beforeConnected?(): void;
   connected?(): void;
 
@@ -124,31 +126,30 @@ export default class VivereComponent extends ReactiveHost {
     return reactive;
   }
 
-  $pass(key: string, reactive: Reactive): void {
+  $pass(key: string, getter: () => unknown): void {
     const { $passed } = this;
     const definition = $passed[key];
 
-    // Passed properties need to be defined
-    if (definition == null)
-      throw new ComponentError(`Value passed to component for unknown key ${key}`, this);
-
     // Passed properties get from their parent, and are unsetable
     this.$set(key, null, () => {
-      let value = reactive.get();
+      let value = getter();
       if (value == null) {
-        if (definition.required)
+        if (definition?.required)
           throw new ComponentError(`${key} is required to be passed`, this);
 
-        value = definition.default;
+        value = definition?.default;
       }
 
       return value;
     }, (): void => {
-      throw new ComponentError('Cannot update passed values from a child', this);
+      throw new ComponentError('Cannot assigned to a passed value', this);
     });
 
-    // This component needs to react to changes in the parent's reactive
-    reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => this.#react(key, newValue, oldValue));
+    // We need to get the value at least once for this to listen to
+    // the chagnes in the parent's value in case we don't reference
+    // this value anywhere else in our component
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    this[key];
   }
 
   #react(key: string, newValue: unknown, oldValue: unknown): void {
@@ -183,6 +184,7 @@ export default class VivereComponent extends ReactiveHost {
       const storedValue = Storage.retrieve(key, definition);
       const defaultValue = definition.default || this[key];
 
+      // Set the data from storage or our fallback value
       this.$set(key, storedValue || defaultValue);
     });
   }
@@ -197,6 +199,7 @@ export default class VivereComponent extends ReactiveHost {
     if (method == null)
       throw new ComponentError(`Tried to emit unbound event: ${event}`, this);
 
+    // Invoke the parent's method (if it exists)
     if (this.$parent[method] != null)
       this.$parent[method](arg);
     else
@@ -282,7 +285,12 @@ export default class VivereComponent extends ReactiveHost {
   }
 
   $destroy(shallow = false): void {
-    const { $children, $directives, $element, $parent, beforeDestroyed, destroyed } = this;
+    const { $children, $directives, $destroyed, $element, $parent, beforeDestroyed, destroyed } = this;
+
+    // If this has already been destroyed (likely because a parent was destroyed), then we
+    // don't need to run through all of these commands (because we already have)
+    if ($destroyed)
+      return;
 
     // Callback hook
     if (beforeDestroyed != null)
@@ -310,6 +318,8 @@ export default class VivereComponent extends ReactiveHost {
     // Callback hook
     if (destroyed != null)
       destroyed.call(this);
+
+    this.$destroyed = true;
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
