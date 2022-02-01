@@ -13,7 +13,9 @@ export default class ListDirective extends DisplayDirective {
 
   placeholder: Node;
 
-  listElements: VivereComponent[] = [];
+  keyedElements: { [key:string]: VivereComponent } = {};
+
+  unkeyedElements: VivereComponent[] = [];
 
   // Parsing
 
@@ -48,33 +50,31 @@ export default class ListDirective extends DisplayDirective {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any;
     Watcher.watch(this, callback, () => {
-      const [itemExp, preoposition, listExp, ...rest] = expression.split(' ');
+      const [itemExpression, preoposition, listExpression, ...rest] = expression.split(' ');
 
       if (rest.length > 0 || preoposition !== 'of')
         throw new DirectiveError('Invalid list expression, must resemble `item of list`', this);
 
       // Parse the list expression
       value = {
-        list: Evaluator.parse(component, listExp),
-        listExpression: listExp,
-        item: itemExp,
+        list: Evaluator.parse(component, listExpression),
+        listExpression,
+        itemExpression,
       };
     });
 
     return value;
   }
 
-  evaluateValue(value: { item: string, list: unknown[], listExpression: string }): void {
-    const { component, element, listElements, parent, placeholder } = this;
-    const { item, list, listExpression } = value;
+  evaluateValue(value: { itemExpression: string, list: unknown[], listExpression: string }): void {
+    const { component, element, keyedElements, unkeyedElements, parent, placeholder } = this;
+    const { itemExpression, list, listExpression } = value;
 
-    if (!Array.isArray(list))
-      throw new DirectiveError('v-list directive expected an array for null to be returned', this);
+    if (list && !Array.isArray(list))
+      throw new DirectiveError('v-list directive expected an array or null to be returned', this);
 
-    // We'll re-use as many list items as we can, so we need
-    // to pay attention to how many items we'll need to add or
-    // remove
-    const cacheLength = listElements.length;
+    // Keep track of which components that we're rendering
+    const renderedElements: { key: (string | null), el: VivereComponent }[] = [];
 
     // We need to keep track of where to add new items
     let insertBefore: Node = placeholder;
@@ -84,8 +84,23 @@ export default class ListDirective extends DisplayDirective {
     //   user insertBefore to insert the items in the
     //   right place
     const listLength = list?.length || 0;
-    for (let i = listLength - 1; i >= 0; i -= 1)
-      if (i >= cacheLength) {
+    for (let i = listLength - 1; i >= 0; i -= 1) {
+      const item = list[i];
+      const key = this.itemKey(item);
+
+      // See if we have a cached element with a matching key in our cache,
+      // and remove it from the cache to be used
+      let cachedElement: VivereComponent | null;
+      if (key != null) {
+        cachedElement = keyedElements[key];
+        delete keyedElements[key];
+      } else
+        cachedElement = unkeyedElements.pop();
+
+      if (cachedElement == null) {
+        // If we don't have a cached element, we'll need to create a new element
+        // by duplicating and inserting a copy of the template element
+
         // Duplicate our template element
         const el: HTMLElement = element.cloneNode(true) as HTMLElement;
 
@@ -96,7 +111,7 @@ export default class ListDirective extends DisplayDirective {
 
         // Pass the invidual list item
         //   e.g. v-pass:to-do="toDos[2]"
-        el.setAttribute(`v-pass:${Utility.kebabCase(item)}`, `${listExpression}[${i}]`);
+        el.setAttribute(`v-pass:${Utility.kebabCase(itemExpression)}.list`, `${listExpression}[${i}]`);
 
         // Remove the suspend parsing data directive
         delete el.dataset[Directive.DATA_SUSPEND_PARSING];
@@ -108,28 +123,53 @@ export default class ListDirective extends DisplayDirective {
 
         // Track the component or element in our array
         // so we can remove it later as needed
-        listElements.push(el.$component);
+        cachedElement = el.$component;
       } else {
         // We need to update the index of the passed data
         // so we display the right list item
-        const $component = listElements[i];
-        $component.$pass(item, listExpression, i);
+        cachedElement.$pass(itemExpression, listExpression, i);
 
-        // If this cached element isn't attached, attach it!
-        const { $element } = $component;
-        if ($element.parentNode == null) {
-          parent.insertBefore($element, insertBefore);
-          insertBefore = $element;
-        }
+        // Insert this element to make sure it's in the right
+        // position for the updated list
+        const { $element } = cachedElement;
+        // $element.remove();
+        parent.insertBefore($element, insertBefore);
+        insertBefore = $element;
       }
 
-    // Calculate how many cached elements need to be removed from
-    // the DOM so we aren't displaying excess items
-    const numExcessElements = cacheLength - listLength;
-    if (numExcessElements > 0) {
-      // If we have excess items, remove them from the DOM
-      const excessElements = listElements.slice(cacheLength - numExcessElements, cacheLength);
-      excessElements.forEach((e) => e.$element.remove());
+      // Add this component to our list of rendered components
+      renderedElements.push({ key, el: cachedElement });
     }
+
+    // Remove any remaining cached elements we have from the DOM
+    Object.values(keyedElements).forEach((ke) => ke.$element.remove());
+    unkeyedElements.forEach((ue) => ue.$element.remove());
+
+    // Ensure all our rendered components are cached
+    // for the next time the list udpates
+    renderedElements.forEach((re) => {
+      const { key, el } = re;
+      if (key != null)
+        keyedElements[key] = el;
+      else
+        unkeyedElements.push(el);
+    });
+  }
+
+  itemKey(item: unknown): string | null {
+    if (item == null)
+      return null;
+
+    if (Array.isArray(item))
+      return JSON.stringify(item);
+
+    const props = ['key', 'id', 'name'];
+    for (let i = 0; i < props.length; i += 1) {
+      const prop = props[i];
+      if (item[prop])
+        return item[prop].toString();
+    }
+
+    return null;
   }
 }
