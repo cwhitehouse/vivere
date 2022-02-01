@@ -144,7 +144,8 @@ export default class VivereComponent extends ReactiveHost {
 
         let value = Evaluator.parse($parent, $definition.expression);
         // If it's an array accessor, access the relevant child
-        if ($definition.index != null) value = value[$definition.index];
+        // TODO: Handle this null issue when rendering lists
+        if ($definition.index != null) value = value?.[$definition.index];
 
         if (value == null) {
           if (definition?.required)
