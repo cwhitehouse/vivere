@@ -11,7 +11,7 @@ const tick: () => void = () => {
 };
 
 const render: () => void = () => {
-  const start = new Date();
+  const start = Date.now();
 
   // Evaluate all directives queued for a render
   $directives.forEach((d) => d.evaluate());
@@ -21,7 +21,7 @@ const render: () => void = () => {
   $dirty = false;
 
   // eslint-disable-next-line no-console
-  console.log(`Vivere | Directives rendered: ${new Date().getTime() - start.getTime()}ms`);
+  console.log(`Vivere | Directives rendered: ${Date.now() - start}ms`);
 
   // Run all waiting ticks
   tick();

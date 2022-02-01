@@ -9,7 +9,7 @@ import ComponentDefinitions from './components/definitions';
 // Setup logic
 
 const $setup = (element: HTMLElement): void => {
-  const start = new Date();
+  const start = Date.now();
 
   // Walk the tree to initialize components
   Walk.tree(element);
@@ -18,7 +18,7 @@ const $setup = (element: HTMLElement): void => {
   ComponentRegistry.components.forEach((c) => { c.$connect(); });
 
   // eslint-disable-next-line no-console
-  console.log(`Vivere | Document parsed: ${new Date().getTime() - start.getTime()}ms`);
+  console.log(`Vivere | Document parsed: ${Date.now() - start}ms`);
 };
 
 // Initialize Vivere
