@@ -20,8 +20,10 @@ const render: () => void = () => {
   $directives.clear();
   $dirty = false;
 
+  const time = Date.now() - start;
+  const method = time >= 100 ? 'warn' : 'log';
   // eslint-disable-next-line no-console
-  console.log(`Vivere | Directives rendered: ${Date.now() - start}ms`);
+  console[method](`Vivere | Directives rendered: ${time}ms`);
 
   // Run all waiting ticks
   tick();

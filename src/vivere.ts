@@ -17,8 +17,10 @@ const $setup = (element: HTMLElement): void => {
   // Finalize connecting our components
   ComponentRegistry.components.forEach((c) => { c.$connect(); });
 
+  const time = Date.now() - start;
+  const method = time >= 100 ? 'warn' : 'log';
   // eslint-disable-next-line no-console
-  console.log(`Vivere | Document parsed: ${Date.now() - start}ms`);
+  console[method](`Vivere | Document parsed: ${time}ms`);
 };
 
 // Initialize Vivere
