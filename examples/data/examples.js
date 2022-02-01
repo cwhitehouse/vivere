@@ -126,6 +126,18 @@ const exampleGroups = [
       },
     ],
   },
+  {
+    id: 'performance',
+    name: 'Performance',
+    description: 'Push Vivere to its limits',
+    examples: [
+      {
+        id: 'basic',
+        name: 'Performance Test',
+        width: 2,
+      },
+    ],
+  },
 ];
 
 exampleGroups.forEach(eg => {

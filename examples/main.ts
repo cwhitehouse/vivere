@@ -16,6 +16,8 @@ import ListsFilter from './includes/examples/lists/filter';
 import ListsShuffle from './includes/examples/lists/shuffle';
 import ListsShuffleFilter from './includes/examples/lists/shuffle-filter';
 
+import PerformanceBasic from './includes/examples/performance/basic';
+
 import ToDoItem from './includes/examples/to-do-list/item';
 import ToDoList from './includes/examples/to-do-list/list';
 import ToDoNewItem from './includes/examples/to-do-list/new-item';
@@ -37,6 +39,8 @@ Vivere.register('FancyCounter', FancyCounter);
 Vivere.register('ListsFilter', ListsFilter);
 Vivere.register('ListsShuffle', ListsShuffle);
 Vivere.register('ListsShuffleFilter', ListsShuffleFilter);
+
+Vivere.register('PerformanceBasic', PerformanceBasic);
 
 Vivere.register('ToDoItem', ToDoItem);
 Vivere.register('ToDoList', ToDoList);
