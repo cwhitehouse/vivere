@@ -5,13 +5,13 @@
   }
 
   let data = [];
-  for (let i = 0; i < 100; i += 1) {
+  for (let i = 0; i < 2500; i += 1) {
     const entry = generateEntry(i);
     entry.data = [];
-    for (let j = 0; j < 5; j += 1) {
+    for (let j = 0; j < 2; j += 1) {
       const $entry = generateEntry(j);
       $entry.data = [];
-      for (let k = 0; k < 5; k += 1) {
+      for (let k = 0; k < 2; k += 1) {
         const $$entry = generateEntry(k);
         $entry.data.push($$entry);
       }
@@ -29,9 +29,9 @@
     v-sync="limitText"
     class="w-96 px-1.5"
   >
-    <option value="25">25 Items</option>
+    <option value="24">24 Items</option>
     <option value="100">100 Items</option>
-    <option value="250">250 Items</option>
+    <option value="256">256 Items</option>
     <option value="1000">1,000 Items</option>
     <option value="2000">2,000 Items</option>
     <option value="5000">5,000 Items</option>

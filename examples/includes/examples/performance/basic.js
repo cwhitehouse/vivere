@@ -7,7 +7,7 @@ export default class extends VivereComponent {
 
   color = "text-black";
 
-  limitText = 250;
+  limitText = 256;
 
   get limit() {
     const { limitText } = this;
@@ -21,7 +21,7 @@ export default class extends VivereComponent {
 
   get slicedData() {
     const { data, limit } = this;
-    return data.slice(0, (limit / 5 / 5));
+    return data.slice(0, (limit / 2 / 2));
   }
 
   get filteredList() {
