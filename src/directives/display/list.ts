@@ -142,8 +142,7 @@ export default class ListDirective extends DisplayDirective {
     }
 
     // Remove any remaining cached elements we have from the DOM
-    Object.values(keyedElements).forEach((ke) => ke.$element.remove());
-    unkeyedElements.forEach((ue) => ue.$element.remove());
+    this.removeCachedElements();
 
     // Ensure all our rendered components are cached
     // for the next time the list udpates
@@ -171,5 +170,29 @@ export default class ListDirective extends DisplayDirective {
     }
 
     return null;
+  }
+
+  removeCachedElements(): void {
+    const { keyedElements, unkeyedElements } = this;
+
+    Object.values(keyedElements).forEach((ke) => ke.$element.remove());
+    unkeyedElements.forEach((ue) => ue.$element.remove());
+  }
+
+  dehydrate(): void {
+    const { element, parent, placeholder } = this;
+
+    // Remove all of our currently rendered elements from the DOM
+    this.removeCachedElements();
+
+    // Replace our placeholder comment with the template element
+    parent.replaceChild(element, placeholder);
+
+    // Re-enable parsing for our template element
+    if (element instanceof HTMLElement)
+      delete element.dataset[Directive.DATA_SUSPEND_PARSING];
+
+    // Default dehydrate behavior
+    super.dehydrate();
   }
 }
