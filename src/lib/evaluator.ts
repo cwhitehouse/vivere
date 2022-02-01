@@ -62,7 +62,23 @@ const $parsePrimitive = (expression: string): unknown => {
  */
 const dig = (object: unknown, expressionParts: string[]): unknown => {
   let result = object;
-  expressionParts.forEach((part) => { result = result[part]; });
+  for (let i = 0; i < expressionParts.length; i += 1) {
+    // Read the next part in our object property chain
+    let part = expressionParts[i];
+    const isNullConditional = part.endsWith('?');
+
+    // If we have a null conditional operater, remove the '?' at the end
+    if (isNullConditional)
+      part = part.slice(0, -1);
+
+    // Parse the value
+    result = result[part];
+
+    if (isNullConditional && result == null)
+      // If this part is null conditional and the value is null,
+      // we just return null!
+      return null;
+  }
   return result;
 };
 
