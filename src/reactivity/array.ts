@@ -1,22 +1,21 @@
 import Reactive from './reactive';
-import ReactiveHost from './reactive-host';
 
 export default class ReactiveArray {
-  static makeArrayReactive(host: Reactive, array: unknown[]): void {
-    const host2 = new ReactiveHost();
-
+  static makeArrayReactive(array: unknown[]): void {
     for (let i = 0; i < array.length; i += 1) {
       // Fetch the relevant entry
       const entry = array[i];
 
       if (!(entry instanceof Reactive))
         // Update the array entry to point to a reactive
-        array[i] = new Reactive(host2, entry, null);
+        array[i] = new Reactive(array, entry, null);
     }
   }
 
-  constructor(array: unknown[], host: Reactive) {
-    ReactiveArray.makeArrayReactive(host, array);
+  constructor(array: unknown[]) {
+    ReactiveArray.makeArrayReactive(array);
+
+    const listeners: Set<Reactive> = new Set();
 
     return new Proxy(array, {
       get(target, p): unknown {
@@ -41,7 +40,7 @@ export default class ReactiveArray {
                 return new Reactive(target, a, null);
               });
               const result = value.apply(target, reactiveArgs);
-              host.report(target, oldValue);
+              listeners.forEach((l) => l.report(target, oldValue));
               return result;
             };
           case 'pop':
@@ -50,7 +49,7 @@ export default class ReactiveArray {
             return (...args: unknown[]): unknown => {
               const oldValue = [...target];
               const result = value.apply(target, args);
-              host.report(target, oldValue);
+              listeners.forEach((l) => l.report(target, oldValue));
               return result;
             };
           case 'splice':
@@ -62,8 +61,12 @@ export default class ReactiveArray {
                 return new Reactive(target, i, null);
               });
               const result = value.apply(target, [start, deleteCount, ...reactiveItems]);
-              host.report(target, oldValue);
+              listeners.forEach((l) => l.report(target, oldValue));
               return result;
+            };
+          case '$$registerListener':
+            return (listener: Reactive) => {
+              listeners.add(listener);
             };
           default:
             // Anything else can pass through as normal

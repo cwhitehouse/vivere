@@ -60,21 +60,32 @@ export default class Reactive {
 
   // Assigning values, and reacting
 
-  set(value: unknown, makeReactive: boolean): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+  set(value: any, makeReactive: boolean): void {
     const oldValue = this.value;
 
     // Deal with undefined/null confusion
     if (value == null && oldValue == null)
       return;
 
+    const oldValueJSON = JSON.stringify(oldValue);
+    const newValueJSON = JSON.stringify(value);
+
     // Don't bother reporting if nothing substantive has changed
-    if (JSON.stringify(value) !== JSON.stringify(this.value)) {
+    if (oldValueJSON !== newValueJSON) {
       Coordinator.chanReactionStarted();
 
       if (makeReactive)
         this.updateValue(value);
       else
         this.value = value;
+
+      // If the new value implements $$registerListener (i.e. it is
+      // a ReactiveArray), we need to make sure we're listening to changes
+      // since multiple Reactives can have a ReactiveArray value (e.g. via
+      // a $passed or computed property)
+      if (value.$$registerListener)
+        value.$$registerListener(this);
 
       this.$report(value, oldValue);
     }
@@ -89,7 +100,7 @@ export default class Reactive {
       return null;
 
     if (Array.isArray(value))
-      return new ReactiveArray(value, this);
+      return new ReactiveArray(value);
 
     if (typeof value === 'object')
       return new ReactiveObject(value);
