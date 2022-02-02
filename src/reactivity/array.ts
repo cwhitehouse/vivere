@@ -45,6 +45,8 @@ export default class ReactiveArray {
             };
           case 'pop':
           case 'shift':
+          case 'reverse':
+          case 'sort':
             // Mutating methods should force a report
             return (...args: unknown[]): unknown => {
               const oldValue = [...target];
