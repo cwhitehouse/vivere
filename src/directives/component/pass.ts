@@ -27,7 +27,7 @@ export default class PassDirective extends Directive {
 
     if (readKey.match(/([a-zA-Z0-9-_]+)\[([0-9]+)\]/)) {
       // If this looks like array access, we need to separate the index
-      // and the read key (likely from a v-list directive)
+      // and the read key (likely from a v-for directive)
       //   e.g. toDos[2]
       const [$readKey, rest] = readKey.split('[');
       const [index] = rest.split(']');

@@ -6,8 +6,8 @@ import Directive from '../directive';
 import Utility from '../../lib/utility';
 import { VivereComponent } from '../../vivere';
 
-export default class ListDirective extends DisplayDirective {
-  static id = 'v-list';
+export default class ForDirective extends DisplayDirective {
+  static id = 'v-for';
 
   parent: HTMLElement;
 
@@ -53,7 +53,7 @@ export default class ListDirective extends DisplayDirective {
       const [itemExpression, preoposition, listExpression, ...rest] = expression.split(' ');
 
       if (rest.length > 0 || preoposition !== 'of')
-        throw new DirectiveError('Invalid list expression, must resemble `item of list`', this);
+        throw new DirectiveError('Invalid v-for expression, must resemble `item of list`', this);
 
       // Parse the list expression
       value = {
@@ -71,7 +71,7 @@ export default class ListDirective extends DisplayDirective {
     const { itemExpression, list, listExpression } = value;
 
     if (list && !Array.isArray(list))
-      throw new DirectiveError('v-list directive expected an array or null to be returned', this);
+      throw new DirectiveError('v-for directive expected an array or null to be returned', this);
 
     // Keep track of which components that we're rendering
     const renderedElements: { key: (string | null), el: VivereComponent }[] = [];

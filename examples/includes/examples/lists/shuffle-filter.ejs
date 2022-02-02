@@ -16,7 +16,7 @@
   <ul class="mt-6">
     <li>Pre-list item</li>
     <li
-      v-list="item of filteredItems"
+      v-for="item of filteredItems"
       v-text="item.name"
     />
     <li>Post-list item</li>

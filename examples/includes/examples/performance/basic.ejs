@@ -52,8 +52,7 @@
   </div>
   <ol class="list-decimal list-inside mt-6">
     <li
-      v-list="entry of filteredList"
-      v-pass:color-class
+      v-for="entry of filteredList"
     >
       <span
         v-text="entry?.string"
@@ -61,7 +60,7 @@
       ></span>
       <ul class="list-disc list-inside ml-12">
         <li
-          v-list="eentry of entry?.data"
+          v-for="eentry of entry?.data"
           v-pass:color-class
         >
           <span
@@ -70,7 +69,7 @@
           ></span>
           <ol class="list-decimal list-inside ml-12">
             <li
-              v-list="eeentry of eentry?.data"
+              v-for="eeentry of eentry?.data"
               v-pass:color-class
             >
               <span

@@ -1,5 +1,5 @@
 <div
-  v-list="toDo of filteredList"
+  v-for="toDo of filteredList"
   v-component="to-do-item"
   v-bind:remove="removeItem"
   class="to-do-item h-12 flex items-stretch"
@@ -50,7 +50,7 @@
     </div>
     <div class="to-do-tags flex-1 flex items-center">
       <p
-        v-list="tag of toDo.tags"
+        v-for="tag of toDo.tags"
         v-text="tag"
         class="rounded text-xs uppercase font-semibold px-2 py-1 mr-1 mt-1 bg-indigo-100 text-indigo-900"
       ></p>

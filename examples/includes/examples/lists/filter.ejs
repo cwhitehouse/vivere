@@ -9,7 +9,7 @@
   ></button>
   <ul class="mt-6">
     <li
-      v-list="item of filteredItems"
+      v-for="item of filteredItems"
       v-text="item.name"
     />
   </ul>
