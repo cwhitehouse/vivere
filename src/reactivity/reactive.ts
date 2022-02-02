@@ -10,7 +10,8 @@ export default class Reactive {
 
   host: unknown;
 
-  value: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
 
   computed = false;
 
@@ -60,8 +61,7 @@ export default class Reactive {
 
   // Assigning values, and reacting
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
-  set(value: any, makeReactive: boolean): void {
+  set(value: unknown, makeReactive: boolean): void {
     const oldValue = this.value;
 
     // Deal with undefined/null confusion
@@ -84,8 +84,8 @@ export default class Reactive {
       // a ReactiveArray), we need to make sure we're listening to changes
       // since multiple Reactives can have a ReactiveArray value (e.g. via
       // a $passed or computed property)
-      if (value.$$registerListener)
-        value.$$registerListener(this);
+      if (this.value.$$registerListener)
+        this.value.$$registerListener(this);
 
       this.$report(value, oldValue);
     }
