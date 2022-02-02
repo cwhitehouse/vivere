@@ -1,5 +1,4 @@
 import { VivereComponent } from "../../../../src/vivere";
-import _ from 'lodash';
 
 let id = 4;
 
