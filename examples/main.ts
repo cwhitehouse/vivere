@@ -10,6 +10,8 @@ import FilterTag from './includes/filter-tag';
 import Accordion from './includes/examples/tabs/accordion';
 import AccordionSection from './includes/examples/tabs/section';
 
+import ComplexToggle from './includes/examples/complex/toggle';
+
 import FancyCounter from './includes/examples/counters/fancy';
 
 import ListsFilter from './includes/examples/lists/filter';
@@ -33,6 +35,8 @@ Vivere.register('FilterTag', FilterTag);
 
 Vivere.register('Accordion', Accordion);
 Vivere.register('AccordionSection', AccordionSection);
+
+Vivere.register('ComplexToggle', ComplexToggle);
 
 Vivere.register('FancyCounter', FancyCounter);
 

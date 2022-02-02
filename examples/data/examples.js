@@ -138,6 +138,18 @@ const exampleGroups = [
       },
     ],
   },
+  {
+    id: 'complex',
+    name: 'Complex Interactions',
+    description: 'Some advanced use cases for Viere',
+    examples: [
+      {
+        id: 'toggle-list',
+        name: 'Toggle List',
+        width: 1,
+      },
+    ],
+  },
 ];
 
 exampleGroups.forEach(eg => {
