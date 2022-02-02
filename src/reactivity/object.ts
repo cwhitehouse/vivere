@@ -2,7 +2,7 @@ import Reactive from './reactive';
 import ReactiveHost from './reactive-host';
 
 export default class ReactiveObject {
-  static mirrorObject(object: { [key: string]: any }): ReactiveHost {
+  static mirrorObject(object: { [key: string]: unknown }): ReactiveHost {
     const hostObject = new ReactiveHost();
     Object.entries(object).forEach(([key, value]) => {
       hostObject.$set(key, value);
@@ -12,7 +12,7 @@ export default class ReactiveObject {
 
   static proxyGet(target: ReactiveHost, propKey: (string | symbol)): unknown {
     let properties: [string, Reactive][];
-    let temp: any;
+    let temp: unknown;
 
     const value = target[propKey];
     switch (propKey) {
@@ -35,13 +35,13 @@ export default class ReactiveObject {
     }
   }
 
-  static proxySet(target: ReactiveHost, propKey: (string | symbol), value: any): boolean {
+  static proxySet(target: ReactiveHost, propKey: (string | symbol), value: unknown): boolean {
     target.$set(propKey.toString(), value);
     return true;
   }
 
   constructor(object: unknown) {
-    const hostObject = ReactiveObject.mirrorObject(object);
+    const hostObject = ReactiveObject.mirrorObject(object as { [key: string]: unknown });
     return new Proxy(hostObject, {
       get: ReactiveObject.proxyGet,
       set: ReactiveObject.proxySet,
