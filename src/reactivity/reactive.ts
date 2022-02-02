@@ -84,7 +84,7 @@ export default class Reactive {
       // a ReactiveArray), we need to make sure we're listening to changes
       // since multiple Reactives can have a ReactiveArray value (e.g. via
       // a $passed or computed property)
-      if (this.value.$$registerListener)
+      if (this.value?.$$registerListener)
         this.value.$$registerListener(this);
 
       this.$report(value, oldValue);
