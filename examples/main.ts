@@ -11,6 +11,7 @@ import Accordion from './includes/examples/tabs/accordion';
 import AccordionSection from './includes/examples/tabs/section';
 
 import ComplexToggle from './includes/examples/complex/toggle';
+import ComplexToggleList from './includes/examples/complex/toggle-list';
 
 import FancyCounter from './includes/examples/counters/fancy';
 
@@ -37,6 +38,7 @@ Vivere.register('Accordion', Accordion);
 Vivere.register('AccordionSection', AccordionSection);
 
 Vivere.register('ComplexToggle', ComplexToggle);
+Vivere.register('ComplexToggleList', ComplexToggleList);
 
 Vivere.register('FancyCounter', FancyCounter);
 
