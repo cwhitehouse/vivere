@@ -53,6 +53,7 @@
   <ol class="list-decimal list-inside mt-6">
     <li
       v-for="entry of filteredList"
+      v-pass:color-class
     >
       <span
         v-text="entry?.string"
