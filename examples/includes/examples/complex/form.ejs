@@ -1,0 +1,31 @@
+<div
+  v-component
+  v-data:saving="false"
+  v-data:text="null"
+>
+<p>Form submission will be interruped and the form disabled...</p>
+<form
+  v-ref="form"
+  v-event:submit.prevent="saving = true"
+  class="flex items-center space-x-2 mt-4"
+>
+  <input
+    v-sync="text"
+    v-disabled="saving"
+    type="text"
+    placeholder="Enter text..."
+    class="flex-1"
+  />
+  <button
+    v-disabled="!saving"
+    v-event:click.prevent="saving = false"
+    class="button w-32"
+  >Cancel</button>
+</form>
+<button
+  v-disabled="saving"
+  v-event:click.prevent="text?.length ? saving = true"
+  v-text="saving ? '⏳' : 'Submit'"
+  class="button w-32"
+></button>
+</div>

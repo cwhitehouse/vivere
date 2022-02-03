@@ -148,6 +148,11 @@ const exampleGroups = [
         name: 'Toggle List',
         width: 1,
       },
+      {
+        id: 'form',
+        name: 'Form Submission',
+        width: 1,
+      },
     ],
   },
 ];

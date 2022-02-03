@@ -65,5 +65,11 @@ export default class SyncDirective extends DisplayDirective {
     // Assign the value to the synced expression
     const inputValue = this.value();
     Evaluator.assign(this.component, this.expression, inputValue);
+
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    console.log('SyncDirective#sync');
+    console.log(this.expression);
+    console.log(inputValue);
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   }
 }

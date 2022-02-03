@@ -61,6 +61,11 @@ const $parsePrimitive = (expression: string): unknown => {
  * @param expressionParts An array of strings presenting the keys to dig into
  */
 const dig = (object: unknown, expressionParts: string[]): unknown => {
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  console.log('Evaluator#dig');
+  console.log(object);
+  console.log(expressionParts);
+  console.log('-');
   let result = object;
   for (let i = 0; i < expressionParts.length; i += 1) {
     // Read the next part in our object property chain
@@ -74,11 +79,17 @@ const dig = (object: unknown, expressionParts: string[]): unknown => {
     // Parse the value
     result = result[part];
 
-    if (isNullConditional && result == null)
+    console.log(result);
+
+    if (isNullConditional && result == null) {
+      console.log('returning null...');
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
       // If this part is null conditional and the value is null,
       // we just return null!
       return null;
+    }
   }
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   return result;
 };
 
@@ -100,6 +111,13 @@ const read = (object: unknown, expression: string): unknown => {
   let result = dig(object, parts);
   for (let i = 0; i < inversions; i += 1)
     result = !result;
+
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  console.log('Evaluator#read');
+  console.log(expression);
+  console.log(parts);
+  console.log(result);
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 
   return result;
 };
@@ -326,11 +344,54 @@ export default {
    * @param args The value we want to assign
    */
   execute(component: VivereComponent, expression: string, ...args: unknown[]): void {
+    let $expression: string;
     let obj: unknown;
     let key: string;
 
     try {
-      ({ obj, key } = digShallow(component, expression));
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+      console.log('Evaluator#execute');
+      console.log(expression);
+
+      // Check to see if this expression looks like a ternary expression
+      const [firstPart, secondPart, thirdPart] = expression.split(/ [?:] /);
+
+      console.log('-');
+      console.log(firstPart);
+      console.log(secondPart);
+      console.log(thirdPart);
+
+      if (secondPart != null) {
+        // If we have a ? separating some parts
+        // e.g. boolean ? doSomething
+        // e.g. boolean ? doSomething : doSomethingElse
+        const result = read(component, firstPart);
+
+        console.log('-');
+        console.log(result);
+
+        if (result)
+          // If true, we evaluate the secondPart as the execution expression
+          // e.g. true ? doSomething
+          $expression = secondPart;
+        else if (thirdPart != null)
+          // If we have a third part, evaluate it as the execution expression
+          // e.g. false ? doSomething : doSomethingElse
+          $expression = thirdPart;
+        else {
+          console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+          // Return and do nothing if we don't have a third part of this expression
+          // e.g. false ? doSomething
+          return;
+        }
+      } else
+        $expression = firstPart;
+
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+
+      // Get the final object we're executing a method on, and the
+      // key representing the method we're going to execute
+      ({ obj, key } = digShallow(component, $expression));
 
       // If we've passed an arg, we need to extract and parse it
       if (isExecutionSymbol(key)) {

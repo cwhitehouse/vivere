@@ -68,6 +68,9 @@ export default class EventDirective extends Directive {
     else
       this.executeEvent(e);
 
+    if (modifiers?.includes('prevent'))
+      e.preventDefault();
+
     if (modifiers != null && modifiers.includes('cancel'))
       return false;
 
