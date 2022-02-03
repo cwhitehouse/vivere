@@ -2,6 +2,7 @@ import Directive from './directive';
 import Evaluator from '../lib/evaluator';
 import EventBus from '../lib/events/bus';
 import Event from '../lib/events/event';
+import DirectiveError from '../errors/directive-error';
 
 export default class EventDirective extends Directive {
   static id = 'v-event';
@@ -15,14 +16,19 @@ export default class EventDirective extends Directive {
   // Parsing
 
   parse(): void {
+    const { element, expression, key, modifiers } = this;
+
+    if (expression == null && !(modifiers?.includes('prevent') || modifiers?.includes('cancel')))
+      throw new DirectiveError('Events must `prevent` or `cancel` to be valid without an expression', this, null);
+
     this.binding = this.execute.bind(this);
     this.clickOutsideBinding = this.handleClickOutside.bind(this);
 
-    if (this.key === 'click' && this.modifiers?.includes('outside'))
+    if (key === 'click' && modifiers?.includes('outside'))
       // Click outside requires special handling
       EventBus.register(Event.CLICK, this.clickOutsideBinding);
     else
-      this.element.addEventListener(this.key, this.binding);
+      element.addEventListener(key, this.binding);
   }
 
   // Destruction (detach event listeners)
@@ -54,7 +60,7 @@ export default class EventDirective extends Directive {
   }
 
   execute(e: Event): boolean {
-    const { modifiers } = this;
+    const { expression, modifiers } = this;
 
     // Keydown Directives can be scoped via modifiers
     if (e instanceof KeyboardEvent && modifiers != null && modifiers.length > 0) {
@@ -63,10 +69,11 @@ export default class EventDirective extends Directive {
       if (!matchesModifier) return undefined;
     }
 
-    if (modifiers != null && modifiers.includes('delay'))
-      setTimeout(() => this.executeEvent(e), 0);
-    else
-      this.executeEvent(e);
+    if (expression != null)
+      if (modifiers != null && modifiers.includes('delay'))
+        setTimeout(() => this.executeEvent(e), 0);
+      else
+        this.executeEvent(e);
 
     if (modifiers?.includes('prevent'))
       e.preventDefault();
