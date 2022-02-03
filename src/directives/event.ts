@@ -79,15 +79,7 @@ export default class EventDirective extends Directive {
 
   executeEvent(e: Event): void {
     const { component, expression } = this;
-
-    // We can automatically execute some assignment operations
-    // without a method on the component
-    if (Evaluator.isAssignmentOperation(expression))
-      // Automatically evaluate the expression
-      Evaluator.executeAssignment(component, expression);
-    else
-      // Execute the method defined in the evaluator
-      Evaluator.execute(component, expression, e);
+    Evaluator.execute(component, expression, e);
   }
 
   // Key matching

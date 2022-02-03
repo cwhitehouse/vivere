@@ -2,7 +2,7 @@ import EvaluatorError from '../errors/evaluator-error';
 import VivereComponent from '../components/vivere-component';
 
 const stringRegex = '\'[^\']*\'|"[^"]*"';
-const basicSymbolRegex = `(${stringRegex}|[a-zA-z.\\-_0-9]+)`;
+const basicSymbolRegex = `(${stringRegex}|[a-zA-z.\\-_0-9?]+)`;
 const standardSymbolRegex = `!*${basicSymbolRegex}`;
 const complexSymbolRegex = `( ?(&& |\\|\\| )?${standardSymbolRegex})+`;
 
@@ -34,6 +34,11 @@ const isComparisonOperation = (expression: string): boolean => expression.match(
 const isTernaryOperationRegx = new RegExp(`^${complexSymbolRegex} [?] ${standardSymbolRegex} [:] ${standardSymbolRegex}$`);
 const isTernaryExpression = (expression: string): boolean => expression.match(isTernaryOperationRegx) != null;
 
+const functionExecutionRegex = `${standardSymbolRegex}(${isExecutionSymbolRegex})?`;
+
+const isTernaryExecutionOperationRegex = new RegExp(`^${complexSymbolRegex} [?] (${isAssignmentOperationRegex}|${functionExecutionRegex})( [:] (${isAssignmentOperationRegex}|${functionExecutionRegex}))?`);
+const isTernaryExecutionOperation = (expression: string): boolean => expression.match(isTernaryExecutionOperationRegex) != null;
+
 const $parsePrimitive = (expression: string): unknown => {
   // Check if the expression is a number
   const number = Number(expression);
@@ -61,11 +66,6 @@ const $parsePrimitive = (expression: string): unknown => {
  * @param expressionParts An array of strings presenting the keys to dig into
  */
 const dig = (object: unknown, expressionParts: string[]): unknown => {
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-  console.log('Evaluator#dig');
-  console.log(object);
-  console.log(expressionParts);
-  console.log('-');
   let result = object;
   for (let i = 0; i < expressionParts.length; i += 1) {
     // Read the next part in our object property chain
@@ -79,17 +79,11 @@ const dig = (object: unknown, expressionParts: string[]): unknown => {
     // Parse the value
     result = result[part];
 
-    console.log(result);
-
-    if (isNullConditional && result == null) {
-      console.log('returning null...');
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    if (isNullConditional && result == null)
       // If this part is null conditional and the value is null,
       // we just return null!
       return null;
-    }
   }
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   return result;
 };
 
@@ -111,13 +105,6 @@ const read = (object: unknown, expression: string): unknown => {
   let result = dig(object, parts);
   for (let i = 0; i < inversions; i += 1)
     result = !result;
-
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-  console.log('Evaluator#read');
-  console.log(expression);
-  console.log(parts);
-  console.log(result);
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 
   return result;
 };
@@ -234,6 +221,76 @@ const digShallow = (object: unknown, expression: string): { obj: unknown; key: s
   return { obj: $object, key };
 };
 
+/**
+ * Executes an assignment operation based on a Directive
+ * expression representing the operation, on the object.
+ * Supports =, +=, or -=
+ * @param object A Javascript object to dig into
+ * @param expression An expression passed to a Directive via an HTML attribute
+ */
+const executeAssignment = (component: VivereComponent, expression: string): void => {
+  const [lhExp, operator, ...rhExp] = expression.split(' ');
+  const { obj, key } = digShallow(component, lhExp);
+
+  let $rhExp = rhExp.join(' ');
+  let inversions = 0;
+  while ($rhExp.startsWith('!')) {
+    $rhExp = $rhExp.slice(1);
+    inversions += 1;
+  }
+  let value = $parse(component, $rhExp);
+  for (let i = 0; i < inversions; i += 1)
+    value = !value;
+
+  switch (operator) {
+    case '=':
+      obj[key] = value;
+      break;
+    case '+=':
+      obj[key] += value;
+      break;
+    case '-=':
+      if (typeof value !== 'number')
+        throw new EvaluatorError(`Operator only applies to numbers: "${operator}"`, component, expression, null);
+
+      obj[key] -= value;
+      break;
+    default:
+      throw new EvaluatorError(`Failed to parse unknown operator: "${operator}"`, component, expression, null);
+  }
+};
+
+/**
+ * Evalutes a Directive expression, than invokes the last
+ * part of the object chain described by the Directive expression
+ * as a function with the given args
+ * @param object A Javascript object to dig into
+ * @param expression An expression passed to a Directive via an HTML attribute
+ * @param args The value we want to assign
+ */
+const executeFunction = (component: VivereComponent, expression: string, ...args: unknown[]): void => {
+  let obj: unknown;
+  let key: string;
+
+  try {
+    // Get the final object we're executing a method on, and the
+    // key representing the method we're going to execute
+    ({ obj, key } = digShallow(component, expression));
+
+    // If we've passed an arg, we need to extract and parse it
+    if (isExecutionSymbol(key)) {
+      const [method, $argString] = key.split('(');
+      const $args = $argString.slice(0, -1).split(',').map((s) => $parse(component, s.trim()));
+
+      obj[method](...$args);
+    } else
+      // Otherwise we can just pass the default args
+      obj[key](...args);
+  } catch (err) {
+    throw new EvaluatorError('Failed to execute expression', component, expression, err);
+  }
+};
+
 // Core API...
 
 export default {
@@ -243,45 +300,6 @@ export default {
    * @param expression An expression passed to a Directive via an HTML attribute
    */
   isAssignmentOperation,
-
-  /**
-   * Executes an assignment operation based on a Directive
-   * expression representing the operation, on the object.
-   * Supports =, +=, or -=
-   * @param object A Javascript object to dig into
-   * @param expression An expression passed to a Directive via an HTML attribute
-   */
-  executeAssignment(component: VivereComponent, expression: string): void {
-    const [lhExp, operator, ...rhExp] = expression.split(' ');
-    const { obj, key } = digShallow(component, lhExp);
-
-    let $rhExp = rhExp.join(' ');
-    let inversions = 0;
-    while ($rhExp.startsWith('!')) {
-      $rhExp = $rhExp.slice(1);
-      inversions += 1;
-    }
-    let value = $parse(component, $rhExp);
-    for (let i = 0; i < inversions; i += 1)
-      value = !value;
-
-    switch (operator) {
-      case '=':
-        obj[key] = value;
-        break;
-      case '+=':
-        obj[key] += value;
-        break;
-      case '-=':
-        if (typeof value !== 'number')
-          throw new EvaluatorError(`Operator only applies to numbers: "${operator}"`, component, expression, null);
-
-        obj[key] -= value;
-        break;
-      default:
-        throw new EvaluatorError(`Failed to parse unknown operator: "${operator}"`, component, expression, null);
-    }
-  },
 
   /**
  * Determine whether a Directive's expression represents
@@ -335,75 +353,20 @@ export default {
     }
   },
 
-  /**
-   * Evalutes a Directive expression, than invokes the last
-   * part of the object chain described by the Directive expression
-   * as a function with the given args
-   * @param object A Javascript object to dig into
-   * @param expression An expression passed to a Directive via an HTML attribute
-   * @param args The value we want to assign
-   */
   execute(component: VivereComponent, expression: string, ...args: unknown[]): void {
-    let $expression: string;
-    let obj: unknown;
-    let key: string;
+    if (isTernaryExecutionOperation(expression)) {
+      const [firstPart, $secondPart] = expression.split(' ? ');
+      const [secondPart, thirdPart] = $secondPart.split(' : ');
 
-    try {
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-      console.log('Evaluator#execute');
-      console.log(expression);
+      const result = read(component, firstPart);
 
-      // Check to see if this expression looks like a ternary expression
-      const [firstPart, secondPart, thirdPart] = expression.split(/ [?:] /);
-
-      console.log('-');
-      console.log(firstPart);
-      console.log(secondPart);
-      console.log(thirdPart);
-
-      if (secondPart != null) {
-        // If we have a ? separating some parts
-        // e.g. boolean ? doSomething
-        // e.g. boolean ? doSomething : doSomethingElse
-        const result = read(component, firstPart);
-
-        console.log('-');
-        console.log(result);
-
-        if (result)
-          // If true, we evaluate the secondPart as the execution expression
-          // e.g. true ? doSomething
-          $expression = secondPart;
-        else if (thirdPart != null)
-          // If we have a third part, evaluate it as the execution expression
-          // e.g. false ? doSomething : doSomethingElse
-          $expression = thirdPart;
-        else {
-          console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-          // Return and do nothing if we don't have a third part of this expression
-          // e.g. false ? doSomething
-          return;
-        }
-      } else
-        $expression = firstPart;
-
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-
-      // Get the final object we're executing a method on, and the
-      // key representing the method we're going to execute
-      ({ obj, key } = digShallow(component, $expression));
-
-      // If we've passed an arg, we need to extract and parse it
-      if (isExecutionSymbol(key)) {
-        const [method, $argString] = key.split('(');
-        const $args = $argString.slice(0, -1).split(',').map((s) => $parse(component, s.trim()));
-
-        obj[method](...$args);
-      } else
-        // Otherwise we can just pass the default args
-        obj[key](...args);
-    } catch (err) {
-      throw new EvaluatorError('Failed to execute expression', component, expression, err);
-    }
+      if (result)
+        this.execute(component, secondPart);
+      else if (thirdPart != null)
+        this.execute(component, thirdPart);
+    } else if (isAssignmentOperation(expression))
+      executeAssignment(component, expression);
+    else
+      executeFunction(component, expression, args);
   },
 };

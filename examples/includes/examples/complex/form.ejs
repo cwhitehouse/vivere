@@ -13,19 +13,24 @@
     v-sync="text"
     v-disabled="saving"
     type="text"
-    placeholder="Enter text..."
+    placeholder="Required!"
     class="flex-1"
   />
+  <button
+    v-disabled="saving"
+    v-event:click.prevent="text?.length ? saving = true"
+    class="button w-32"
+  >
+    <span
+      v-text="saving ? '⏳' : 'Submit'"
+      v-class:animate-spin="saving"
+      class="inline-block"
+    ></span>
+  </button>
   <button
     v-disabled="!saving"
     v-event:click.prevent="saving = false"
     class="button w-32"
   >Cancel</button>
 </form>
-<button
-  v-disabled="saving"
-  v-event:click.prevent="text?.length ? saving = true"
-  v-text="saving ? '⏳' : 'Submit'"
-  class="button w-32"
-></button>
 </div>
