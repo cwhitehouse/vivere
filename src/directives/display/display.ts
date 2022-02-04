@@ -17,10 +17,7 @@ export default class DisplayDirective extends Directive {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any;
     Watcher.watch(this, callback, () => {
-      if (Evaluator.isComparisonOperation(expression))
-        value = Evaluator.evaluateComparison(component, expression);
-      else
-        value = Evaluator.parse(component, expression);
+      value = Evaluator.parse(component, expression);
     });
 
     return value;

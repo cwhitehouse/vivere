@@ -1,372 +1,228 @@
-import EvaluatorError from '../errors/evaluator-error';
+import jsep from 'jsep';
 import VivereComponent from '../components/vivere-component';
+import jsepAssignment from '@jsep-plugin/assignment';
+import EvaluatorError from '../errors/evaluator-error';
 
-const stringRegex = '\'[^\']*\'|"[^"]*"';
-const basicSymbolRegex = `(${stringRegex}|[a-zA-z.\\-_0-9?]+)`;
-const standardSymbolRegex = `!*${basicSymbolRegex}`;
-const complexSymbolRegex = `( ?(&& |\\|\\| )?${standardSymbolRegex})+`;
+jsep.plugins.register(jsepAssignment);
 
-const isStringRegex = new RegExp(`^${stringRegex}$`);
-const isString = (expression: string): boolean => expression.match(isStringRegex) != null;
-
-// const isBasicSymbolRegex = new RegExp(`^${basicSymbolRegex}$`);
-// const isBasicSybmol = (expression: string): boolean => expression.match(isBasicSymbolRegex) != null;
-
-// const isStandardSymbolRegex = new RegExp(`^${standardSymbolRegex}$`);
-// const isStandardSymbol = (expression: string): boolean => expression.match(isStandardSymbolRegex) != null;
-
-// const isComplexSymbolRegex = new RegExp(`^${complexSymbolRegex}$`);
-// const isComplexSymbol = (expression: string): boolean => expression.match(isComplexSymbolRegex) != null;
-
-const assignmentSymbolRegex = '[+-]?=';
-
-const isAssignmentOperationRegex = new RegExp(`^${basicSymbolRegex} ${assignmentSymbolRegex} ${complexSymbolRegex}$`);
-const isAssignmentOperation = (expression: string): boolean => expression.match(isAssignmentOperationRegex) != null;
-
-const isExecutionSymbolRegex = new RegExp(`^${basicSymbolRegex}\\(${standardSymbolRegex}?\\)`);
-const isExecutionSymbol = (expression: string): boolean => expression.match(isExecutionSymbolRegex) != null;
-
-const comparisonSymbolRegex = '([<>]=?|!==?|===?)';
-
-const isComparisonOperationRegex = new RegExp(`^${complexSymbolRegex} ${comparisonSymbolRegex} ${complexSymbolRegex}$`);
-const isComparisonOperation = (expression: string): boolean => expression.match(isComparisonOperationRegex) != null;
-
-const isTernaryOperationRegx = new RegExp(`^${complexSymbolRegex} [?] ${standardSymbolRegex} [:] ${standardSymbolRegex}$`);
-const isTernaryExpression = (expression: string): boolean => expression.match(isTernaryOperationRegx) != null;
-
-const functionExecutionRegex = `${standardSymbolRegex}(${isExecutionSymbolRegex})?`;
-
-const isTernaryExecutionOperationRegex = new RegExp(`^${complexSymbolRegex} [?] (${isAssignmentOperationRegex}|${functionExecutionRegex})( [:] (${isAssignmentOperationRegex}|${functionExecutionRegex}))?`);
-const isTernaryExecutionOperation = (expression: string): boolean => expression.match(isTernaryExecutionOperationRegex) != null;
-
-const $parsePrimitive = (expression: string): unknown => {
-  // Check if the expression is a number
-  const number = Number(expression);
-  if (!Number.isNaN(number)) return number;
-
-  // Check if expression is a boolean
-  if (expression === 'true') return true;
-  if (expression === 'false') return false;
-
-  // Check if expression is null
-  if (expression === 'null') return null;
-  if (expression === 'undefined') return null;
-
-  // Check if the expression is a string (with quotes)
-  if (expression.match(/^(('.*')|(".*"))$/))
-    return expression.slice(1, expression.length - 1);
-
-  return undefined;
+enum ParseResult {
+  CallExpressionExecuted,
+  AssignmentExpressionExecuted
 };
 
-/**
- * Dig into an object chain, passing each subsequent expression
- * part to the object and returning the final value of the chain.
- * @param object A Javascript object to dig into
- * @param expressionParts An array of strings presenting the keys to dig into
- */
-const dig = (object: unknown, expressionParts: string[]): unknown => {
-  let result = object;
-  for (let i = 0; i < expressionParts.length; i += 1) {
-    // Read the next part in our object property chain
-    let part = expressionParts[i];
-    const isNullConditional = part.endsWith('?');
+class ShadllowParseResult {
+  object: any;
+  prop: string;
 
-    // If we have a null conditional operater, remove the '?' at the end
-    if (isNullConditional)
-      part = part.slice(0, -1);
-
-    // Parse the value
-    result = result[part];
-
-    if (isNullConditional && result == null)
-      // If this part is null conditional and the value is null,
-      // we just return null!
-      return null;
+  constructor(object: any, prop: string) {
+    this.object = object;
+    this.prop = prop;
   }
-  return result;
-};
+}
 
-/**
- * Gets a value from an object, by parsing a Directive expression
- * as an object chain, an digging into the object
- * @param object A Javascript object to dig into
- * @param expression An expression passed to a Directive via an HTML attribute
- */
-const read = (object: unknown, expression: string): unknown => {
-  let $expression = expression;
-  let inversions = 0;
-  while ($expression.startsWith('!')) {
-    $expression = $expression.slice(1);
-    inversions += 1;
-  }
+let evaluateTree: (caller: any, tree: jsep.Expression, shallow?: boolean) => any;
 
-  const parts = $expression.split('.');
-  let result = dig(object, parts);
-  for (let i = 0; i < inversions; i += 1)
-    result = !result;
+const evaluateAssignmentExpression = (caller: any, tree: jsepAssignment.AssignmentExpression): any => {
+  const { left, operator, right, type } = tree;
 
-  return result;
-};
+  const leftValue = evaluateTree(caller, left, true);
 
-/**
- * Parse an expression passed to a Directive, determining
- * whether it represents a number, string, boolean or an
- * object chain.
- * @param object A Javascript object to dig into
- * @param expression An expression passed to a Directive via an HTML attribute
- */
-const $parse = (object: unknown, expression: string): unknown => {
-  if (isTernaryExpression(expression)) {
-    const [temp, elseValue] = expression.split(' : ');
-    const [comparison, ifValue] = temp.split(' ? ');
+  if (leftValue instanceof ShadllowParseResult) {
+    const rightValue = evaluateTree(caller, right);
 
-    const $comparison = comparison;
-    let $boolean = false;
-    if (isComparisonOperation($comparison))
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      $boolean = $evaluateComparison(object, $comparison);
-    else
-      $boolean = !!$parse(object, $comparison);
-
-    return $boolean
-      ? $parse(object, ifValue)
-      : $parse(object, elseValue);
-  }
-
-  // Strings can have spaces, so try parsing
-  // as a string before we treat is a complex expression
-  if (isString(expression)) {
-    const primitive = $parsePrimitive(expression);
-    if (primitive !== undefined) return primitive;
-  }
-
-  const parts = expression.split(' ');
-  if (parts.length > 1) {
-    // Spaces imply we're chaining values with && and || operators
-    let result = $parse(object, parts[0]);
-    for (let i = 1; i < parts.length; i += 2) {
-      const operator = parts[i];
-      const exp = parts[i + 1];
-      const value = $parse(object, exp);
-
-      if (operator === '&&')
-        result = result && value;
-      else if (operator === '||')
-        result = result || value;
-      else
-        throw new Error(`Failed to parse unknown operator: ${operator}`);
+    switch (operator) {
+      case '=':
+        leftValue.object[leftValue.prop] = rightValue;
+        break;
+      case '+=':
+        leftValue.object[leftValue.prop] += rightValue;
+        break;
+      case '-=':
+        leftValue.object[leftValue.prop] -= rightValue;
+        break;
+      default:
+        throw new EvaluatorError(`Unhandled assignment expression: ${operator}`, caller, type);
     }
+  } else
+    throw new EvaluatorError('Tried to assign to deeply parsed value', caller, type);
 
-    return result;
+  return ParseResult.AssignmentExpressionExecuted;
+}
+
+const evaluateCallExpression = (caller: any, tree: jsep.CallExpression): any => {
+  const { callee, type } = tree;
+  const args = tree.arguments;
+
+  const calleeValues = evaluateTree(caller, callee, true);
+
+  if (calleeValues instanceof ShadllowParseResult) {
+    const argsValues = args.map(arg => evaluateTree(caller, arg));
+
+    calleeValues.object[calleeValues.prop](...argsValues);
+
+    return ParseResult.CallExpressionExecuted;
   }
 
-  const primitive = $parsePrimitive(expression);
-  if (primitive !== undefined) return primitive;
-
-  return read(object, expression);
+  throw new EvaluatorError('Tried to invoke method on deeply parsed value', caller, type);
 };
 
-/**
- * Evaluates a comparison operation based on a Directive
- * expression representing a comparison, on the object
- * Supports ==, !=, ===, !==, >, >=, <, <=
- * @param object A Javascript object to dig into
- * @param expression An expression passed to a Directive via an HTML attribute
- */
-const $evaluateComparison = (object: unknown, expression: string): boolean => {
-  const splitRegex = new RegExp(` ${comparisonSymbolRegex} `);
+const evaluateConditionalExpression = (caller: any, tree: jsep.ConditionalExpression): any => {
+  const { alternate, consequent, test } = tree;
 
-  const [lhExp, operator, rhExp] = expression.split(splitRegex);
-  const lhValue = $parse(object, lhExp);
-  const rhValue = $parse(object, rhExp);
+  const testValue = evaluateTree(caller, test);
+
+  if (testValue)
+    return evaluateTree(caller, consequent);
+  else
+    return evaluateTree(caller, alternate);
+}
+
+const evaluateBinaryExpression = (caller: any, tree: jsep.BinaryExpression): any => {
+  const { left, operator, right, type } = tree;
+
+  const leftValue = evaluateTree(caller, left);
+  const rightValue = evaluateTree(caller, right);
 
   switch (operator) {
     case '==':
       // eslint-disable-next-line eqeqeq
-      return lhValue == rhValue;
+      return leftValue == rightValue;
     case '===':
-      return lhValue === rhValue;
+      return leftValue === rightValue;
     case '!=':
       // eslint-disable-next-line eqeqeq
-      return lhValue != rhValue;
+      return leftValue != rightValue;
     case '!==':
-      return lhValue !== rhValue;
+      return leftValue !== rightValue;
     case '>':
-      return lhValue > rhValue;
+      return leftValue > rightValue;
     case '>=':
-      return lhValue >= rhValue;
+      return leftValue >= rightValue;
     case '<':
-      return lhValue < rhValue;
+      return leftValue < rightValue;
     case '<=':
-      return lhValue <= rhValue;
+      return leftValue <= rightValue;
+    case '&&':
+      return leftValue && rightValue;
+    case '||':
+      return leftValue || rightValue;
     default:
-      throw new EvaluatorError(`Failed to evaluate unknown operator: ${operator}`, object, expression, null);
+      throw new EvaluatorError(`Unhandled conditional operator: ${operator}`, caller, type);
   }
 };
 
-/**
- * Digs  into the object most of the way, and then
- * returning the penultimate value and the final
- * key, allowing assignment to the final key.
- * @param object A Javascript object to dig into
- * @param expression An expression passed to a Directive via an HTML attribute
- */
-const digShallow = (object: unknown, expression: string): { obj: unknown; key: string } => {
-  const parts = expression.split('.');
-
-  const $object = dig(object, parts.slice(0, -1));
-  const key = parts[parts.length - 1];
-
-  return { obj: $object, key };
-};
-
-/**
- * Executes an assignment operation based on a Directive
- * expression representing the operation, on the object.
- * Supports =, +=, or -=
- * @param object A Javascript object to dig into
- * @param expression An expression passed to a Directive via an HTML attribute
- */
-const executeAssignment = (component: VivereComponent, expression: string): void => {
-  const [lhExp, operator, ...rhExp] = expression.split(' ');
-  const { obj, key } = digShallow(component, lhExp);
-
-  let $rhExp = rhExp.join(' ');
-  let inversions = 0;
-  while ($rhExp.startsWith('!')) {
-    $rhExp = $rhExp.slice(1);
-    inversions += 1;
-  }
-  let value = $parse(component, $rhExp);
-  for (let i = 0; i < inversions; i += 1)
-    value = !value;
+const evaluateUnaryExpression = (caller: any, tree: jsep.UnaryExpression): any => {
+  const { argument, operator, type } = tree;
+  const argumentValue = evaluateTree(caller, argument);
 
   switch (operator) {
-    case '=':
-      obj[key] = value;
-      break;
-    case '+=':
-      obj[key] += value;
-      break;
-    case '-=':
-      if (typeof value !== 'number')
-        throw new EvaluatorError(`Operator only applies to numbers: "${operator}"`, component, expression, null);
-
-      obj[key] -= value;
-      break;
+    case '!':
+      return !argumentValue;
     default:
-      throw new EvaluatorError(`Failed to parse unknown operator: "${operator}"`, component, expression, null);
+      throw new EvaluatorError(`Unhandled unary operator: ${operator}`, caller, type);
   }
 };
 
-/**
- * Evalutes a Directive expression, than invokes the last
- * part of the object chain described by the Directive expression
- * as a function with the given args
- * @param object A Javascript object to dig into
- * @param expression An expression passed to a Directive via an HTML attribute
- * @param args The value we want to assign
- */
-const executeFunction = (component: VivereComponent, expression: string, ...args: unknown[]): void => {
-  let obj: unknown;
-  let key: string;
+const evaluateMemberExpression = (caller: any, tree: jsep.MemberExpression, shallow = false): any => {
+  const { object, optional, property } = tree;
 
+  const $object = evaluateTree(caller, object);
+  if (optional && $object == null)
+    return null;
+
+  return evaluateTree($object, property, shallow);
+};
+
+const evaluateIdentifier = (caller: any, tree: jsep.Identifier, shallow = false): any => {
+  const { name } = tree;
+
+  if (shallow)
+    return new ShadllowParseResult(caller, name);
+
+  return caller[name];
+};
+
+const evaluateLiteral = (tree: jsep.Expression): any => {
+  const value = tree.value;
+  return value;
+};
+
+evaluateTree = (caller: any, tree: jsep.Expression, shallow = false): any => {
+  const { type } = tree;
+
+  switch (type) {
+    case 'AssignmentExpression':
+      return evaluateAssignmentExpression(caller, tree as jsepAssignment.AssignmentExpression);
+    case 'CallExpression':
+      return evaluateCallExpression(caller, tree as jsep.CallExpression);
+    case 'ConditionalExpression':
+      return evaluateConditionalExpression(caller, tree as jsep.ConditionalExpression);
+    case 'BinaryExpression':
+      return evaluateBinaryExpression(caller, tree as jsep.BinaryExpression);
+    case 'UnaryExpression':
+      return evaluateUnaryExpression(caller, tree as jsep.UnaryExpression);
+    case 'MemberExpression':
+      return evaluateMemberExpression(caller, tree as jsep.MemberExpression, shallow);
+    case 'Identifier':
+      return evaluateIdentifier(caller, tree as jsep.Identifier, shallow);
+    case 'Literal':
+      return evaluateLiteral(tree);
+    default:
+      throw new EvaluatorError(`Unknown node type: ${type}`, caller, '', null);
+  }
+};
+
+const parse = (component: VivereComponent, expression: string, executing = false): any => {
   try {
-    // Get the final object we're executing a method on, and the
-    // key representing the method we're going to execute
-    ({ obj, key } = digShallow(component, expression));
-
-    // If we've passed an arg, we need to extract and parse it
-    if (isExecutionSymbol(key)) {
-      const [method, $argString] = key.split('(');
-      const $args = $argString.slice(0, -1).split(',').map((s) => $parse(component, s.trim()));
-
-      obj[method](...$args);
-    } else
-      // Otherwise we can just pass the default args
-      obj[key](...args);
-  } catch (err) {
-    throw new EvaluatorError('Failed to execute expression', component, expression, err);
+    const tree = jsep(expression);
+    return evaluateTree(component, tree, executing);
+  } catch (error) {
+    throw new EvaluatorError('Failed to parse expression', component, expression, error);
   }
 };
-
-// Core API...
 
 export default {
-  /**
-   * Determine whether a Directive's expression represents
-   * assignment to a value, e.g. =, += or push-ing to an array.
-   * @param expression An expression passed to a Directive via an HTML attribute
-   */
-  isAssignmentOperation,
+  assign(component: VivereComponent, expression: string, value: any): void {
+    const result = parse(component, expression, true);
 
-  /**
- * Determine whether a Directive's expression represents
- * comparison between values, i.e. ==, !=, ===, !==, >, >=, <, <=
- * @param expression
- */
-  isComparisonOperation,
-
-  evaluateComparison(component: VivereComponent, expression: string): boolean {
-    try {
-      return $evaluateComparison(component, expression);
-    } catch (err) {
-      throw new EvaluatorError('Failed to evaluate comparison expression', component, expression, err);
-    }
+    if (result instanceof ShadllowParseResult) {
+      const { object: caller, prop: property } = result;
+      caller[property] = value;
+    } else
+      throw new EvaluatorError('Cannot assign to deeply parsed expression', component, expression);
   },
 
-  // Reading, writing, and executing expressions
+  parse,
 
-  read,
+  parsePrimitive(component: VivereComponent, expression: string) {
+    // Check if the expression is a number
+    const number = Number(expression);
+    if (!Number.isNaN(number)) return number;
 
-  parsePrimitive(component: VivereComponent, expression: string): unknown {
-    try {
-      return $parsePrimitive(expression);
-    } catch (err) {
-      throw new EvaluatorError('Failed to parse expression', component, expression, err);
-    }
-  },
+    // Check if expression is a boolean
+    if (expression === 'true') return true;
+    if (expression === 'false') return false;
 
-  parse(component: VivereComponent, expression: string): unknown {
-    try {
-      return $parse(component, expression);
-    } catch (err) {
-      throw new EvaluatorError('Failed to parse expression', component, expression, err);
-    }
-  },
+    // Check if expression is null
+    if (expression === 'null') return null;
+    if (expression === 'undefined') return null;
 
-  /**
-   * Evaluates a Directive expression, and then assigns a value
-   * to the result of object chain described by the Directive
-   * expression
-   * @param object A Javascript object to dig into
-   * @param expression An expression passed to a Directive via an HTML attribute
-   * @param value The value we want to assign
-   */
-  assign(component: VivereComponent, expression: string, value: unknown): void {
-    try {
-      const { obj, key } = digShallow(component, expression);
-      obj[key] = value;
-    } catch (err) {
-      throw new EvaluatorError('Failed to assign value', component, expression, err);
-    }
+    // Check if the expression is a string (with quotes)
+    if (expression.match(/^(('.*')|(".*"))$/))
+      return expression.slice(1, expression.length - 1);
+
+    return undefined;
   },
 
   execute(component: VivereComponent, expression: string, ...args: unknown[]): void {
-    if (isTernaryExecutionOperation(expression)) {
-      const [firstPart, $secondPart] = expression.split(' ? ');
-      const [secondPart, thirdPart] = $secondPart.split(' : ');
+    const response = parse(component, expression, true);
+    if (response === ParseResult.AssignmentExpressionExecuted) return;
+    if (response === ParseResult.CallExpressionExecuted) return;
 
-      const result = read(component, firstPart);
-
-      if (result)
-        this.execute(component, secondPart);
-      else if (thirdPart != null)
-        this.execute(component, thirdPart);
-    } else if (isAssignmentOperation(expression))
-      executeAssignment(component, expression);
-    else
-      executeFunction(component, expression, args);
+    if (response instanceof ShadllowParseResult) {
+      const { object: caller, prop: property } = response;
+      caller[property](args);
+    } else
+      throw new EvaluatorError('Tried to invoke method on a deeply parsed value', component, expression);
   },
 };

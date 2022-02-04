@@ -37,6 +37,10 @@
     "lint": "yarn eslint ./src --ext .js,.jsx,.ts,.tsx",
     "prepublish": "run-s lint build"
   },
+  "dependencies": {
+    "@jsep-plugin/assignment": "^1.1.0",
+    "jsep": "1.1.0"
+  },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.1",
     "@hotwired/turbo": "^7.0.0-beta.4",
