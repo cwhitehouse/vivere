@@ -3,7 +3,7 @@
   class="flex items-center"
 >
   <button
-    v-event:click="count -= 1"
+    v-event:click="decrementCount()"
     v-disabled="!canDecrement"
     class="button"
   >-</button>
@@ -13,7 +13,7 @@
     class="flex-1 text-center"
   ></p>
   <button
-    v-event:click="count += 1"
+    v-event:click="incrementCount"
     class="button"
   >+</button>
 </div>

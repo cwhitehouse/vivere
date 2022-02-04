@@ -31,4 +31,15 @@ export default class extends VivereComponent {
     const { logMessage } = this;
     console.log(logMessage);
   }
+
+  incrementCount() {
+    this.count += 1;
+  }
+
+  decrementCount() {
+    const { canDecrement } = this;
+
+    if (canDecrement)
+      this.count -= 1;
+  }
 }
