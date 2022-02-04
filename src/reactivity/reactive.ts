@@ -95,14 +95,14 @@ export default class Reactive {
     this.value = this.reactiveValue(value);
   }
 
-  reactiveValue(value: unknown): unknown {
+  reactiveValue(value: any): unknown {
     if (value == null)
       return null;
 
-    if (Array.isArray(value))
+    if (!value.$$reactiveArray && Array.isArray(value))
       return new ReactiveArray(value);
 
-    if (typeof value === 'object')
+    if (!value.$$reactiveObject && typeof value === 'object')
       return new ReactiveObject(value);
 
     return value;

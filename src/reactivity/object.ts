@@ -26,6 +26,10 @@ export default class ReactiveObject {
         });
 
         return (): { prop?: unknown } => temp;
+      case '$$reactiveObject':
+        return true;
+      case '$$reactiveProxy':
+        return true;
       default:
         if (value && value.bind)
           // Functions need to be bound to the right target

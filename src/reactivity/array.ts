@@ -70,6 +70,10 @@ export default class ReactiveArray {
             return (listener: Reactive) => {
               listeners.add(listener);
             };
+          case '$$reactiveArray':
+            return true;
+          case '$$reactiveProxy':
+            return true;
           default:
             // Anything else can pass through as normal
             return value;
