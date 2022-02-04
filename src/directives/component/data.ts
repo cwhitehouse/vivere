@@ -16,13 +16,13 @@ export default class DataDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { component, expression } = this;
+    const { expression } = this;
 
     let $expression: unknown;
     try {
       $expression = JSON.parse(expression);
     } catch (err) {
-      $expression = Evaluator.parsePrimitive(component, expression);
+      $expression = Evaluator.parsePrimitive(expression);
     }
 
     if ($expression === undefined)

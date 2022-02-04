@@ -14,14 +14,14 @@ export default class StoreDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { component, expression, key, modifiers } = this;
+    const { expression, key, modifiers } = this;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let $expression: any;
     try {
       $expression = JSON.parse(expression);
     } catch (err) {
-      $expression = Evaluator.parsePrimitive(component, expression);
+      $expression = Evaluator.parsePrimitive(expression);
     }
 
     if ($expression === undefined)
