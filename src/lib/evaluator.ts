@@ -34,6 +34,30 @@ class ShallowParseResult {
   }
 }
 
+// Operators used in assignment expressions
+const assignmentOperators = [
+  '=', '*=', '**=',
+  '/=', '%=',
+  '+=', '-=',
+  '<<=', '>>=', '>>>=',
+  '&=', '^=', '|=',
+];
+
+// Operators used in binary expressions
+const binaryOperators = [
+  '||', '&&', '|', '^', '&',
+  '==', '!=', '===', '!==',
+  '<', '>', '<=', '>=', '<<', '>>', '>>>',
+  '+', '-', '*', '/', '%',
+];
+
+// Helper method for running eval code (BE CAREFUL!)
+// eslint-disable-next-line arrow-body-style
+const evaluateScript = (script: string, scope: unknown = {}): unknown => {
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  return Function(`"use strict"; ${script}`).bind(scope)();
+};
+
 // Define our generic evaluation method so it can be used in our specific methods
 let evaluateTree: (caller: unknown, tree: jsep.Expression, shallow?: boolean) => unknown;
 
@@ -44,22 +68,14 @@ const evaluateAssignmentExpression = (caller: unknown, tree: jsepAssignment.Assi
   const leftValue = evaluateTree(caller, left, true);
 
   if (leftValue instanceof ShallowParseResult) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rightValue = evaluateTree(caller, right) as any;
+    const rightValue = evaluateTree(caller, right);
 
-    switch (operator) {
-      case '=':
-        leftValue.object[leftValue.prop] = rightValue;
-        break;
-      case '+=':
-        leftValue.object[leftValue.prop] += rightValue;
-        break;
-      case '-=':
-        leftValue.object[leftValue.prop] -= rightValue;
-        break;
-      default:
-        throw new EvaluatorError(`Unhandled assignment expression: ${operator}`, caller, type);
-    }
+    if (assignmentOperators.includes(operator)) {
+      const propJSON = JSON.stringify(leftValue.prop);
+      const valueJSON = JSON.stringify(rightValue);
+      evaluateScript(`this[${propJSON}] ${operator} ${valueJSON}`, leftValue.object);
+    } else
+      throw new EvaluatorError(`Unhandled assignment expression: ${operator}`, caller, type);
   } else
     throw new EvaluatorError('Tried to assign to deeply parsed value', caller, type);
 
@@ -113,37 +129,17 @@ const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, 
 
   const rightValue = evaluateTree(caller, right);
 
-  switch (operator) {
-    case '=':
-    case '+=':
-    case '-=':
-      // The assignment evaluator can miss this when the `??` operator is involved
-      return evaluateAssignmentExpression(caller, tree as unknown as jsepAssignment.AssignmentExpression);
-    case '==':
-      // eslint-disable-next-line eqeqeq
-      return leftValue == rightValue;
-    case '===':
-      return leftValue === rightValue;
-    case '!=':
-      // eslint-disable-next-line eqeqeq
-      return leftValue != rightValue;
-    case '!==':
-      return leftValue !== rightValue;
-    case '>':
-      return leftValue > rightValue;
-    case '>=':
-      return leftValue >= rightValue;
-    case '<':
-      return leftValue < rightValue;
-    case '<=':
-      return leftValue <= rightValue;
-    case '&&':
-      return leftValue && rightValue;
-    case '||':
-      return leftValue || rightValue;
-    default:
-      throw new EvaluatorError(`Unhandled binary operator: ${operator}`, caller, type);
+  if (assignmentOperators.includes(operator))
+    // The assignment evaluator can miss this when the `??` operator is involved
+    return evaluateAssignmentExpression(caller, tree as unknown as jsepAssignment.AssignmentExpression);
+
+  if (binaryOperators.includes(operator)) {
+    const leftJSON = JSON.stringify(leftValue);
+    const rightJSON = JSON.stringify(rightValue);
+    return evaluateScript(`return ${leftJSON} ${operator} ${rightJSON}`);
   }
+
+  throw new EvaluatorError(`Unhandled binary operator: ${operator}`, caller, type);
 };
 
 const evaluateUnaryExpression = (caller: unknown, tree: jsep.UnaryExpression): unknown => {
