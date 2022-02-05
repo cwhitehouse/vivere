@@ -9,7 +9,7 @@ import ComponentDefinitions from './components/definitions';
 // Setup logic
 
 const $setup = (element: HTMLElement): void => {
-  const start = Date.now();
+  const start = performance.now();
 
   // Walk the tree to initialize components
   Walk.element(element);
@@ -17,7 +17,7 @@ const $setup = (element: HTMLElement): void => {
   // Finalize connecting our components
   ComponentRegistry.components.forEach((c) => { c.$connect(); });
 
-  const time = Date.now() - start;
+  const time = performance.now() - start;
   const method = time >= 100 ? 'warn' : 'log';
   // eslint-disable-next-line no-console
   console[method](`Vivere | Document parsed: ${time}ms`);

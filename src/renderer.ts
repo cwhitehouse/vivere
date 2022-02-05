@@ -11,7 +11,7 @@ const tick: () => void = () => {
 };
 
 const render: () => void = () => {
-  const start = Date.now();
+  const start = performance.now();
 
   // Evaluate all directives queued for a render
   $directives.forEach((d) => d.evaluate());
@@ -20,7 +20,7 @@ const render: () => void = () => {
   $directives.clear();
   $dirty = false;
 
-  const time = Date.now() - start;
+  const time = performance.now() - start;
   const method = time >= 100 ? 'warn' : 'log';
   // eslint-disable-next-line no-console
   console[method](`Vivere | Directives rendered: ${time}ms`);
