@@ -1,0 +1,100 @@
+<%
+  const generateEntry = function(idx) {
+    const string = (Math.random() + 1).toString(36).substring(4);
+    return { id: idx, string }
+  }
+
+  let data = [];
+  for (let i = 0; i < 99; i += 1) {
+    const entry = generateEntry(i);
+    data.push(entry);
+  }
+%>
+
+<div
+  v-component
+  v-data:toggle="true"
+>
+  <button
+    v-event:click="toggle = !toggle"
+    class="button"
+  >Toggle Components</button>
+  <div class="grid grid-cols-3 gap-3 mt-5">
+    <% for (entry of data) { %>
+      <div
+        v-component
+        v-data:entry="<%= JSON.stringify(entry) %>"
+        v-data:count="0"
+        v-data:modal="false"
+        v-pass:toggle
+        class="p-2 border-2 rounded"
+      >
+        <div v-if="entry.id % 2 === (toggle ? 1 : 0)">
+          <div
+            v-if="modal"
+            class="fixed flex items-center justify-center left-0 right-0 top-0 bottom-0 z-10"
+          >
+            <div
+              v-event:click.cancel="modal = false"
+              class="absolute h-full w-full bg-white opacity-90"
+            ></div>
+            <div
+              v-event:click.prevent
+              class="w-full max-w-md p-6 border-2 rounded bg-white relative z-10"
+            >
+              <div class="flex items-center justify-between">
+                <p class="text-sm">
+                  #<span
+                    v-text="entry.id"
+                    class="text-md"
+                  ></span>
+                </p>
+                <button
+                  v-event:click="modal = false"
+                  class="button"
+                >Close</button>
+              </div>
+              <p
+                v-text="entry.string"
+                class="text-2xl mt-2"
+              ></p>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <p class="text-xs">
+              #<span
+                v-text="entry.id + 1"
+                class="text-sm"
+              ></span>
+            </p>
+            <button
+              v-event:click="modal = true"
+              class="button compact"
+            >⚙️</button>
+          </div>
+          <p
+            v-text="entry.string"
+            class="text-lg mt-1"
+          ></p>
+          <div class="flex items-center mt-4">
+            <button
+              v-event:click="count > 0 ?? count -= 1"
+              v-disabled="count <= 0"
+              class="button compact"
+            >−</button>
+            <p
+              v-text="count"
+              v-class:text-emerald-700.font-semibold="count >= 5"
+              class="flex-1 text-center"
+            ></p>
+            <button
+              v-event:click="count < 10 ?? count += 1"
+              v-disabled="count >= 10"
+              class="button compact"
+            >+</button>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>

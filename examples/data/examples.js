@@ -133,8 +133,13 @@ const exampleGroups = [
     examples: [
       {
         id: 'basic',
-        name: 'Performance Test',
-        width: 2,
+        name: 'List Performance',
+        width: 1,
+      },
+      {
+        id: 'ifs',
+        name: 'If Performance',
+        width: 1,
       },
     ],
   },
