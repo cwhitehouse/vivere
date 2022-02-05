@@ -4,6 +4,8 @@ import VivereComponent from '../components/vivere-component';
 import EvaluatorError from '../errors/evaluator-error';
 
 // We need a plugin to properly parse assignment operations
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 jsep.plugins.register(jsepAssignment);
 
 // Add a special binary operation that behaves like a
