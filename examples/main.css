@@ -89,6 +89,6 @@ select {
 
 /* DIRECTIVES */
 
-[v-if] {
+[v-hide] {
   display: none;
 }
