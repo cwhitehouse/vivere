@@ -17,7 +17,7 @@ export default class ComponentDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { component, element, expression, modifiers } = this;
+    const { component, element, expression, key, modifiers } = this;
 
     // The previous component is now the parent
     const parent = component;
@@ -36,7 +36,7 @@ export default class ComponentDirective extends Directive {
     ComponentRegistry.track(this.component);
 
     // Handle hydration unless we're defering loading
-    if (modifiers?.includes('defer')) {
+    if (key === 'defer') {
       // Suspend parsing, we don't need to process any
       // more directives until we see a reason to
       this.suspendParsing();
@@ -45,8 +45,9 @@ export default class ComponentDirective extends Directive {
       this.binding = this.completeParsing.bind(this);
 
       // Attach the event listener so any actions force rendering to finish
-      const events = 'click mousedown mouseup focus blur keydown change dblclick mousemove mouseover mouseout mousewheel keydown keyup keypress textInput touchstart touchmove touchend touchcancel resize scroll zoom select change submit reset';
-      element.addEventListener('mousedown', this.binding, true);
+      modifiers?.forEach((event) => {
+        element.addEventListener(event, this.binding, true);
+      });
     } else {
       this.parsingComplete = true;
       this.hydrate();
@@ -78,10 +79,12 @@ export default class ComponentDirective extends Directive {
   }
 
   removeDeferedEventListener(): void {
-    const { binding, element } = this;
+    const { binding, element, modifiers } = this;
 
     if (binding != null)
-      element.removeEventListener('mousedown', binding, true);
+      modifiers?.forEach((event) => {
+        element.removeEventListener(event, binding, true);
+      });
   }
 
   // Dehydration
