@@ -17,8 +17,8 @@
     class="flex-1"
   />
   <button
-    v-disabled="saving"
-    v-event:click.prevent="text?.length ? saving = true"
+    v-disabled="!text?.length || saving"
+    v-event:click.prevent="text?.length ?? saving = true"
     class="button w-32"
   >
     <span
