@@ -85,3 +85,10 @@ input[type=text]:disabled {
 select {
   @apply py-2 border-2 rounded text-sm;
 }
+
+
+/* DIRECTIVES */
+
+[v-if] {
+  display: none;
+}
