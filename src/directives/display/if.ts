@@ -1,5 +1,6 @@
 import DisplayDirective from './display';
 import DOM, { NodeHost } from '../../lib/dom';
+import Walk from '../../lib/walk';
 
 export default class IfDirective extends DisplayDirective implements NodeHost {
   static id = 'v-if';
@@ -10,20 +11,37 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
 
   placeholder: Node;
 
+  rendered = false;
+
   // Parsing
 
   parse(): void {
-    this.container = this.element.parentElement;
-    this.placeholder = document.createComment('');
-    this.current = this.element;
+    const { element } = this;
+    const { parentElement } = element;
 
-    this.element.removeAttribute('hidden');
+    this.container = parentElement;
+    this.placeholder = document.createComment('');
+    this.current = element;
+
+    element.removeAttribute('hidden');
+
+    this.suspendParsing();
   }
 
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    DOM.conditionallyRender(this, !!value);
+    const { component, element, rendered } = this;
+    const showing = !!value;
+
+    if (showing && !rendered) {
+      this.rendered = true;
+      this.resumeParsing();
+      Walk.tree(element, component);
+      component.$forceRender();
+    }
+
+    DOM.conditionallyRender(this, showing);
   }
 
   // Dehdyration
