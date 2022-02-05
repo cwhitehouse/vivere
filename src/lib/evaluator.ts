@@ -6,11 +6,16 @@ import EvaluatorError from '../errors/evaluator-error';
 // We need a plugin to properly parse assignment operations
 jsep.plugins.register(jsepAssignment);
 
+// Add a special binary operation that behaves like a
+// truncated ternary operation (e.g. boolean ?? action)
+jsep.addBinaryOp('??', 0.1);
+
 // Enum for special pursposes return values, specifically
 // for identifying successful assignments or function calls
 enum ParseResult {
   CallExpressionExecuted,
   AssignmentExpressionExecuted,
+  EmptyExpression,
 }
 
 // Helper object for wrapping parsing an object, that
@@ -87,13 +92,31 @@ const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalEx
   return evaluateTree(caller, alternate);
 };
 
-const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression): unknown => {
+const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, shallow = false): unknown => {
   const { left, operator, right, type } = tree;
 
   const leftValue = evaluateTree(caller, left);
+
+  // Our custom ?? operator is effectively half a ternary statement
+  if (operator === '??')
+    if (leftValue)
+      // If true, evaluate the right side (shallow if we're trying to execute)
+      return evaluateTree(caller, right, shallow);
+    else if (shallow)
+      // If false and shallow, return an empty expression
+      return ParseResult.EmptyExpression;
+    else
+      // If false and deep, this is effectively null
+      return null;
+
   const rightValue = evaluateTree(caller, right);
 
   switch (operator) {
+    case '=':
+    case '+=':
+    case '-=':
+      // The assignment evaluator can miss this when the `??` operator is involved
+      return evaluateAssignmentExpression(caller, tree as unknown as jsepAssignment.AssignmentExpression);
     case '==':
       // eslint-disable-next-line eqeqeq
       return leftValue == rightValue;
@@ -117,7 +140,7 @@ const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression):
     case '||':
       return leftValue || rightValue;
     default:
-      throw new EvaluatorError(`Unhandled conditional operator: ${operator}`, caller, type);
+      throw new EvaluatorError(`Unhandled binary operator: ${operator}`, caller, type);
   }
 };
 
@@ -167,7 +190,7 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, shallow = false): unknow
     case 'ConditionalExpression':
       return evaluateConditionalExpression(caller, tree as jsep.ConditionalExpression);
     case 'BinaryExpression':
-      return evaluateBinaryExpression(caller, tree as jsep.BinaryExpression);
+      return evaluateBinaryExpression(caller, tree as jsep.BinaryExpression, shallow);
     case 'UnaryExpression':
       return evaluateUnaryExpression(caller, tree as jsep.UnaryExpression);
     case 'MemberExpression':
@@ -233,6 +256,9 @@ export default {
 
     // If it looked like a function call and it was executed, we're done
     if (response === ParseResult.CallExpressionExecuted) return;
+
+    // If it looked like nothing (e.g. the second half of a `??` operator), we're done
+    if (response === ParseResult.EmptyExpression) return;
 
     // Otherwise, invoke the method on our shallow parser result
     if (response instanceof ShallowParseResult) {
