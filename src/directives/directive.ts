@@ -117,4 +117,16 @@ export default class Directive {
   shouldRehydrate(): boolean {
     return (this.constructor as typeof Directive).shouldRehydrate;
   }
+
+  suspendParsing(element: Element = null): void {
+    const $element = element || this.element;
+    if ($element instanceof HTMLElement)
+      $element.dataset[Directive.DATA_SUSPEND_PARSING] = 'true';
+  }
+
+  resumeParsing(element: Element = null): void {
+    const $element = element || this.element;
+    if ($element instanceof HTMLElement)
+      delete $element.dataset[Directive.DATA_SUSPEND_PARSING];
+  }
 }

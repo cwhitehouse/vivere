@@ -21,25 +21,34 @@ import RefDirective from '../directives/ref';
 import VivereComponent from '../components/vivere-component';
 
 const directives: (typeof Directive)[] = [
+  // v-for must be first since all other directives on the template
+  // element are deferred until the list is rendered
   ForDirective,
+  // v-component must be second since all other directives should
+  // point to the new component
   ComponentDirective,
+  // Data directives must come next to ensure data is probably set up
+  // before rendering (especially for defered rendering)
   BindDirective,
   DataDirective,
   PassDirective,
+  RefDirective,
   StoreDirective,
+  // v-if needs to be the first display directive since we can defer
+  // futher rendering and hydrating until the element comes into view
+  IfDirective,
+  // For the remaining directives, order is irrelevant
   AttrDirective,
   ClassDirective,
   DisabledDirective,
+  EventDirective,
+  HideDirective,
   HrefDirective,
-  IfDirective,
   ShowDirective,
   SrcDirective,
   StyleDirective,
   SyncDirective,
   TextDirective,
-  EventDirective,
-  HideDirective,
-  RefDirective,
 ];
 
 const Walk = {
