@@ -5,22 +5,18 @@ import Renderer from './renderer';
 import VivereComponent from './components/vivere-component';
 import ComponentRegistry from './components/registry';
 import ComponentDefinitions from './components/definitions';
+import timer from './lib/timer';
 
 // Setup logic
 
 const $setup = (element: HTMLElement): void => {
-  const start = performance.now();
+  timer.time('Document parsed', () => {
+    // Walk the tree to initialize components
+    Walk.element(element);
 
-  // Walk the tree to initialize components
-  Walk.element(element);
-
-  // Finalize connecting our components
-  ComponentRegistry.components.forEach((c) => { c.$connect(); });
-
-  const time = performance.now() - start;
-  const method = time >= 100 ? 'warn' : 'log';
-  // eslint-disable-next-line no-console
-  console[method](`Vivere | Document parsed: ${time}ms`);
+    // Finalize connecting our components
+    ComponentRegistry.components.forEach((c) => { c.$connect(); });
+  });
 };
 
 // Initialize Vivere

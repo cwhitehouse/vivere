@@ -1,4 +1,5 @@
 import Directive from './directives/directive';
+import Timer from './lib/timer';
 
 let $dirty = false;
 
@@ -11,19 +12,13 @@ const tick: () => void = () => {
 };
 
 const render: () => void = () => {
-  const start = performance.now();
+  Timer.time('Directives rendered', () => {
+    $directives.forEach((d) => d.evaluate());
 
-  // Evaluate all directives queued for a render
-  $directives.forEach((d) => d.evaluate());
-
-  // Reset system so we're not waiting on anything
-  $directives.clear();
-  $dirty = false;
-
-  const time = performance.now() - start;
-  const method = time >= 100 ? 'warn' : 'log';
-  // eslint-disable-next-line no-console
-  console[method](`Vivere | Directives rendered: ${time}ms`);
+    // Reset system so we're not waiting on anything
+    $directives.clear();
+    $dirty = false;
+  });
 
   // Run all waiting ticks
   tick();

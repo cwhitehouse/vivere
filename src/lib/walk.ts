@@ -1,3 +1,4 @@
+import Timer from './timer';
 import Directive from '../directives/directive';
 import ForDirective from '../directives/display/for';
 import ComponentDirective from '../directives/component/component';
@@ -53,15 +54,10 @@ const directives: (typeof Directive)[] = [
 
 const Walk = {
   tree(element: Element, component?: VivereComponent): void {
-    const start = performance.now();
-
-    // Walk the tree to initialize components
-    Walk.element(element, component);
-
-    const time = performance.now() - start;
-    const method = time >= 100 ? 'warn' : 'log';
-    // eslint-disable-next-line no-console
-    console[method](`Vivere | Tree parsed: ${time}ms`);
+    Timer.time('Tree parsed', () => {
+      // Walk the tree to initialize components
+      Walk.element(element, component);
+    });
   },
 
   element(element: Element, component?: VivereComponent): void {
