@@ -69,11 +69,13 @@ export default class EventDirective extends Directive {
       if (!matchesModifier) return undefined;
     }
 
-    if (expression != null)
-      if (modifiers != null && modifiers.includes('delay'))
+    if (expression?.length)
+      if (modifiers?.includes('delay'))
         setTimeout(() => this.executeEvent(e), 0);
       else
         this.executeEvent(e);
+    else if (!modifiers?.includes('cancel') && !modifiers?.includes('prevent'))
+      throw new DirectiveError('Event directives require an expression, unless using the cancel or prevent flag', this);
 
     if (modifiers?.includes('prevent'))
       e.preventDefault();
