@@ -12,7 +12,7 @@ const $setup = (element: HTMLElement): void => {
   const start = Date.now();
 
   // Walk the tree to initialize components
-  Walk.tree(element);
+  Walk.element(element);
 
   // Finalize connecting our components
   ComponentRegistry.components.forEach((c) => { c.$connect(); });

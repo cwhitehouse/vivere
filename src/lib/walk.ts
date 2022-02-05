@@ -53,6 +53,18 @@ const directives: (typeof Directive)[] = [
 
 const Walk = {
   tree(element: Element, component?: VivereComponent): void {
+    const start = Date.now();
+
+    // Walk the tree to initialize components
+    Walk.element(element, component);
+
+    const time = Date.now() - start;
+    const method = time >= 100 ? 'warn' : 'log';
+    // eslint-disable-next-line no-console
+    console[method](`Vivere | Tree parsed: ${time}ms`);
+  },
+
+  element(element: Element, component?: VivereComponent): void {
     const { attributes } = element;
     let $component = component;
 
@@ -82,7 +94,7 @@ const Walk = {
   children(element: Element, component: VivereComponent): void {
     Object.values(element.children).forEach((child) => {
       // Continue checking the element's children
-      Walk.tree(child, component);
+      Walk.element(child, component);
     });
   },
 };
