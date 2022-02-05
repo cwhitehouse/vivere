@@ -14,7 +14,7 @@ export default class StoreDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { expression, key, modifiers } = this;
+    const { component, expression, key, modifiers } = this;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let $expression: any;
