@@ -36,10 +36,13 @@ export default class Directive {
     this.expression = expression;
 
     // Extract key and modifiers from attribute name
-    const [, ...key] = name.split(':');
+    let key: string[];
 
-    if (key)
-      [this.key, ...this.modifiers] = key.join(':').split('.');
+    if (name.includes(':')) {
+      [, ...key] = name.split(':');
+      [this.key, ...this.modifiers] = key?.join(':').split('.');
+    } else
+      [, ...this.modifiers] = name.split('.');
 
     if (!this.key && this.requiresKey())
       throw new DirectiveError(`A key is required for ${this.id()} directives`, this);
