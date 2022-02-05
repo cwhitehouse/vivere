@@ -25,8 +25,7 @@ export default class ForDirective extends DisplayDirective {
     const { element } = this;
 
     // Mark this element as one we want to stop processing
-    if (element instanceof HTMLElement)
-      element.dataset[Directive.DATA_SUSPEND_PARSING] = 'true';
+    this.suspendParsing();
 
     // Create a placeholder node to mark where our list should be inserted
     this.placeholder = document.createComment('');
@@ -114,7 +113,7 @@ export default class ForDirective extends DisplayDirective {
         el.setAttribute(`v-pass:${Utility.kebabCase(itemExpression)}.list`, `${listExpression}[${i}]`);
 
         // Remove the suspend parsing data directive
-        delete el.dataset[Directive.DATA_SUSPEND_PARSING];
+        this.resumeParsing(el);
 
         // Add the cloned node back to the list and track
         // where the next node is supposed to be inserted
