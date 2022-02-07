@@ -5,7 +5,7 @@ import DirectiveError from '../../errors/directive-error';
 export default class SyncDirective extends DisplayDirective {
   static id = 'v-sync';
 
-  element: (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement);
+  element: (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLParagraphElement | HTMLSpanElement);
 
   event: string;
 
@@ -15,9 +15,14 @@ export default class SyncDirective extends DisplayDirective {
 
   parse(): void {
     // Validate our element node
-    const { nodeName } = this.element;
-    if (nodeName !== 'INPUT' && nodeName !== 'SELECT' && nodeName !== 'TEXTAREA')
-      throw new DirectiveError(`Sync directives only work on input elements, not ${nodeName}`, this);
+    const { element } = this;
+    const { nodeName } = element;
+
+    const validNode = ['INPUT', 'SELECT', 'TEXTAREA'].includes(nodeName)
+      || (['SPAN', 'P'].includes(nodeName) && element.contentEditable);
+
+    if (!validNode)
+      throw new DirectiveError(`Sync directives only work on input elements or contenteditable nodes, not ${nodeName}`, this);
 
     // Bind the sync function
     this.event = 'input';
@@ -38,11 +43,17 @@ export default class SyncDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
+    const { element } = this;
+
     // Push our new value to the element
-    if (this.element instanceof HTMLInputElement && this.element.type === 'checkbox')
-      this.element.checked = !!value;
-    else
-      this.element.value = value as string;
+    if (element instanceof HTMLInputElement && element.type === 'checkbox')
+      element.checked = !!value;
+    else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
+      const valueString = value?.toString();
+      if (element.innerText !== valueString)
+        element.innerText = valueString;
+    } else
+      element.value = value as string;
   }
 
   // Destruction
@@ -55,10 +66,15 @@ export default class SyncDirective extends DisplayDirective {
   // Syncing
 
   value(): string | boolean {
-    if (this.element instanceof HTMLInputElement && this.element.type === 'checkbox')
-      return this.element.checked;
+    const { element } = this;
 
-    return this.element.value;
+    if (element instanceof HTMLInputElement && element.type === 'checkbox')
+      return element.checked;
+
+    if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement)
+      return element.innerText;
+
+    return element.value;
   }
 
   sync(): void {
