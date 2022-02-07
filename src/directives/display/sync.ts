@@ -25,7 +25,8 @@ export default class SyncDirective extends DisplayDirective {
       throw new DirectiveError(`Sync directives only work on input elements or contenteditable nodes, not ${nodeName}`, this);
 
     // Bind the sync function
-    this.event = 'input';
+    const isRadio = element instanceof HTMLInputElement && element.type === 'radio';
+    this.event = isRadio ? 'change' : 'input';
     this.binding = this.sync.bind(this);
 
     // Listen for input changes
@@ -48,6 +49,8 @@ export default class SyncDirective extends DisplayDirective {
     // Push our new value to the element
     if (element instanceof HTMLInputElement && element.type === 'checkbox')
       element.checked = !!value;
+    else if (element instanceof HTMLInputElement && element.type === 'radio')
+      element.checked = element.value === value;
     else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
       const valueString = value?.toString();
       if (element.innerText !== valueString)
@@ -68,7 +71,7 @@ export default class SyncDirective extends DisplayDirective {
   value(): string | boolean {
     const { element } = this;
 
-    if (element instanceof HTMLInputElement && element.type === 'checkbox')
+    if (element instanceof HTMLInputElement && ['checkbox', 'radio'].includes(element.type))
       return element.checked;
 
     if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement)
@@ -78,8 +81,16 @@ export default class SyncDirective extends DisplayDirective {
   }
 
   sync(): void {
+    const { element } = this;
+
     // Assign the value to the synced expression
-    const inputValue = this.value();
+    let inputValue = this.value();
+    if (element instanceof HTMLInputElement && element.type === 'radio')
+      if (inputValue)
+        inputValue = element.value;
+      else
+        return;
+
     Evaluator.assign(this.component, this.expression, inputValue);
   }
 }
