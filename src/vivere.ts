@@ -5,12 +5,12 @@ import Renderer from './renderer';
 import VivereComponent from './components/vivere-component';
 import ComponentRegistry from './components/registry';
 import ComponentDefinitions from './components/definitions';
-import timer from './lib/timer';
+import Timer from './lib/timer';
 
 // Setup logic
 
 const $setup = (element: HTMLElement): void => {
-  timer.time('Document parsed', () => {
+  Timer.time('Document parsed', () => {
     // Walk the tree to initialize components
     Walk.element(element);
 
