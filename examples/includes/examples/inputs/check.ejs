@@ -1,0 +1,23 @@
+<div
+  v-component
+  v-data:toggle="false"
+  class="flex items-center space-x-4"
+>
+  <div class="flex-1">
+    <input
+      v-sync="toggle"
+      type="checkbox"
+      name="text"
+    />
+  </div>
+  <div class="flex-1">
+    <p
+      v-text="toggle"
+      class="w-full"
+    ></p>
+  </div>
+  <button
+    v-event:click="toggle = !toggle"
+    class="button"
+  >Toggle</button>
+</div>

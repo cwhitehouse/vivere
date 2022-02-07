@@ -86,6 +86,17 @@ select {
   @apply py-2 border-2 rounded text-sm;
 }
 
+textarea {
+  @apply py-2 px-3 bg-gray-200 rounded;
+}
+
+[contenteditable] {
+  @apply py-1 border-b-2 border-dotted border-gray-400;
+}
+[contenteditable]:focus {
+  @apply outline-none border-indigo-600;
+}
+
 
 /* DIRECTIVES */
 

@@ -29,6 +29,22 @@ const exampleGroups = [
         id: 'select',
         name: 'Syncing Dropdown',
       },
+      {
+        id: 'textarea',
+        name: 'Syncing Textarea',
+      },
+      {
+        id: 'contenteditable',
+        name: 'Syncing Contenteditable',
+      },
+      {
+        id: 'check',
+        name: 'Syncing Check Box',
+      },
+      {
+        id: 'radios',
+        name: 'Syncing Radio Buttons',
+      },
     ],
   },
   {
