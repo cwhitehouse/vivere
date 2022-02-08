@@ -1,8 +1,7 @@
 import VivereError from '../errors/error';
-import ReactiveHostInterface from './host-interface';
 import Reactive from './reactive';
 
-export default class ReactiveHost implements ReactiveHostInterface {
+export default class ReactiveHost {
   $reactives: { [key: string]: Reactive } = {};
 
   $set(key: string, value: unknown, getter: () => unknown = null, setter: (value: unknown) => void = null): Reactive {
