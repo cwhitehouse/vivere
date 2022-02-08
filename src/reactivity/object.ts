@@ -1,54 +1,50 @@
 import Reactive from './reactive';
-import ReactiveHost from './reactive-host';
 
 export default class ReactiveObject {
-  static mirrorObject(object: { [key: string]: unknown }): ReactiveHost {
-    const hostObject = new ReactiveHost();
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  static makeObjectReactive(object: object): void {
     Object.entries(object).forEach(([key, value]) => {
-      hostObject.$set(key, value);
+      if (!(value instanceof Reactive))
+        // Update the object entry to point to a reactive
+        object[key] = new Reactive(object, value, null);
     });
-    return hostObject;
   }
 
-  static proxyGet(target: ReactiveHost, propKey: (string | symbol)): unknown {
-    let properties: [string, Reactive][];
-    let temp: unknown;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  constructor(object: object) {
+    ReactiveObject.makeObjectReactive(object);
 
-    const value = target[propKey];
-    switch (propKey) {
-      case 'toJSON':
-        temp = {};
+    return new Proxy(object, {
+      get(target, p): unknown {
+        const value = target[p];
 
-        // toJSON should ignore internals, so we'll pull out reactive values
-        properties = Object.entries(target.$reactives);
-        properties.forEach(([k, v]) => {
-          temp[k] = v.get();
-        });
+        if (value instanceof Reactive)
+          return value.get();
 
-        return (): { prop?: unknown } => temp;
-      case '$$reactiveObject':
+        if (p === '$reactives')
+          return { ...target };
+
+        switch (p) {
+          case '$$reactiveObject':
+            return true;
+          case '$$reactiveProxy':
+            return true;
+          default:
+            if (value && value.bind)
+              // Functions need to be bound to the right target
+              return value.bind(target);
+            // Anything else can pass through as normal
+            return value;
+        }
+      },
+      set(target, p, value): boolean {
+        // Assign the value as a reactive
+        if (value instanceof Reactive)
+          target[p] = value;
+        else
+          target[p] = new Reactive(target, value, null);
         return true;
-      case '$$reactiveProxy':
-        return true;
-      default:
-        if (value && value.bind)
-          // Functions need to be bound to the right target
-          return value.bind(target);
-        // Anything else can pass through as normal
-        return value;
-    }
-  }
-
-  static proxySet(target: ReactiveHost, propKey: (string | symbol), value: unknown): boolean {
-    target.$set(propKey.toString(), value);
-    return true;
-  }
-
-  constructor(object: unknown) {
-    const hostObject = ReactiveObject.mirrorObject(object as { [key: string]: unknown });
-    return new Proxy(hostObject, {
-      get: ReactiveObject.proxyGet,
-      set: ReactiveObject.proxySet,
+      },
     });
   }
 }
