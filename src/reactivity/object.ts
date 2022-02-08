@@ -38,11 +38,16 @@ export default class ReactiveObject {
         }
       },
       set(target, p, value): boolean {
-        // Assign the value as a reactive
-        if (value instanceof Reactive)
+        const currentValue = target[p];
+
+        // Update value while mainting reactivity
+        if (currentValue instanceof Reactive)
+          currentValue.set(value, true);
+        else if (value instanceof Reactive)
           target[p] = value;
         else
           target[p] = new Reactive(target, value, null);
+
         return true;
       },
     });
