@@ -1,14 +1,12 @@
+import ReactiveObject from './object';
 import Reactive from './reactive';
 
 export default class ReactiveArray {
   static makeArrayReactive(array: unknown[]): void {
     for (let i = 0; i < array.length; i += 1) {
-      // Fetch the relevant entry
-      const entry = array[i];
-
-      if (!(entry instanceof Reactive))
-        // Update the array entry to point to a reactive
-        array[i] = new Reactive(array, entry, null);
+      // Fetch the relevant value
+      const value = array[i];
+      ReactiveObject.makeValueReactive(array, i, value);
     }
   }
 
@@ -82,18 +80,8 @@ export default class ReactiveArray {
         return value;
       },
 
-      set(target, p, value): boolean {
-        const currentValue = target[p];
-
-        // Update value while mainting reactivity
-        if (currentValue instanceof Reactive)
-          currentValue.set(value, true);
-        else if (value instanceof Reactive)
-          target[p] = value;
-        else
-          target[p] = new Reactive(target, value, null);
-
-        return true;
+      set(target, p, value) {
+        return ReactiveObject.setReactiveValue(target, p, value);
       },
     });
   }

@@ -1,13 +1,30 @@
 import Reactive from './reactive';
 
 export default class ReactiveObject {
+  static makeValueReactive(object: unknown, key: string | number, value: unknown): void {
+    if (!(value instanceof Reactive))
+      object[key] = new Reactive(object, value, null);
+  }
+
   // eslint-disable-next-line @typescript-eslint/ban-types
   static makeObjectReactive(object: object): void {
     Object.entries(object).forEach(([key, value]) => {
-      if (!(value instanceof Reactive))
-        // Update the object entry to point to a reactive
-        object[key] = new Reactive(object, value, null);
+      ReactiveObject.makeValueReactive(object, key, value);
     });
+  }
+
+  static setReactiveValue(target: unknown, p: string | symbol, value: unknown): boolean {
+    const currentValue = target[p];
+
+    // Update value while mainting reactivity
+    if (currentValue instanceof Reactive)
+      currentValue.set(value, true);
+    else if (value instanceof Reactive)
+      target[p] = value;
+    else
+      target[p] = new Reactive(target, value, null);
+
+    return true;
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -37,18 +54,9 @@ export default class ReactiveObject {
             return value;
         }
       },
-      set(target, p, value): boolean {
-        const currentValue = target[p];
 
-        // Update value while mainting reactivity
-        if (currentValue instanceof Reactive)
-          currentValue.set(value, true);
-        else if (value instanceof Reactive)
-          target[p] = value;
-        else
-          target[p] = new Reactive(target, value, null);
-
-        return true;
+      set(target, p, value) {
+        return ReactiveObject.setReactiveValue(target, p, value);
       },
     });
   }
