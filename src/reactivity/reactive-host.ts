@@ -41,9 +41,4 @@ export default class ReactiveHost {
 
     return reactive;
   }
-
-  static set(host: unknown, key: string, value: unknown): Reactive {
-    const $host = host as ReactiveHost;
-    return $host.$set(key, value, null);
-  }
 }
