@@ -100,10 +100,17 @@ export default class Reactive {
     if (value == null)
       return null;
 
-    if (!value.$$reactiveArray && Array.isArray(value))
+    if (Array.isArray(value)) {
+      // If your value is an array, and we've already proxied it,
+      // we can just return the value
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (value.$$reactiveArray)
+        return value;
       return new ReactiveArray(value);
+    }
 
-    if (!value.$$reactiveObject && typeof value === 'object')
+    if (typeof value === 'object' && !value.$$reactiveObject)
       return new ReactiveObject(value);
 
     return value;
