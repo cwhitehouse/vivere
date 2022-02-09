@@ -53,7 +53,16 @@ export default class extends VivereComponent {
   // ------------------------------------------------
 
   save() {
-    this.item = { ...this.editItem };
+    const { editItem } = this;
+
+    const meta = { ...editItem.meta };
+    const tags = [ ...editItem.tags ];
+    this.item = {
+      ...editItem,
+      meta,
+      tags,
+    };
+
     this.editing = false;
   }
 
