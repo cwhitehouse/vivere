@@ -53,9 +53,6 @@ export default class extends VivereComponent {
   // ------------------------------------------------
 
   save() {
-    console.log('ComplexEditing#save');
-    console.log()
-
     this.item = { ...this.editItem };
     this.editing = false;
   }
