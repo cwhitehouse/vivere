@@ -10,6 +10,7 @@ import FilterTag from './includes/filter-tag';
 import Accordion from './includes/examples/tabs/accordion';
 import AccordionSection from './includes/examples/tabs/section';
 
+import ComplexEditing from './includes/examples/complex/editing';
 import ComplexToggle from './includes/examples/complex/toggle';
 import ComplexToggleList from './includes/examples/complex/toggle-list';
 
@@ -37,6 +38,7 @@ Vivere.register('FilterTag', FilterTag);
 Vivere.register('Accordion', Accordion);
 Vivere.register('AccordionSection', AccordionSection);
 
+Vivere.register('ComplexEditing', ComplexEditing);
 Vivere.register('ComplexToggle', ComplexToggle);
 Vivere.register('ComplexToggleList', ComplexToggleList);
 

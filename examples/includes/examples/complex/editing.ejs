@@ -1,0 +1,178 @@
+<%
+  const item = {
+    id: 3231,
+    name: 'This is the name of the item',
+    meta: {
+      count: 10,
+      speed: 'fast',
+    },
+    tags: ['banana', 'apple', 'strawberry']
+  };
+%>
+
+<div
+  v-component="ComplexEditing"
+  v-data:item="<%= JSON.stringify(item) %>"
+>
+  <div class="flex items-start justify-between">
+    <div class="space-y-2">
+      <div class="flex items-center">
+        <p class="w-16 text-sm font-medium text-gray-600">ID:</p>
+        <p v-text="item.id"></p>
+      </div>
+      <div class="flex items-center">
+        <p class="w-16 text-sm font-medium text-gray-600">NAME:</p>
+        <p v-text="item.name"></p>
+      </div>
+      <p class="w-16 text-sm font-medium text-gray-600">META:</p>
+      <div class="flex items-center ml-2">
+        <p class="w-20 text-sm font-medium text-gray-600"><span class="text-xs transform -translate-y-0.5 inline-block">↳</span> COUNT:</p>
+        <p v-text="item.meta.count"></p>
+      </div>
+      <div class="flex items-center ml-2">
+        <p class="w-20 text-sm font-medium text-gray-600"><span class="text-xs transform -translate-y-0.5 inline-block">↳</span> SPEED:</p>
+        <p v-text="item.meta.speed"></p>
+      </div>
+      <div class="flex items-center">
+        <p class="w-16 text-sm font-medium text-gray-600">TAGS:</p>
+        <div class="flex items-center space-x-1">
+          <p
+            v-for="tag of item.tags"
+            v-text="tag"
+            class="bg-indigo-100 px-1.5 py-1 text-sm rounded-sm font-semibold text-indigo-800"
+          ></p>
+        </div>
+      </div>
+    </div>
+    <button
+      v-event:click="editing = true"
+      class="button"
+    >Edit Item</button>
+  </div>
+  <div
+    v-if="editing"
+    v-hide
+    class="fixed left-0 top-0 right-0 bottom-0 z-10 flex items-center justify-center"
+  >
+    <div class="absolute left-0 top-0 h-full w-full bg-white opacity-90"></div>
+    <div class="p-6 bg-white rounded border-2 z-10 w-full max-w-lg shadow-lg space-y-4">
+      <div class="flex items-center">
+        <p class="w-16 text-sm font-medium text-gray-600">ID:</p>
+        <input
+          v-sync="editItem.id"
+          type="text"
+          class="w-full"
+          placeholder="Enter an id..."
+        />
+      </div>
+      <div class="flex items-center">
+        <p class="w-16 text-sm font-medium text-gray-600">NAME:</p>
+        <input
+          v-sync="editItem.name"
+          type="text"
+          class="w-full"
+          placeholder="Enter a name..."
+        />
+      </div>
+      <p class="text-sm font-medium text-gray-600">META:</p>
+      <div class="flex items-center ml-6">
+        <p class="w-20 text-sm font-medium text-gray-600">COUNT:</p>
+        <div class="flex items-center flex-1">
+          <button
+            v-event:click="editItem.meta.count -= 1"
+            class="button flex-1"
+          >-</button>
+          <p
+            v-text="editItem.meta.count"
+            class="flex-1 text-center"
+          ></p>
+          <button
+            v-event:click="editItem.meta.count += 1"
+            class="button flex-1"
+          >+</button>
+        </div>
+      </div>
+      <div class="flex items-center ml-6">
+        <p class="w-20 text-sm font-medium text-gray-600">SPEED:</p>
+        <div class="flex-1 border-2 text-center py-2 rounded-l-sm">
+          <input
+            v-sync="editItem.meta.speed"
+            id="speed-slow"
+            type="radio"
+            name="speed"
+            value="slow"
+          />
+          <label for="speed-slow">Slow</label>
+        </div>
+        <div class="flex-1 border-t-2 border-b-2 text-center py-2 rounded-sm">
+          <input
+            v-sync="editItem.meta.speed"
+            id="speed-fast"
+            type="radio"
+            name="speed"
+            value="fast"
+          />
+          <label for="speed-fast">Fast</label>
+        </div>
+        <div class="flex-1 border-2 text-center py-2 rounded-r-sm">
+          <input
+            v-sync="editItem.meta.speed"
+            id="speed-hyper"
+            type="radio"
+            name="speed"
+            value="hyper"
+          />
+          <label for="speed-hyper">Hyper</label>
+        </div>
+      </div>
+      <div class="flex items-center">
+        <p class="w-16 text-sm font-medium text-gray-600 flex-shrink-0">TAGS:</p>
+        <div class="flex flex-wrap -mt-2">
+          <div
+            v-for="tag of editItem.tags"
+            v-bind:remove="removeTag"
+            class="mr-2 mt-2"
+          >
+            <div class="flex items-center text-sm font-medium mt-0.5 text-indigo-800 dark:text-indigo-50 bg-indigo-100 dark:bg-indigo-800 rounded-md">
+              <p
+                v-text="tag"
+                class="pl-2.5 pr-2 py-1.5"
+              ></p>
+              <a
+                v-event:click="$emit('remove', tag)"
+                class="cursor-pointer px-2.5 border-l border-indigo-300 dark:border-indigo-600"
+              >x</a>
+            </div>
+          </div>
+          <a
+            v-if="!tagging"
+            v-event:click="tagging = true"
+            v-class:disabled="submitting"
+            class="inline-block border-2 rounded-md text-sm px-2.5 py-1.5 font-medium text-gray-600 dark:text-gray-200 cursor-pointer shadow-sm hover:shadow-lg mt-2"
+          >Add tag...</a>
+          <input
+            v-if="tagging"
+            v-ref="tagInput"
+            v-event:blur="tagging = false"
+            v-event:keydown.esc="tagging = false"
+            v-event:keydown.ent="confirmTag"
+            v-sync="tag"
+            type="text"
+            placeholder="Add tag..."
+            class="compact mt-2 border-2 border-gray-200"
+          />
+        </div>
+      </div>
+      <div class="flex items-center justify-between space-x-4 border-t-2 pt-4 px-6 -mx-6">
+        <button
+          v-event:click="editing = false"
+          class="button"
+        >Close</button>
+        <button
+          v-event:click="save"
+          class="button text-emerald-800 border-emerald-700"
+        >Save</button>
+      </div>
+    </div>
+  </div>
+</div>

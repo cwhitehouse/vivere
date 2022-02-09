@@ -174,6 +174,11 @@ const exampleGroups = [
         name: 'Form Submission',
         width: 1,
       },
+      {
+        id: 'editing',
+        name: 'Editing Objects',
+        width: 1,
+      },
     ],
   },
 ];
