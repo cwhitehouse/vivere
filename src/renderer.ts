@@ -13,10 +13,14 @@ const tick: () => void = () => {
 
 const render: () => void = () => {
   Timer.time('Directives rendered', () => {
-    $directives.forEach((d) => d.evaluate());
+    $directives.forEach((d) => {
+      // Delete this directive in case it gets
+      // re-added during this render sequence
+      $directives.delete(d);
+      d.evaluate();
+    });
 
     // Reset system so we're not waiting on anything
-    $directives.clear();
     $dirty = false;
   });
 
