@@ -55,8 +55,10 @@ export default class SyncDirective extends DisplayDirective {
       const valueString = value?.toString();
       if (element.innerText !== valueString)
         element.innerText = valueString;
-    } else
-      element.value = value as string;
+    } else if (value != null)
+      element.value = value.toString();
+    else
+      element.value = null;
   }
 
   // Destruction
