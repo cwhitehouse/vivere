@@ -49,7 +49,9 @@ export default class VivereComponent extends ReactiveHost {
 
   $stored: { [key: string]: StoredInterface } = {};
 
-  $destroyed = false;
+  $isConnected = false;
+
+  $isDestroyed = false;
 
   beforeConnected?(): void;
   connected?(): void;
@@ -282,7 +284,12 @@ export default class VivereComponent extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   $connect(): void {
-    const { beforeConnected, connected } = this;
+    const { $isConnected, beforeConnected, connected } = this;
+
+    // If this has already been connected, then we don't need to
+    // run through all of these commands (because we already have)
+    if ($isConnected)
+      return;
 
     // Callback hook
     if (beforeConnected != null)
@@ -294,17 +301,19 @@ export default class VivereComponent extends ReactiveHost {
     // Force initial render
     this.$forceRender.call(this, true);
 
+    this.$isConnected = true;
+
     // Callback hook
     if (connected != null)
       connected.call(this);
   }
 
   $destroy(shallow = false): void {
-    const { $children, $directives, $destroyed, $element, $parent, beforeDestroyed, destroyed } = this;
+    const { $children, $directives, $isDestroyed, $element, $parent, beforeDestroyed, destroyed } = this;
 
     // If this has already been destroyed (likely because a parent was destroyed), then we
     // don't need to run through all of these commands (because we already have)
-    if ($destroyed)
+    if ($isDestroyed)
       return;
 
     // Callback hook
@@ -330,11 +339,11 @@ export default class VivereComponent extends ReactiveHost {
     // Remove from DOM
     $element.parentNode.removeChild(this.$element);
 
+    this.$isDestroyed = true;
+
     // Callback hook
     if (destroyed != null)
       destroyed.call(this);
-
-    this.$destroyed = true;
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
