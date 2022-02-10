@@ -6,6 +6,15 @@ import Directive from '../directive';
 import Utility from '../../lib/utility';
 import { VivereComponent } from '../../vivere';
 
+const directiveRegex = /(?:([A-z]+)|\(([A-z]+), ([A-z]+)\)) of ([A-z.]+)/;
+
+interface ForDirectiveValue {
+  list: unknown[];
+  listExpression: string;
+  itemExpression: string;
+  indexExpression?: string;
+}
+
 export default class ForDirective extends DisplayDirective {
   static id = 'v-for';
 
@@ -49,25 +58,27 @@ export default class ForDirective extends DisplayDirective {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any;
     Watcher.watch(this, callback, () => {
-      const [itemExpression, preoposition, listExpression, ...rest] = expression.split(' ');
+      try {
+        const [, iExp, $iExp, indexExpression, listExpression] = directiveRegex.exec(expression);
+        const itemExpression = iExp || $iExp;
 
-      if (rest.length > 0 || preoposition !== 'of')
-        throw new DirectiveError('Invalid v-for expression, must resemble `item of list`', this);
-
-      // Parse the list expression
-      value = {
-        list: Evaluator.parse(component, listExpression),
-        listExpression,
-        itemExpression,
-      };
+        value = {
+          list: Evaluator.parse(component, listExpression),
+          listExpression,
+          itemExpression,
+          indexExpression,
+        };
+      } catch (e) {
+        throw new DirectiveError('Invalid v-for expression, must resemble `item of list`', this, e);
+      }
     });
 
     return value;
   }
 
-  evaluateValue(value: { itemExpression: string, list: unknown[], listExpression: string }): void {
+  evaluateValue(value: ForDirectiveValue): void {
     const { component, element, keyedElements, unkeyedElements, parent, placeholder } = this;
-    const { itemExpression, list, listExpression } = value;
+    const { itemExpression, indexExpression, list, listExpression } = value;
 
     if (list && !Array.isArray(list))
       throw new DirectiveError('v-for directive expected an array or null to be returned', this);
@@ -112,6 +123,10 @@ export default class ForDirective extends DisplayDirective {
         //   e.g. v-pass:to-do="toDos[2]"
         el.setAttribute(`v-pass:${Utility.kebabCase(itemExpression)}.list`, `${listExpression}[${i}]`);
 
+        if (indexExpression?.length)
+          // If we have an index expression, we want to pass that along as well
+          el.setAttribute(`v-pass:${Utility.kebabCase(indexExpression)}`, `${i}`);
+
         // Remove the suspend parsing data directive
         this.resumeParsing(el);
 
@@ -127,6 +142,10 @@ export default class ForDirective extends DisplayDirective {
         // We need to update the index of the passed data
         // so we display the right list item
         cachedElement.$pass(itemExpression, listExpression, i);
+
+        if (indexExpression?.length)
+          // Pass the index if we have an index expression
+          cachedElement.$pass(indexExpression, `${i}`);
 
         // Insert this element to make sure it's in the right
         // position for the updated list
