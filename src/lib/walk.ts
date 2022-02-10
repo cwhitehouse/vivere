@@ -20,6 +20,7 @@ import EventDirective from '../directives/event';
 import HideDirective from '../directives/hide';
 import RefDirective from '../directives/ref';
 import VivereComponent from '../components/vivere-component';
+import ComponentRegistry from '../components/registry';
 
 const directives: (typeof Directive)[] = [
   // v-for must be first since all other directives on the template
@@ -57,6 +58,9 @@ const Walk = {
     Timer.time('Tree parsed', () => {
       // Walk the tree to initialize components
       Walk.element(element, component);
+
+      // Connect any new components
+      ComponentRegistry.components.forEach((c) => { c.$connect(); });
     });
   },
 
