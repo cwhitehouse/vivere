@@ -1,0 +1,39 @@
+<%
+  const list = [];
+  for (let i = 0; i < 10; i += 1) {
+    list.push({
+      id: i,
+      name: (Math.random() + 1).toString(36).substring(2),
+    });
+  }
+%>
+
+<div
+  v-component
+  v-data:list="<%= JSON.stringify(list) %>"
+  v-data:selected-idx="0"
+  v-compute:selection="list[selectedIdx]"
+>
+  <p class="italic">Current selection:</p>
+  <p v-text="selection?.name"></p>
+  <div class="mt-4 space-y-2">
+    <div
+      v-for="(item, idx) of list"
+      v-pass:selected-idx
+      class="flex items-center"
+    >
+      <input
+        v-attr:id="'list-' + idx"
+        v-attr:value="idx"
+        v-sync="selectedIdx"
+        type="radio"
+        name="list-selection"
+      />
+      <label
+        v-attr:for="'list-' + idx"
+        v-text="item.name"
+        class="pl-2"
+      ></p>
+    </div>
+  </div>
+</div>

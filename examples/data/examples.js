@@ -179,6 +179,11 @@ const exampleGroups = [
         name: 'Editing Objects',
         width: 1,
       },
+      {
+        id: 'list-selection',
+        name: 'List Selection',
+        width: 1,
+      },
     ],
   },
 ];
