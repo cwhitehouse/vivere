@@ -3,7 +3,9 @@ import Directive from '../directives/directive';
 import ForDirective from '../directives/display/for';
 import ComponentDirective from '../directives/component/component';
 import BindDirective from '../directives/component/bind';
+import ComputeDirective from '../directives/component/compute';
 import DataDirective from '../directives/component/data';
+import MethodDirective from '../directives/component/method';
 import PassDirective from '../directives/component/pass';
 import StoreDirective from '../directives/component/store';
 import AttrDirective from '../directives/display/attr';
@@ -32,7 +34,9 @@ const directives: (typeof Directive)[] = [
   // Data directives must come next to ensure data is probably set up
   // before rendering (especially for defered rendering)
   BindDirective,
+  ComputeDirective,
   DataDirective,
+  MethodDirective,
   PassDirective,
   RefDirective,
   StoreDirective,
