@@ -14,10 +14,8 @@
 <div class="grid grid-cols-3 gap-3">
   <% for (entry of data) { %>
     <div
-      v-component:defer.click
+      v-component:defer.click="PerformanceIf"
       v-data:entry="<%= JSON.stringify(entry) %>"
-      v-data:count="0"
-      v-data:modal="false"
       class="p-2 border-2 rounded"
     >
       <div
