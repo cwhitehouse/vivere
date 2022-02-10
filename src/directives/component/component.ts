@@ -32,9 +32,6 @@ export default class ComponentDirective extends Directive {
     this.component = new Definition(componentName, element, parent);
     this.component.$directives.add(this);
 
-    // Add this component to the global registry
-    ComponentRegistry.track(this.component);
-
     // Handle hydration unless we're defering loading
     if (key === 'defer') {
       // Suspend parsing, we don't need to process any
@@ -50,6 +47,11 @@ export default class ComponentDirective extends Directive {
       });
     } else {
       this.parsingComplete = true;
+
+      // Add this component to the global registry
+      ComponentRegistry.track(this.component);
+
+      // Hydrate reactive data
       this.hydrate();
     }
   }
@@ -64,6 +66,9 @@ export default class ComponentDirective extends Directive {
   completeParsing(): boolean {
     if (this.parsingComplete) return true;
     this.parsingComplete = true;
+
+    // Add this component to the global registry
+    ComponentRegistry.track(this.component);
 
     // Resume parsing, hydrate the data, finish parsing, and render
     this.resumeParsing();
