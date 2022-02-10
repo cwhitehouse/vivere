@@ -50,7 +50,8 @@ export default class SyncDirective extends DisplayDirective {
     if (element instanceof HTMLInputElement && element.type === 'checkbox')
       element.checked = !!value;
     else if (element instanceof HTMLInputElement && element.type === 'radio')
-      element.checked = element.value === value;
+      // Element value is always a string
+      element.checked = element.value === value.toString();
     else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
       const valueString = value?.toString();
       if (element.innerText !== valueString)
