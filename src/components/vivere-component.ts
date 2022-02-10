@@ -157,8 +157,10 @@ export default class VivereComponent extends ReactiveHost {
         }
 
         return value;
-      }, (): void => {
-        throw new ComponentError('Cannot assigned to a passed value', this);
+      }, (value): void => {
+        const { $parent } = this;
+        // Allow setting $passed values by assigning to the parent
+        $parent.$set(key, value);
       });
 
     // Store the expression and index
