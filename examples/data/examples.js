@@ -184,6 +184,11 @@ const exampleGroups = [
         name: 'List Selection',
         width: 1,
       },
+      {
+        id: 'auto-textarea',
+        name: 'Auto Resizing Textarea',
+        width: 1,
+      },
     ],
   },
 ];
