@@ -45,21 +45,36 @@ export default class SyncDirective extends DisplayDirective {
 
   evaluateValue(value: unknown): void {
     const { element } = this;
+    let oldValue: unknown;
 
     // Push our new value to the element
-    if (element instanceof HTMLInputElement && element.type === 'checkbox')
+    if (element instanceof HTMLInputElement && element.type === 'checkbox') {
+      oldValue = element.checked;
       element.checked = !!value;
-    else if (element instanceof HTMLInputElement && element.type === 'radio')
+    } else if (element instanceof HTMLInputElement && element.type === 'radio') {
       // Element value is always a string
+      oldValue = element.checked;
       element.checked = element.value === value.toString();
-    else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
+    } else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
+      oldValue = element.innerText;
       const valueString = value?.toString();
       if (element.innerText !== valueString)
         element.innerText = valueString;
-    } else if (value != null)
-      element.value = value.toString();
-    else
-      element.value = null;
+    } else {
+      oldValue = element.value;
+      element.value = value?.toString();
+    }
+
+    if (oldValue?.toString() !== value?.toString()) {
+      // If our value has changed (probably becase of assigning
+      // to a component property), we should dispatch an input
+      // event, so any other listeners are triggered
+      const event = new Event('input', {
+        bubbles: true,
+        cancelable: true,
+      });
+      element.dispatchEvent(event);
+    }
   }
 
   // Destruction
@@ -83,7 +98,7 @@ export default class SyncDirective extends DisplayDirective {
     return element.value;
   }
 
-  sync(): void {
+  sync(): boolean {
     const { element } = this;
 
     // Assign the value to the synced expression
@@ -92,8 +107,10 @@ export default class SyncDirective extends DisplayDirective {
       if (inputValue)
         inputValue = element.value;
       else
-        return;
+        return true;
 
     Evaluator.assign(this.component, this.expression, inputValue);
+
+    return true;
   }
 }
