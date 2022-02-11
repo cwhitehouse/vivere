@@ -20,12 +20,6 @@ declare global {
 
 const reservedKeywords = [
   'constructor',
-  'arguments',
-  'caller',
-  'callee',
-  '__proto__',
-  'length',
-  'name',
 ];
 
 export default class VivereComponent extends ReactiveHost {
