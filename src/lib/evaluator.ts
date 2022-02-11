@@ -118,7 +118,7 @@ const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalEx
 const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { left, operator, right, type } = tree;
 
-  const leftValue = evaluateTree(caller, left,options);
+  const leftValue = evaluateTree(caller, left, options);
 
   // Our custom ?? operator is effectively half a ternary statement
   if (operator === '??')
