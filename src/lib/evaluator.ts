@@ -3,6 +3,11 @@ import jsepAssignment from '@jsep-plugin/assignment';
 import VivereComponent from '../components/vivere-component';
 import EvaluatorError from '../errors/evaluator-error';
 
+interface EvaluatorOptions {
+  component: VivereComponent;
+  $args?: unknown[];
+}
+
 // We need a plugin to properly parse assignment operations
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -59,16 +64,16 @@ const evaluateScript = (script: string, scope: unknown = {}): unknown => {
 };
 
 // Define our generic evaluation method so it can be used in our specific methods
-let evaluateTree: (component: VivereComponent, caller: unknown, tree: jsep.Expression, shallow?: boolean) => unknown;
+let evaluateTree: (caller: unknown, tree: jsep.Expression, options: EvaluatorOptions, shallow?: boolean) => unknown;
 
-const evaluateAssignmentExpression = (component: VivereComponent, caller: unknown, tree: jsepAssignment.AssignmentExpression): unknown => {
+const evaluateAssignmentExpression = (caller: unknown, tree: jsepAssignment.AssignmentExpression, options: EvaluatorOptions): unknown => {
   const { left, operator, right, type } = tree;
 
   // Shallow parse the tree so we can properly execut the assignment
-  const leftValue = evaluateTree(component, caller, left, true);
+  const leftValue = evaluateTree(caller, left, options, true);
 
   if (leftValue instanceof ShallowParseResult) {
-    const rightValue = evaluateTree(component, caller, right);
+    const rightValue = evaluateTree(caller, right, options);
 
     if (assignmentOperators.includes(operator)) {
       const propJSON = JSON.stringify(leftValue.prop);
@@ -82,15 +87,15 @@ const evaluateAssignmentExpression = (component: VivereComponent, caller: unknow
   return ParseResult.AssignmentExpressionExecuted;
 };
 
-const evaluateCallExpression = (component: VivereComponent, caller: unknown, tree: jsep.CallExpression): unknown => {
+const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, options: EvaluatorOptions): unknown => {
   const { callee, type } = tree;
   const args = tree.arguments;
 
   // Shallow parse the callee so `this` is handled properly on the function call
-  const calleeValues = evaluateTree(component, caller, callee, true);
+  const calleeValues = evaluateTree(caller, callee, options, true);
 
   if (calleeValues instanceof ShallowParseResult) {
-    const argsValues = args.map((arg) => evaluateTree(component, caller, arg));
+    const argsValues = args.map((arg) => evaluateTree(caller, arg, options));
 
     calleeValues.object[calleeValues.prop](...argsValues);
 
@@ -100,26 +105,26 @@ const evaluateCallExpression = (component: VivereComponent, caller: unknown, tre
   throw new EvaluatorError('Tried to invoke method on deeply parsed value', caller, type);
 };
 
-const evaluateConditionalExpression = (component: VivereComponent, caller: unknown, tree: jsep.ConditionalExpression): unknown => {
+const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalExpression, options: EvaluatorOptions): unknown => {
   const { alternate, consequent, test } = tree;
 
-  const testValue = evaluateTree(component, caller, test);
+  const testValue = evaluateTree(caller, test, options);
 
   if (testValue)
-    return evaluateTree(component, caller, consequent);
-  return evaluateTree(component, caller, alternate);
+    return evaluateTree(caller, consequent, options);
+  return evaluateTree(caller, alternate, options);
 };
 
-const evaluateBinaryExpression = (component: VivereComponent, caller: unknown, tree: jsep.BinaryExpression, shallow = false): unknown => {
+const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { left, operator, right, type } = tree;
 
-  const leftValue = evaluateTree(component, caller, left);
+  const leftValue = evaluateTree(caller, left,options);
 
   // Our custom ?? operator is effectively half a ternary statement
   if (operator === '??')
     if (leftValue)
       // If true, evaluate the right side (shallow if we're trying to execute)
-      return evaluateTree(component, caller, right, shallow);
+      return evaluateTree(caller, right, options, shallow);
     else if (shallow)
       // If false and shallow, return an empty expression
       return ParseResult.EmptyExpression;
@@ -127,11 +132,11 @@ const evaluateBinaryExpression = (component: VivereComponent, caller: unknown, t
       // If false and deep, this is effectively null
       return null;
 
-  const rightValue = evaluateTree(component, caller, right);
+  const rightValue = evaluateTree(caller, right, options);
 
   if (assignmentOperators.includes(operator))
     // The assignment evaluator can miss this when the `??` operator is involved
-    return evaluateAssignmentExpression(component, caller, tree as unknown as jsepAssignment.AssignmentExpression);
+    return evaluateAssignmentExpression(caller, tree as unknown as jsepAssignment.AssignmentExpression, options);
 
   if (binaryOperators.includes(operator)) {
     const leftJSON = JSON.stringify(leftValue);
@@ -142,9 +147,9 @@ const evaluateBinaryExpression = (component: VivereComponent, caller: unknown, t
   throw new EvaluatorError(`Unhandled binary operator: ${operator}`, caller, type);
 };
 
-const evaluateUnaryExpression = (component: VivereComponent, caller: unknown, tree: jsep.UnaryExpression): unknown => {
+const evaluateUnaryExpression = (caller: unknown, tree: jsep.UnaryExpression, options: EvaluatorOptions): unknown => {
   const { argument, operator, type } = tree;
-  const argumentValue = evaluateTree(component, caller, argument);
+  const argumentValue = evaluateTree(caller, argument, options);
 
   switch (operator) {
     case '!':
@@ -154,25 +159,28 @@ const evaluateUnaryExpression = (component: VivereComponent, caller: unknown, tr
   }
 };
 
-const evaluateMemberExpression = (component: VivereComponent, caller: unknown, tree: jsep.MemberExpression, shallow = false): unknown => {
+const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { computed, object, optional, property } = tree;
 
-  const $object = evaluateTree(component, caller, object);
+  const $object = evaluateTree(caller, object, options);
   if (optional && $object == null)
     return null;
 
   if (computed) {
-    const propKey = evaluateTree(component, component, property)?.toString();
+    const propKey = evaluateTree(options.component, property, options)?.toString();
     if (shallow)
       return new ShallowParseResult($object, propKey);
     return $object[propKey];
   }
 
-  return evaluateTree(component, $object, property, shallow);
+  return evaluateTree($object, property, options, shallow);
 };
 
-const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, shallow = false): unknown => {
+const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { name } = tree;
+
+  if (name === '$args' && options.$args)
+    return options.$args;
 
   if (shallow)
     // When shallow parsing, an Identifier is our end state that we need
@@ -184,24 +192,24 @@ const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, shallow = fa
 
 const evaluateLiteral = (tree: jsep.Expression): unknown => tree.value;
 
-evaluateTree = (component: VivereComponent, caller: unknown, tree: jsep.Expression, shallow = false): unknown => {
+evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOptions, shallow = false): unknown => {
   const { type } = tree;
 
   switch (type) {
     case 'AssignmentExpression':
-      return evaluateAssignmentExpression(component, caller, tree as jsepAssignment.AssignmentExpression);
+      return evaluateAssignmentExpression(caller, tree as jsepAssignment.AssignmentExpression, options);
     case 'CallExpression':
-      return evaluateCallExpression(component, caller, tree as jsep.CallExpression);
+      return evaluateCallExpression(caller, tree as jsep.CallExpression, options);
     case 'ConditionalExpression':
-      return evaluateConditionalExpression(component, caller, tree as jsep.ConditionalExpression);
+      return evaluateConditionalExpression(caller, tree as jsep.ConditionalExpression, options);
     case 'BinaryExpression':
-      return evaluateBinaryExpression(component, caller, tree as jsep.BinaryExpression, shallow);
+      return evaluateBinaryExpression(caller, tree as jsep.BinaryExpression, options, shallow);
     case 'UnaryExpression':
-      return evaluateUnaryExpression(component, caller, tree as jsep.UnaryExpression);
+      return evaluateUnaryExpression(caller, tree as jsep.UnaryExpression, options);
     case 'MemberExpression':
-      return evaluateMemberExpression(component, caller, tree as jsep.MemberExpression, shallow);
+      return evaluateMemberExpression(caller, tree as jsep.MemberExpression, options, shallow);
     case 'Identifier':
-      return evaluateIdentifier(caller, tree as jsep.Identifier, shallow);
+      return evaluateIdentifier(caller, tree as jsep.Identifier, options, shallow);
     case 'Literal':
       return evaluateLiteral(tree);
     default:
@@ -209,10 +217,10 @@ evaluateTree = (component: VivereComponent, caller: unknown, tree: jsep.Expressi
   }
 };
 
-const parse = (component: VivereComponent, expression: string, executing = false): unknown => {
+const parse = (component: VivereComponent, expression: string, executing = false, $args: unknown[] = []): unknown => {
   try {
     const tree = jsep(expression);
-    return evaluateTree(component, component, tree, executing);
+    return evaluateTree(component, tree, { component, $args }, executing);
   } catch (error) {
     throw new EvaluatorError('Failed to parse expression', component, expression, error);
   }
@@ -254,7 +262,7 @@ export default {
 
   execute(component: VivereComponent, expression: string, ...args: unknown[]): void {
     // Shallow parse the expression
-    const response = parse(component, expression, true);
+    const response = parse(component, expression, true, args);
 
     // If it looked like an assignment and it was executed, we're done
     if (response === ParseResult.AssignmentExpressionExecuted) return;
