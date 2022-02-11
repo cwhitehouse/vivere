@@ -6,7 +6,7 @@ import Directive from '../directive';
 import Utility from '../../lib/utility';
 import { VivereComponent } from '../../vivere';
 
-const directiveRegex = /(?:([A-z]+)|\(([A-z]+), ([A-z]+)\)) of ([A-z.]+)/;
+const directiveRegex = /(?:([A-z_$0-9]+)|\(([A-z_$0-9]+), ([A-z_$0-9]+)\)) of ([A-z_$0-9[\]().?]+)/;
 
 interface ForDirectiveValue {
   list: unknown[];
