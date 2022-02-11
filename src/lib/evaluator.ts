@@ -180,7 +180,10 @@ const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: Eva
   const { name } = tree;
 
   if (name === '$args' && options.$args)
-    return options.$args;
+    if (shallow)
+      throw new EvaluatorError('Cannot shallow parse $args', caller, name);
+    else
+      return options.$args;
 
   if (shallow)
     // When shallow parsing, an Identifier is our end state that we need
