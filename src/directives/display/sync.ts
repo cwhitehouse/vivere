@@ -57,12 +57,12 @@ export default class SyncDirective extends DisplayDirective {
       element.checked = element.value === value.toString();
     } else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
       oldValue = element.innerText;
-      const valueString = value?.toString();
+      const valueString = value?.toString() || null;
       if (element.innerText !== valueString)
         element.innerText = valueString;
     } else {
       oldValue = element.value;
-      element.value = value?.toString();
+      element.value = value?.toString() || null;
     }
 
     if (oldValue?.toString() !== value?.toString()) {
