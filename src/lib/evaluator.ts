@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import jsep from 'jsep';
 import jsepAssignment from '@jsep-plugin/assignment';
 import VivereComponent from '../components/vivere-component';
@@ -20,7 +21,6 @@ jsep.addBinaryOp('??', 0.1);
 // Enum for special pursposes return values, specifically
 // for identifying successful assignments or function calls
 enum ParseResult {
-  CallExpressionExecuted,
   AssignmentExpressionExecuted,
   EmptyExpression,
 }
@@ -36,6 +36,18 @@ class ShallowParseResult {
   constructor(object: unknown, prop: string) {
     this.object = object;
     this.prop = prop;
+  }
+}
+
+// Helper object for wrapping parsing the response
+// of a method call. Useful for wrapping a value
+// and allowing us to know it's the result of a
+// method call.
+class ShallowCallResult {
+  value: unknown;
+
+  constructor(value: unknown) {
+    this.value = value;
   }
 }
 
@@ -87,7 +99,7 @@ const evaluateAssignmentExpression = (caller: unknown, tree: jsepAssignment.Assi
   return ParseResult.AssignmentExpressionExecuted;
 };
 
-const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, options: EvaluatorOptions): unknown => {
+const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { callee, type } = tree;
   const args = tree.arguments;
 
@@ -97,22 +109,25 @@ const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, opti
   if (calleeValues instanceof ShallowParseResult) {
     const argsValues = args.map((arg) => evaluateTree(caller, arg, options));
 
-    calleeValues.object[calleeValues.prop](...argsValues);
+    const returnValue = calleeValues.object[calleeValues.prop](...argsValues);
 
-    return ParseResult.CallExpressionExecuted;
+    if (shallow)
+      return new ShallowCallResult(returnValue);
+
+    return returnValue;
   }
 
   throw new EvaluatorError('Tried to invoke method on deeply parsed value', caller, type);
 };
 
-const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalExpression, options: EvaluatorOptions): unknown => {
+const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { alternate, consequent, test } = tree;
 
   const testValue = evaluateTree(caller, test, options);
 
   if (testValue)
-    return evaluateTree(caller, consequent, options);
-  return evaluateTree(caller, alternate, options);
+    return evaluateTree(caller, consequent, options, shallow);
+  return evaluateTree(caller, alternate, options, shallow);
 };
 
 const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
@@ -202,9 +217,9 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
     case 'AssignmentExpression':
       return evaluateAssignmentExpression(caller, tree as jsepAssignment.AssignmentExpression, options);
     case 'CallExpression':
-      return evaluateCallExpression(caller, tree as jsep.CallExpression, options);
+      return evaluateCallExpression(caller, tree as jsep.CallExpression, options, shallow);
     case 'ConditionalExpression':
-      return evaluateConditionalExpression(caller, tree as jsep.ConditionalExpression, options);
+      return evaluateConditionalExpression(caller, tree as jsep.ConditionalExpression, options, shallow);
     case 'BinaryExpression':
       return evaluateBinaryExpression(caller, tree as jsep.BinaryExpression, options, shallow);
     case 'UnaryExpression':
@@ -270,11 +285,11 @@ export default {
     // If it looked like an assignment and it was executed, we're done
     if (response === ParseResult.AssignmentExpressionExecuted) return;
 
-    // If it looked like a function call and it was executed, we're done
-    if (response === ParseResult.CallExpressionExecuted) return;
-
     // If it looked like nothing (e.g. the second half of a `??` operator), we're done
     if (response === ParseResult.EmptyExpression) return;
+
+    // If it looked like a function call and it was executed, we're done
+    if (response instanceof ShallowCallResult) return;
 
     // Otherwise, invoke the method on our shallow parser result
     if (response instanceof ShallowParseResult) {
@@ -282,5 +297,25 @@ export default {
       caller[property](args);
     } else
       throw new EvaluatorError('Tried to invoke method on a deeply parsed value', component, expression);
+  },
+
+  compute(component: VivereComponent, expression: string): unknown {
+    const response = parse(component, expression, true);
+
+    // We shouldn't allow assignments when parsing computed
+    if (response === ParseResult.AssignmentExpressionExecuted) throw new EvaluatorError('Do not assign when computing a property', component, expression);
+
+    // If it looked like nothing (e.g. the second half of a `??` operator), we're done
+    if (response === ParseResult.EmptyExpression) return null;
+
+    // If it looked like a function call and it was executed, we're done
+    if (response instanceof ShallowCallResult) return response.value;
+
+    if (response instanceof ShallowParseResult) {
+      const { object: caller, prop: property } = response;
+      return caller[property];
+    }
+
+    return response;
   },
 };

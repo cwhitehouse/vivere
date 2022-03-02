@@ -17,6 +17,6 @@ export default class ComputeDirective extends Directive {
     const { component, expression } = this;
 
     this.camelKey = Utility.camelCase(this.key);
-    this.component.$set(this.camelKey, null, () => Evaluator.parse(component, expression));
+    this.component.$set(this.camelKey, null, () => Evaluator.compute(component, expression));
   }
 }
