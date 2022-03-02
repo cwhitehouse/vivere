@@ -120,6 +120,11 @@ const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, opti
   throw new EvaluatorError('Tried to invoke method on deeply parsed value', caller, type);
 };
 
+const evaluateCompound = (caller: unknown, tree: jsep.Compound, options: EvaluatorOptions): unknown => {
+  const { body } = tree;
+  return body.map((exp) => evaluateTree(caller, exp, options));
+};
+
 const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { alternate, consequent, test } = tree;
 
@@ -218,6 +223,8 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
       return evaluateAssignmentExpression(caller, tree as jsepAssignment.AssignmentExpression, options);
     case 'CallExpression':
       return evaluateCallExpression(caller, tree as jsep.CallExpression, options, shallow);
+    case 'Compound':
+      return evaluateCompound(caller, tree as jsep.Compound, options);
     case 'ConditionalExpression':
       return evaluateConditionalExpression(caller, tree as jsep.ConditionalExpression, options, shallow);
     case 'BinaryExpression':
