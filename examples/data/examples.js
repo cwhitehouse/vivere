@@ -189,6 +189,11 @@ const exampleGroups = [
         name: 'Auto Resizing Textarea',
         width: 1,
       },
+      {
+        id: 'tags',
+        name: 'Selectable Tags',
+        width: 1,
+      }
     ],
   },
 ];
