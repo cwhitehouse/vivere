@@ -54,7 +54,7 @@ export default class SyncDirective extends DisplayDirective {
     } else if (element instanceof HTMLInputElement && element.type === 'radio') {
       // Element value is always a string
       oldValue = element.checked;
-      element.checked = element.value === value.toString();
+      element.checked = element.value === value?.toString();
     } else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
       oldValue = element.innerText;
       const valueString = value?.toString() || null;
