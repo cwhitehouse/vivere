@@ -83,6 +83,10 @@ export default class VivereComponent extends ReactiveHost {
       if (reservedKeywords.includes(key))
         return;
 
+      // Ignore $passed properties, wait for the v-pass directive
+      if (Object.keys(this.$passed).includes(key))
+        return;
+
       // Make everything reactive
       const { get, set, value } = descriptor;
       this.$set(key, value, get, set);
@@ -111,9 +115,9 @@ export default class VivereComponent extends ReactiveHost {
     if (key.startsWith('$') || key.startsWith('#'))
       return null;
 
-    // Passed properties need a getter to be valid
-    if (this.$passed[key] != null && getter == null)
-      return null;
+    // Passed properties need to be initialized with a getter
+    if (this.$passed[key] != null && this.$reactives[key] == null && getter == null)
+      throw new ComponentError(`Tried to $set a $passed property (${key}) without a getter`, this);
 
     // Turn on reactivity for properties
     const reactive = super.$set(key, Utility.jsonCopy(value), getter, setter);
@@ -134,6 +138,10 @@ export default class VivereComponent extends ReactiveHost {
 
   $pass(key: string, expression: string, index?: number): void {
     const { $passed, $reactives } = this;
+
+    if ($reactives[key] && !$reactives[key].getter)
+      throw new ComponentError(`Tried to pass value for already $set key (${key}). This may be because you didn't define this in $passed or you re-used a key.`, this);
+
     let definition = $passed[key];
 
     if (definition == null) {
