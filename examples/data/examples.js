@@ -193,6 +193,11 @@ const exampleGroups = [
         id: 'tags',
         name: 'Selectable Tags',
         width: 1,
+      },
+      {
+        id: 'nested-passing',
+        name: 'Nested v-pass Directives',
+        width: 1,
       }
     ],
   },

@@ -13,6 +13,8 @@ import AccordionSection from './includes/examples/tabs/section';
 import ComplexAutoTextareaWrapper from './includes/examples/complex/auto-textarea-wrapper';
 import ComplexAutoTextarea from './includes/examples/complex/auto-textarea';
 import ComplexEditing from './includes/examples/complex/editing';
+import ComplexNestedContainerA from './includes/examples/complex/nested-container-a';
+import ComplexNestedContainerB from './includes/examples/complex/nested-container-b';
 import ComplexToggle from './includes/examples/complex/toggle';
 import ComplexToggleList from './includes/examples/complex/toggle-list';
 
@@ -44,6 +46,8 @@ Vivere.register('AccordionSection', AccordionSection);
 Vivere.register('ComplexAutoTextareaWrapper', ComplexAutoTextareaWrapper);
 Vivere.register('ComplexAutoTextarea', ComplexAutoTextarea);
 Vivere.register('ComplexEditing', ComplexEditing);
+Vivere.register('ComplexNestedContainerA', ComplexNestedContainerA);
+Vivere.register('ComplexNestedContainerB', ComplexNestedContainerB);
 Vivere.register('ComplexToggle', ComplexToggle);
 Vivere.register('ComplexToggleList', ComplexToggleList);
 
