@@ -8,4 +8,8 @@ export default class extends VivereComponent {
       default: null
     },
   }
+
+  onMessageChanged() {
+    console.log('Nested Container B detected a change to message...');
+  }
 }
