@@ -171,7 +171,7 @@ export default class VivereComponent extends ReactiveHost {
       }, (value): void => {
         const { $parent } = this;
         // Allow setting $passed values by assigning to the parent
-        $parent.$set(key, value);
+        $parent.$set(expression, value);
       });
 
     // Store the expression and index
