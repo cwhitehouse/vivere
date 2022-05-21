@@ -1,0 +1,46 @@
+<%
+  const object = {
+    banana: 'yellow',
+    apple: 'red',
+    orange: 'orange',
+    lemon: 'yellow',
+    lime: 'green',
+  };
+%>
+
+<div
+  v-component
+  v-data:object="<%= JSON.stringify(object) %>"
+  v-data:selected-key="null"
+  v-compute:selection="object[selectedKey]"
+>
+  <p class="italic">Current selection:</p>
+  <div class="flex items-center">
+    <p
+      v-text="selectedKey"
+      class="w-20"
+    ></p>
+    :
+    <p class="ml-4" v-text="selection"></p>
+  </div>
+  <div class="mt-4 space-y-2">
+    <div
+      v-for="(key, value) of object"
+      v-pass:selected-key
+      class="flex items-center"
+    >
+      <input
+        v-attr:id="'list-' + key"
+        v-attr:value="key"
+        v-sync="selectedKey"
+        type="radio"
+        name="list-selection"
+      />
+      <label
+        v-attr:for="'list-' + key"
+        v-text="key"
+        class="pl-2"
+      ></p>
+    </div>
+  </div>
+</div>

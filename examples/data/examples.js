@@ -198,6 +198,11 @@ const exampleGroups = [
         id: 'nested-passing',
         name: 'Nested v-pass Directives',
         width: 1,
+      },
+      {
+        id: 'object-list',
+        name: 'Object List',
+        width: 1,
       }
     ],
   },
