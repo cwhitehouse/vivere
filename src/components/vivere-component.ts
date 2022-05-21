@@ -136,7 +136,7 @@ export default class VivereComponent extends ReactiveHost {
     return reactive;
   }
 
-  $pass(key: string, expression: string, index?: number): void {
+  $pass(key: string, expression: string, index?: number | string): void {
     const { $passed, $reactives } = this;
 
     if ($reactives[key] && !$reactives[key].getter)

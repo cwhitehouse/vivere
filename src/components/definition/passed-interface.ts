@@ -4,5 +4,5 @@ export default interface PassedInterface {
   required?: boolean;
 
   expression?: string;
-  index?: number;
+  index?: number | string;
 }

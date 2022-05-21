@@ -80,8 +80,13 @@ export default class ForDirective extends DisplayDirective {
     const { component, element, keyedElements, unkeyedElements, parent, placeholder } = this;
     const { itemExpression, indexExpression, list, listExpression } = value;
 
-    if (list && !Array.isArray(list))
-      throw new DirectiveError('v-for directive expected an array or null to be returned', this);
+    const isList = Array.isArray(list);
+    const isObject = list && !isList && (typeof list === 'object');
+    if (list && !isList && !isObject)
+      throw new DirectiveError('v-for directive expected an array, and object, or null to be returned', this);
+
+    if (isObject && !indexExpression?.length)
+      throw new DirectiveError('Invalid v-for expression, must resemble `(key, value) of object`', this);
 
     // Keep track of which components that we're rendering
     const renderedElements: { key: (string | null), el: VivereComponent }[] = [];
@@ -93,70 +98,94 @@ export default class ForDirective extends DisplayDirective {
     // NOTE: We render the list backwards because we will
     //   user insertBefore to insert the items in the
     //   right place
-    const listLength = list?.length || 0;
-    for (let i = listLength - 1; i >= 0; i -= 1) {
-      const item = list[i];
-      const key = this.itemKey(item);
+    if (list != null) {
+      const keys = Object.keys(list);
+      const listLength = keys.length;
+      for (let i = listLength - 1; i >= 0; i -= 1) {
+        // This will either be an object key, or the array index
+        const $key = keys[i];
 
-      // See if we have a cached element with a matching key in our cache,
-      // and remove it from the cache to be used
-      let cachedElement: VivereComponent | null;
-      if (key != null) {
-        cachedElement = keyedElements[key];
-        delete keyedElements[key];
-      } else
-        cachedElement = unkeyedElements.pop();
+        // Get the item from the array/object
+        const item = list[$key];
 
-      if (cachedElement == null) {
-        // If we don't have a cached element, we'll need to create a new element
-        // by duplicating and inserting a copy of the template element
+        // Generate a key for tracking this element
+        const key = isList ? this.itemKey(item) : $key;
 
-        // Duplicate our template element
-        const el: HTMLElement = element.cloneNode(true) as HTMLElement;
+        // See if we have a cached element with a matching key in our cache,
+        // and remove it from the cache to be used
+        let cachedElement: VivereComponent | null;
+        if (key != null) {
+          cachedElement = keyedElements[key];
+          delete keyedElements[key];
+        } else
+          cachedElement = unkeyedElements.pop();
 
-        // If the list item doesn't already have a `v-component` directive, add one to
-        // make each list item behave as a component
-        if (!el.hasAttribute('v-component'))
-          el.setAttribute('v-component', '');
+        if (cachedElement == null) {
+          // If we don't have a cached element, we'll need to create a new element
+          // by duplicating and inserting a copy of the template element
 
-        // Pass the invidual list item
-        //   e.g. v-pass:to-do="toDos[2]"
-        el.setAttribute(`v-pass:${Utility.kebabCase(itemExpression)}.list`, `${listExpression}[${i}]`);
+          // Duplicate our template element
+          const el: HTMLElement = element.cloneNode(true) as HTMLElement;
 
-        if (indexExpression?.length)
-          // If we have an index expression, we want to pass that along as well
-          el.setAttribute(`v-pass:${Utility.kebabCase(indexExpression)}`, `${i}`);
+          // If the list item doesn't already have a `v-component` directive, add one to
+          // make each list item behave as a component
+          if (!el.hasAttribute('v-component'))
+            el.setAttribute('v-component', '');
 
-        // Remove the suspend parsing data directive
-        this.resumeParsing(el);
+          if (isList) {
+            // Pass the invidual list item
+            //   e.g. v-pass:to-do="toDos[2]"
+            el.setAttribute(`v-pass:${Utility.kebabCase(itemExpression)}.list`, `${listExpression}[${i}]`);
+            if (indexExpression?.length)
+              // If we have an index expression, we want to set that as well e.g. v-data:idx="2"
+              el.setAttribute(`v-data:${Utility.kebabCase(indexExpression)}`, `${i}`);
+          } else {
+            // Pass the invidual object item (for objects, item and index are swapped)
+            //   e.g. v-pass:to-do="toDos['banana']"
+            el.setAttribute(`v-pass:${Utility.kebabCase(indexExpression)}.list`, `${listExpression}['${key}']`);
+            el.setAttribute(`v-data:${Utility.kebabCase(itemExpression)}`, `${key}`);
+          }
 
-        // Add the cloned node back to the list and track
-        // where the next node is supposed to be inserted
-        component.$attachElement(el, parent, insertBefore);
-        insertBefore = el;
+          // Remove the suspend parsing data directive
+          this.resumeParsing(el);
 
-        // Track the component or element in our array
-        // so we can remove it later as needed
-        cachedElement = el.$component;
-      } else {
-        // We need to update the index of the passed data
-        // so we display the right list item
-        cachedElement.$pass(itemExpression, listExpression, i);
+          // Add the cloned node back to the list and track
+          // where the next node is supposed to be inserted
+          component.$attachElement(el, parent, insertBefore);
+          insertBefore = el;
 
-        if (indexExpression?.length)
-          // Pass the index if we have an index expression
-          cachedElement.$pass(indexExpression, `${i}`);
+          // Track the component or element in our array
+          // so we can remove it later as needed
+          cachedElement = el.$component;
+        } else {
+          if (isList) {
+            // We need to update the index of the passed data
+            // so we display the right list item
+            cachedElement.$pass(itemExpression, listExpression, i);
 
-        // Insert this element to make sure it's in the right
-        // position for the updated list
-        const { $element } = cachedElement;
-        // $element.remove();
-        parent.insertBefore($element, insertBefore);
-        insertBefore = $element;
+            if (indexExpression?.length)
+              // Update the index if we have an index expression
+              cachedElement.$set(indexExpression, `${i}`);
+          } else {
+            // We need to update the key of the passed data
+            // so we display the right object item
+            cachedElement.$pass(indexExpression, listExpression, key);
+
+            // Also pass the key along if we have it
+            cachedElement.$set(itemExpression, key);
+          }
+
+          // Insert this element to make sure it's in the right
+          // position for the updated list
+          const { $element } = cachedElement;
+          // $element.remove();
+          parent.insertBefore($element, insertBefore);
+          insertBefore = $element;
+        }
+
+        // Add this component to our list of rendered components
+        renderedElements.push({ key, el: cachedElement });
       }
-
-      // Add this component to our list of rendered components
-      renderedElements.push({ key, el: cachedElement });
     }
 
     // Remove any remaining cached elements we have from the DOM
