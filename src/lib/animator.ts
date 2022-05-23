@@ -20,6 +20,8 @@ export default class Animator {
   startTime: number;
   frameRequest?: number;
 
+  running: boolean = false;
+
   constructor(element: HTMLElement, vertical: boolean, callback: (showing: boolean) => void) {
     this.element = element;
     this.vertical = vertical;
@@ -67,6 +69,7 @@ export default class Animator {
     this.startTime = new Date().getTime();
 
     // Start iterating on our animations
+    this.running = true;
     this.#iterate();
   }
 
@@ -124,6 +127,7 @@ export default class Animator {
     [property, firstMargin, secondMargin, overflow].forEach((p) => p.revert());
 
     // Invoke our completion callback
+    this.running = false;
     callback(showing);
   }
 }

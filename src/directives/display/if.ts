@@ -21,7 +21,7 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
   // Parsing
 
   parse(): void {
-    const { element } = this;
+    const { element, modifiers } = this;
     const { parentElement } = element;
 
     this.container = parentElement;
@@ -31,12 +31,23 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
     element.removeAttribute('hidden');
 
     this.suspendParsing();
+
+    // Parse animation properties
+    const shouldAnimateVertical = modifiers.includes('anim-y');
+    const shouldAnimateHorizontal = modifiers.includes('anim-x');
+    const shouldAnimate = shouldAnimateVertical || shouldAnimateHorizontal;
+    if (shouldAnimate)
+      // Set up our animator if need be
+      this.animator = new Animator(element as HTMLElement, shouldAnimateVertical, (showing: boolean) => {
+        // Remove the element from DOM if needed
+        if (!showing) DOM.conditionallyRender(this, false);
+      });
   }
 
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    const { component, element, evaluated, modifiers, rendered } = this;
+    const { component, element, evaluated, rendered } = this;
     const showing = !!value;
 
     // Don't bother evaluating if our value hasn't changed
@@ -54,31 +65,19 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
     }
 
     // Check if we should be animating based on directive modifiers
-    const shouldAnimateVertical = modifiers.includes('anim-y');
-    const shouldAnimateHorizontal = modifiers.includes('anim-x');
-    const shouldAnimate = shouldAnimateVertical || shouldAnimateHorizontal;
-
     // If we've evaluated at least once, and we're supposed to animate, let's do it!
-    if (evaluated && element instanceof HTMLElement && shouldAnimate) {
-      const { animator } = this;
+    const { animator } = this;
+    if (evaluated && animator) {
+      const { running } = animator;
 
-      if (showing && !animator)
+      if (showing && !running)
         // We need to add elements into existence before they can
         // be animated
         DOM.conditionallyRender(this, true);
 
-      if (!animator) {
-        this.animator = new Animator(element, shouldAnimateVertical, ($showing: boolean) => {
-          // Remove the element from DOM if needed
-          if (!$showing) DOM.conditionallyRender(this, false);
-
-          // Drop our animator reference to we start fresh on our
-          // next animation cycle
-          this.animator = null;
-        });
-
-        this.animator.start(showing);
-      } else
+      if (!running)
+        animator.start(showing);
+      else
         animator.reverse();
     } else
       DOM.conditionallyRender(this, showing);
