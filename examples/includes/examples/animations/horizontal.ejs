@@ -1,0 +1,21 @@
+<div
+  v-component
+  v-data:show="false"
+>
+  <ul class="flex items-center space-x-2">
+    <li>Bananas</li>
+    <li>Peaches</li>
+    <li v-if.anim-x="show">Oranges</li>
+    <li>Apples</li>
+    <li>Blueberries</li>
+    <li v-if.anim-x="show">Strawberries</li>
+    <li>Mangoes</li>
+    <li v-if.anim-x="!show">Melons</li>
+    <li>Kiwis</li>
+  </ul>
+
+  <button
+    v-event:click="show = !show"
+    class="button mt-4"
+  >Toggle</button>
+</div>

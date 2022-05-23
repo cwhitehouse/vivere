@@ -206,6 +206,23 @@ const exampleGroups = [
       }
     ],
   },
+  {
+    id: 'animations',
+    name: 'Animations',
+    description: 'Using animations when hiding/revealing content',
+    examples: [
+      {
+        id: 'vertical',
+        name: 'Toggle List',
+        width: 1,
+      },
+      {
+        id: 'horizontal',
+        name: 'Form Submission',
+        width: 1,
+      },
+    ],
+  },
 ];
 
 exampleGroups.forEach(eg => {
