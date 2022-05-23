@@ -18,6 +18,7 @@ module.exports = {
     // Customized rules
     'curly': ['error', 'multi'],
     'no-param-reassign': ['error', { 'props': false }],
+    '@typescript-eslint/lines-between-class-members': ["error", "always", { "exceptAfterSingleLine": true }],
 
     // Disabled rules
     'import/no-cycle': 'off',
