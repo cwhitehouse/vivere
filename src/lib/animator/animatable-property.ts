@@ -29,8 +29,13 @@ export default class AnimatableProperty extends AnimatorProperty {
     // Update the current value based on percentage of animation
     this.current = ((to - from) * percentage) + from;
 
+    // Convert our number to a style value
+    let styleValue = `${this.current}`;
+    if (property !== 'opacity')
+      styleValue += 'px';
+
     // Update the elements style
-    element.style[property] = `${this.current}px`;
+    element.style[property] = styleValue;
   }
 
   reverse(): void {

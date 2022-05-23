@@ -14,13 +14,14 @@ export default class Animator {
 
   firstMargin: AnimatableProperty;
   secondMargin: AnimatableProperty;
+  opacity: AnimatableProperty;
 
   overflow: AnimatorProperty;
 
   startTime: number;
   frameRequest?: number;
 
-  running: boolean = false;
+  running = false;
 
   constructor(element: HTMLElement, vertical: boolean, callback: (showing: boolean) => void) {
     this.element = element;
@@ -60,6 +61,14 @@ export default class Animator {
     const toSecondMargin = showing ? currentSecondMarginValue : 0;
     this.secondMargin = new AnimatableProperty(element, secondMarginProperty, fromSecondMargin, toSecondMargin);
 
+    // Set up opacity for better dissapearing tricks
+    const opacityProperty = 'opacity';
+    const currentOpacityValue = parseFloat(computedStyle[opacityProperty]);
+
+    const fromOpacity = showing ? 0 : currentOpacityValue;
+    const toOpacity = showing ? currentOpacityValue : 0;
+    this.opacity = new AnimatableProperty(element, opacityProperty, fromOpacity, toOpacity);
+
     // Adjust overflow property for more seamless animation
     const overflowProperty = vertical ? 'overflow-y' : 'overflow-x';
     this.overflow = new AnimatorProperty(element, overflowProperty);
@@ -73,11 +82,29 @@ export default class Animator {
     this.#iterate();
   }
 
-  #iterate(): void {
+  get animatableProperties(): AnimatableProperty[] {
     const {
       property,
       firstMargin,
       secondMargin,
+      opacity,
+    } = this;
+
+    return [property, firstMargin, secondMargin, opacity].filter((p) => p != null);
+  }
+
+  get properties(): AnimatorProperty[] {
+    const {
+      animatableProperties,
+      overflow,
+    } = this;
+
+    return [...animatableProperties, overflow].filter((p) => p != null);
+  }
+
+  #iterate(): void {
+    const {
+      animatableProperties,
       startTime,
     } = this;
 
@@ -87,7 +114,7 @@ export default class Animator {
 
     if (percentageElapsed < 1) {
       // Update our properties based on percentage elapsed
-      [property, firstMargin, secondMargin].forEach((p) => p.update(percentageElapsed));
+      animatableProperties.forEach((p) => p.update(percentageElapsed));
 
       // Wait for our next animation frame
       this.frameRequest = requestAnimationFrame(() => { this.#iterate(); });
@@ -102,12 +129,12 @@ export default class Animator {
   }
 
   reverse(): void {
-    const { showing, property, firstMargin, secondMargin } = this;
+    const { showing, animatableProperties } = this;
     // Reverse the direction we're tracking
     this.showing = !showing;
 
     // Reverse the directions of all of our animatable properties
-    [property, firstMargin, secondMargin].forEach((p) => p.reverse());
+    animatableProperties.forEach((p) => p.reverse());
 
     // Update our start time, so our animation percentage resets
     this.startTime = new Date().getTime();
@@ -117,14 +144,11 @@ export default class Animator {
     const {
       callback,
       showing,
-      property,
-      firstMargin,
-      secondMargin,
-      overflow,
+      properties,
     } = this;
 
     // Revert all of our properties to their original values
-    [property, firstMargin, secondMargin, overflow].forEach((p) => p.revert());
+    properties.forEach((p) => p.revert());
 
     // Invoke our completion callback
     this.running = false;
