@@ -14,9 +14,12 @@ export default class Animator {
 
   firstMargin: AnimatableProperty;
   secondMargin: AnimatableProperty;
+  firstPadding: AnimatableProperty;
+  secondPadding: AnimatableProperty;
   opacity: AnimatableProperty;
 
   overflow: AnimatorProperty;
+  transition: AnimatorProperty;
 
   startTime: number;
   frameRequest?: number;
@@ -61,6 +64,22 @@ export default class Animator {
     const toSecondMargin = showing ? currentSecondMarginValue : 0;
     this.secondMargin = new AnimatableProperty(element, secondMarginProperty, fromSecondMargin, toSecondMargin);
 
+    // Set up our first padding property (top or left)
+    const firstPaddingProperty = vertical ? 'paddingTop' : 'paddingLeft';
+    const currentFirstPaddingValue = parseInt(computedStyle[firstPaddingProperty], 10);
+
+    const fromFirstPadding = showing ? 0 : currentFirstPaddingValue;
+    const toFirstPadding = showing ? currentFirstPaddingValue : 0;
+    this.firstPadding = new AnimatableProperty(element, firstPaddingProperty, fromFirstPadding, toFirstPadding);
+
+    // Set up our first padding property (top or left)
+    const secondPaddingProperty = vertical ? 'paddingBottom' : 'paddingRight';
+    const currentSecondPaddingValue = parseInt(computedStyle[secondPaddingProperty], 10);
+
+    const fromSecondPadding = showing ? 0 : currentSecondPaddingValue;
+    const toSecondPadding = showing ? currentSecondPaddingValue : 0;
+    this.secondPadding = new AnimatableProperty(element, secondPaddingProperty, fromSecondPadding, toSecondPadding);
+
     // Set up opacity for better dissapearing tricks
     const opacityProperty = 'opacity';
     const currentOpacityValue = parseFloat(computedStyle[opacityProperty]);
@@ -73,6 +92,11 @@ export default class Animator {
     const overflowProperty = vertical ? 'overflow-y' : 'overflow-x';
     this.overflow = new AnimatorProperty(element, overflowProperty);
     element.style[overflowProperty] = 'hidden';
+
+    // Adjust transition property avoid conflicts with manual animation
+    const transitionProperty = 'transitionDuration';
+    this.transition = new AnimatorProperty(element, transitionProperty);
+    element.style[transitionProperty] = '0ms';
 
     // Save the time we're starting our animation
     this.startTime = new Date().getTime();
@@ -87,19 +111,22 @@ export default class Animator {
       property,
       firstMargin,
       secondMargin,
+      firstPadding,
+      secondPadding,
       opacity,
     } = this;
 
-    return [property, firstMargin, secondMargin, opacity].filter((p) => p != null);
+    return [property, firstMargin, secondMargin, firstPadding, secondPadding, opacity].filter((p) => p != null);
   }
 
   get properties(): AnimatorProperty[] {
     const {
       animatableProperties,
       overflow,
+      transition,
     } = this;
 
-    return [...animatableProperties, overflow].filter((p) => p != null);
+    return [...animatableProperties, overflow, transition].filter((p) => p != null);
   }
 
   #iterate(): void {
