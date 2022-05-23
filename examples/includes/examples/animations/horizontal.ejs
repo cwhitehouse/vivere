@@ -2,20 +2,22 @@
   v-component
   v-data:show="false"
 >
-  <ul class="flex items-center space-x-2">
-    <li>Bananas</li>
-    <li>Peaches</li>
-    <li v-if.anim-x="show">Oranges</li>
-    <li>Apples</li>
-    <li>Blueberries</li>
-    <li v-if.anim-x="show">Strawberries</li>
-    <li>Mangoes</li>
-    <li v-if.anim-x="!show">Melons</li>
-    <li>Kiwis</li>
-  </ul>
+  <div class="flex items-center justify-between">
+    <ul class="flex items-center space-x-2">
+      <li class="button">Bananas</li>
+      <li v-if.anim-x="show" class="button">Oranges</li>
+    </ul>
+
+    <ul class="flex items-center space-x-2">
+      <li class="button">Peaches</li>
+      <li v-if.anim-x="show" class="button">Strawberries</li>
+      <li v-if.anim-x="!show" class="button">Melons</li>
+      <li class="button">Kiwis</li>
+    </ul>
+  </div>
 
   <button
     v-event:click="show = !show"
-    class="button mt-4"
+    class="button w-full mt-4"
   >Toggle</button>
 </div>
