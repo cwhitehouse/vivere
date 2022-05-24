@@ -12,6 +12,7 @@ import AttrDirective from '../directives/display/attr';
 import ClassDirective from '../directives/display/class';
 import DisabledDirective from '../directives/display/disabled';
 import HrefDirective from '../directives/display/href';
+import HtmlDirective from '../directives/display/html';
 import IfDirective from '../directives/display/if';
 import ShowDirective from '../directives/display/show';
 import SrcDirective from '../directives/display/src';
@@ -50,6 +51,7 @@ const directives: (typeof Directive)[] = [
   EventDirective,
   HideDirective,
   HrefDirective,
+  HtmlDirective,
   ShowDirective,
   SrcDirective,
   StyleDirective,
