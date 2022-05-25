@@ -1,19 +1,27 @@
 import Reactive from './reactive';
 
 export default class ReactiveObject {
-  static makeValueReactive(object: unknown, key: string | number, value: unknown): void {
-    if (!(value instanceof Reactive))
-      object[key] = new Reactive(object, value, null);
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  static makeValueReactive(listeners: Set<Reactive>, object: object, key: string | number | symbol, value: unknown): void {
+    let reactive: Reactive = null;
+    if (value instanceof Reactive)
+      reactive = value;
+    else {
+      reactive = new Reactive(object, value, null);
+      object[key] = reactive;
+    }
+
+    if (listeners != null)
+      // We want any Reactives referencing this ReactiveObject or ReactiveArray to
+      // be notified if any of its children change (this is necessary for repoerting
+      // changes to objects nested within objects or arrays)
+      reactive.registerHook(object, (_newValue: unknown, oldValue: unknown) => {
+        listeners.forEach((l) => l.report(object, { ...object, key: oldValue }));
+      });
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
-  static makeObjectReactive(object: object): void {
-    Object.entries(object).forEach(([key, value]) => {
-      ReactiveObject.makeValueReactive(object, key, value);
-    });
-  }
-
-  static setReactiveValue(target: unknown, p: string | symbol, value: unknown): boolean {
+  static setReactiveValue(listeners: Set<Reactive>, target: object, p: string | symbol, value: unknown): boolean {
     const currentValue = target[p];
 
     // Update value while mainting reactivity
@@ -22,17 +30,22 @@ export default class ReactiveObject {
     else if (value instanceof Reactive)
       target[p] = value;
     else
-      target[p] = new Reactive(target, value, null);
+      this.makeValueReactive(listeners, target, p, value);
 
     return true;
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   constructor(object: object) {
-    ReactiveObject.makeObjectReactive(object);
-
+    // Keep track of $$listeners we need to report to
     const listeners: Set<Reactive> = new Set();
 
+    // Make the object reactive
+    Object.entries(object).forEach(([key, value]) => {
+      ReactiveObject.makeValueReactive(listeners, object, key, value);
+    });
+
+    // Create our proxy
     return new Proxy(object, {
       get(target, p): unknown {
         const value = target[p];
@@ -48,6 +61,10 @@ export default class ReactiveObject {
             return (listener: Reactive) => {
               listeners.add(listener);
             };
+          case '$$report':
+            return (oldValue: unknown) => {
+              listeners.forEach((l) => l.report(target, oldValue));
+            };
           case '$$reactiveObject':
             return true;
           case '$$reactiveProxy':
@@ -62,14 +79,7 @@ export default class ReactiveObject {
       },
 
       set(target, p, value) {
-        // Save the old value of the object
-        const oldValue = { ...target };
-        // Reactively set the property
-        const setResult = ReactiveObject.setReactiveValue(target, p, value);
-        // Invoke the listeners
-        listeners.forEach((l) => l.report(target, oldValue));
-        // Return the result
-        return setResult;
+        return ReactiveObject.setReactiveValue(listeners, target, p, value);
       },
     });
   }

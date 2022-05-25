@@ -2,19 +2,22 @@ import ReactiveObject from './object';
 import Reactive from './reactive';
 
 export default class ReactiveArray {
-  static makeArrayReactive(array: unknown[]): void {
+  static makeArrayReactive(listeners: Set<Reactive>, array: unknown[]): void {
     for (let i = 0; i < array.length; i += 1) {
       // Fetch the relevant value
       const value = array[i];
-      ReactiveObject.makeValueReactive(array, i, value);
+      ReactiveObject.makeValueReactive(listeners, array, i, value);
     }
   }
 
   constructor(array: unknown[]) {
-    ReactiveArray.makeArrayReactive(array);
-
+    // Keep track of $$listeners we need to report to
     const listeners: Set<Reactive> = new Set();
 
+    // Make the array reactive
+    ReactiveArray.makeArrayReactive(listeners, array);
+
+    // Create our proxy
     return new Proxy(array, {
       get(target, p): unknown {
         // Fetch the value from the Reactive
@@ -81,7 +84,7 @@ export default class ReactiveArray {
       },
 
       set(target, p, value) {
-        return ReactiveObject.setReactiveValue(target, p, value);
+        return ReactiveObject.setReactiveValue(listeners, target, p, value);
       },
     });
   }
