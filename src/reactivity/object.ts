@@ -31,6 +31,8 @@ export default class ReactiveObject {
   constructor(object: object) {
     ReactiveObject.makeObjectReactive(object);
 
+    const listeners: Set<Reactive> = new Set();
+
     return new Proxy(object, {
       get(target, p): unknown {
         const value = target[p];
@@ -42,6 +44,10 @@ export default class ReactiveObject {
           return { ...target };
 
         switch (p) {
+          case '$$registerListener':
+            return (listener: Reactive) => {
+              listeners.add(listener);
+            };
           case '$$reactiveObject':
             return true;
           case '$$reactiveProxy':
@@ -56,7 +62,14 @@ export default class ReactiveObject {
       },
 
       set(target, p, value) {
-        return ReactiveObject.setReactiveValue(target, p, value);
+        // Save the old value of the object
+        const oldValue = { ...target };
+        // Reactively set the property
+        const setResult = ReactiveObject.setReactiveValue(target, p, value);
+        // Invoke the listeners
+        listeners.forEach((l) => l.report(target, oldValue));
+        // Return the result
+        return setResult;
       },
     });
   }
