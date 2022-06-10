@@ -22,6 +22,8 @@ export default class Directive {
 
   key?: string;
 
+  rawKey?: string;
+
   modifiers?: string[];
 
   // Constructor
@@ -40,7 +42,8 @@ export default class Directive {
 
     if (name.includes(':')) {
       [, ...key] = name.split(':');
-      [this.key, ...this.modifiers] = key?.join(':').split('.');
+      this.rawKey = key?.join(':');
+      [this.key, ...this.modifiers] = this.rawKey.split('.');
     } else
       [, ...this.modifiers] = name.split('.');
 

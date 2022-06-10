@@ -7,14 +7,16 @@ export default class ClassDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    const { element, key, lastValue, modifiers } = this;
+    const { element, rawKey, lastValue } = this;
 
-    if (key)
+    if (rawKey) {
       // If we have a key (and modifiers), parse the value as a boolean for toggling classes
-      [key, ...modifiers].forEach((className) => {
+      // (Also parse the key as a comma separated list)
+      const keyParts = rawKey.split(',');
+      [...keyParts].forEach((className) => {
         DOM.toggleClass(element, className, !!value);
       });
-    else {
+    } else {
       if (Array.isArray(lastValue))
         // Otherwise, disable any classes that were turned on as lastValue
         lastValue.forEach((className) => {
