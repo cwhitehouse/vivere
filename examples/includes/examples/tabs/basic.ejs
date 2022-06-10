@@ -7,7 +7,7 @@
       <button
         v-event:click="tab = '<%= tab %>'"
         v-class:bg-white="tab === '<%= tab %>'"
-        v-class:bg-gray-200.hover:bg-indigo-100.hover:border-indigo-100.text-gray-600="tab !== '<%= tab %>'"
+        v-class:bg-gray-200,hover:bg-indigo-100,hover:border-indigo-100,text-gray-600="tab !== '<%= tab %>'"
         class="w-24 h-10 border-t-2 border-l-2 border-r-2 border-solid border-gray-200 rounded-t"
       >Tab <%= tab.toUpperCase(); %></button>
     <% }); %>
