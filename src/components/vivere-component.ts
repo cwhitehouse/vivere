@@ -2,7 +2,7 @@ import Utility from '../lib/utility';
 import Reactive from '../reactivity/reactive';
 import Walk from '../lib/walk';
 import Directive from '../directives/directive';
-import Renderer from '../renderer';
+import Renderer from '../rendering/renderer';
 import Storage from '../reactivity/storage';
 import StoredInterface from './definition/stored-interface';
 import ComponentError from '../errors/component-error';
@@ -11,6 +11,7 @@ import Properties from '../lib/properties';
 import ComponentRegistry from './registry';
 import PassedInterface from './definition/passed-interface';
 import Evaluator from '../lib/evaluator';
+import { RenderController } from '../rendering/render-controller';
 
 declare global {
   interface Element {
@@ -37,6 +38,8 @@ export default class VivereComponent extends ReactiveHost {
 
   $parent?: VivereComponent;
 
+  $renderController?: RenderController;
+
   $refs: { [key: string]: (Element | VivereComponent) } = {};
 
   $passed: { [key: string]: PassedInterface } = {};
@@ -60,13 +63,14 @@ export default class VivereComponent extends ReactiveHost {
   // CONSTRUCTOR
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  constructor(name: string, element: Element, parent?: VivereComponent) {
+  constructor(name: string, element: Element, parent?: VivereComponent, renderController?: RenderController) {
     super();
 
     // Internals
     this.$name = name;
     this.$element = element;
     this.$parent = parent;
+    this.$renderController = renderController;
 
     // Attach the component to the DOM
     element.$component = this;
@@ -81,10 +85,6 @@ export default class VivereComponent extends ReactiveHost {
     Properties.parse(this, (key, descriptor) => {
       // Ignore reserved keys, like stored, passed, constructor
       if (reservedKeywords.includes(key))
-        return;
-
-      // Ignore $passed properties, wait for the v-pass directive
-      if (Object.keys(this.$passed).includes(key))
         return;
 
       // Make everything reactive
@@ -115,10 +115,6 @@ export default class VivereComponent extends ReactiveHost {
     if (key.startsWith('$') || key.startsWith('#'))
       return null;
 
-    // Passed properties need to be initialized with a getter
-    if (this.$passed[key] != null && this.$reactives[key] == null && getter == null)
-      throw new ComponentError(`Tried to $set a $passed property (${key}) without a getter`, this);
-
     // Turn on reactivity for properties
     const reactive = super.$set(key, Utility.jsonCopy(value), getter, setter);
 
@@ -130,7 +126,7 @@ export default class VivereComponent extends ReactiveHost {
     if (reactive == null) return null;
 
     // Listen for changes to this reactive property
-    reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => this.#react(key, newValue, oldValue));
+    reactive.registerHook(this, (oldValue: unknown) => this.#react(key, oldValue));
 
     // Return reactive
     return reactive;
@@ -139,33 +135,29 @@ export default class VivereComponent extends ReactiveHost {
   $pass(key: string, expression: string, index?: number | string): void {
     const { $passed, $reactives } = this;
 
-    if ($reactives[key] && !$reactives[key].getter)
-      throw new ComponentError(`Tried to pass value for already $set key (${key}). This may be because you didn't define this in $passed or you re-used a key.`, this);
-
     let definition = $passed[key];
-
     if (definition == null) {
       definition = {};
       $passed[key] = definition;
     }
 
-    if (!definition.expression?.length)
+    // Only set up the reactive property the first time $pass
+    // is called for a given key
+    if (!definition.expression?.length) {
+      // If we were storing a default value in our $reactives, we will
+      // clear it out for the sake of v-pass
+      delete $reactives[key];
+
       // Passed properties get from their parent, and are unsetable
       this.$set(key, null, () => {
         const { $parent } = this;
         const $definition = this.$passed[key];
 
         let value = Evaluator.parse($parent, $definition.expression);
+
         // If it's an array accessor, access the relevant child
-        // TODO: Handle this null issue when rendering lists
-        if ($definition.index != null) value = value?.[$definition.index];
-
-        if (value == null) {
-          if (definition?.required)
-            throw new ComponentError(`${key} is required to be passed`, this);
-
-          value = definition?.default;
-        }
+        if ($definition.index != null)
+          value = value[$definition.index];
 
         return value;
       }, (value): void => {
@@ -173,6 +165,7 @@ export default class VivereComponent extends ReactiveHost {
         // Allow setting $passed values by assigning to the parent
         $parent.$set(expression, value);
       });
+    }
 
     // Store the expression and index
     // in the $passed definition
@@ -182,24 +175,30 @@ export default class VivereComponent extends ReactiveHost {
     $reactives[key]?.dirty();
   }
 
-  #react(key: string, newValue: unknown, oldValue: unknown): void {
+  #react(key: string, oldValue: unknown): void {
     const { $stored } = this;
 
-    // Treat undefined and null the same
-    if (newValue == null && oldValue == null)
-      return;
+    // If we're storing the value, or have a watcher for the value
+    // changing, we need to check to see if the value actually changed
+    const storedDefinition = $stored[key];
+    const methodName = `on${Utility.pascalCase(key)}Changed`;
+    if (this[methodName] != null || storedDefinition != null) {
+      const newValue = this[key];
 
-    // Check if our property actually changed
-    if (newValue !== oldValue) {
-      // If we're storing this value, save it to storage
-      const storedDefinition = $stored[key];
-      if (storedDefinition != null)
-        Storage.save(key, storedDefinition, newValue);
+      // All null like values we'll consider the same
+      if (newValue == null && oldValue == null)
+        return;
 
-      // Invoke any watchers
-      const methodName = `on${Utility.pascalCase(key)}Changed`;
-      if (this[methodName])
-        this[methodName](newValue, oldValue);
+      // Check if our property actually changed
+      if (newValue !== oldValue) {
+        // If we're storing this value, save it to storage
+        if (storedDefinition != null)
+          Storage.save(key, storedDefinition, newValue);
+
+        // Invoke any watchers
+        if (this[methodName] != null)
+          this[methodName](newValue, oldValue);
+      }
     }
   }
 
@@ -258,19 +257,22 @@ export default class VivereComponent extends ReactiveHost {
       element.appendChild(child);
 
       if (child instanceof HTMLElement)
-        Walk.tree(child, this);
+        Walk.tree(child, this, this.$renderController);
     });
 
     // Force a render for children
     this.$forceRender();
   }
 
-  $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node): void {
+  $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node, renderController?: RenderController): void {
     if (before != null)
       parent.insertBefore(element, before);
     else
       parent.appendChild(element);
-    Walk.tree(element, this);
+
+    // Allow passing a render controller for more control, otherwise pass
+    // the components RenderController as we walk the tree
+    Walk.tree(element, this, renderController || this.$renderController);
 
     this.$forceRender();
   }

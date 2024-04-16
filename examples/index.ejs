@@ -63,8 +63,8 @@ allTags:
           v-data:tag="<%= JSON.stringify(tag) %>"
           v-pass:filter-tag
           v-event:click="toggleFilter"
-          v-class:<%= classesOff.join(',') %>="filterTag !== tag"
-          v-class:<%= classesOn.join(',') %>="filterTag === tag"
+          v-class:<%= classesOff.join('::') %>="filterTag !== tag"
+          v-class:<%= classesOn.join('::') %>="filterTag === tag"
           class="rounded text-xs uppercase font-semibold px-2 py-1 mr-1 mt-1"
         ><%= tag %></button>
       <% } %>

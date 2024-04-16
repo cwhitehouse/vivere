@@ -56,25 +56,25 @@
       v-pass:color-class
     >
       <span
-        v-text="entry?.string"
+        v-text="entry.string"
         v-class="colorClass"
       ></span>
       <ul class="list-disc list-inside ml-12">
         <li
-          v-for="eentry of entry?.data"
+          v-for="eentry of entry.data"
           v-pass:color-class
         >
           <span
-            v-text="eentry?.string"
+            v-text="eentry.string"
             v-class="colorClass"
           ></span>
           <ol class="list-decimal list-inside ml-12">
             <li
-              v-for="eeentry of eentry?.data"
+              v-for="eeentry of eentry.data"
               v-pass:color-class
             >
               <span
-                v-text="eeentry?.string"
+                v-text="eeentry.string"
                 v-class="colorClass"
               ></span>
             </li>

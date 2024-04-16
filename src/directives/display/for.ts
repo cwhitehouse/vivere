@@ -5,6 +5,7 @@ import Evaluator from '../../lib/evaluator';
 import Directive from '../directive';
 import Utility from '../../lib/utility';
 import { VivereComponent } from '../../vivere';
+import ToggableRenderController from '../../rendering/togglable-render-controller';
 
 const directiveRegex = /(?:([A-z_$0-9]+)|\(([A-z_$0-9]+), ([A-z_$0-9]+)\)) of ([A-z_$0-9[\]().?]+)/;
 
@@ -52,12 +53,11 @@ export default class ForDirective extends DisplayDirective {
   // Evaluation
 
   parseExpression(): unknown {
-    const { component, expression } = this;
-    const callback = (): void => { component.$queueRender(this); };
+    const { component, expression, renderCallback } = this;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any;
-    Watcher.watch(this, callback, () => {
+    Watcher.watch(this, renderCallback.bind(this), () => {
       try {
         const [, iExp, $iExp, indexExpression, listExpression] = directiveRegex.exec(expression);
         const itemExpression = iExp || $iExp;
@@ -149,9 +149,13 @@ export default class ForDirective extends DisplayDirective {
           // Remove the suspend parsing data directive
           this.resumeParsing(el);
 
+          // RenderController management — we need a manual RenderController so we can
+          // control list item rendering
+          const renderController = new ToggableRenderController(true, this.renderController);
+
           // Add the cloned node back to the list and track
           // where the next node is supposed to be inserted
-          component.$attachElement(el, parent, insertBefore);
+          component.$attachElement(el, parent, insertBefore, renderController);
           insertBefore = el;
 
           // Track the component or element in our array
@@ -181,6 +185,11 @@ export default class ForDirective extends DisplayDirective {
           // $element.remove();
           parent.insertBefore($element, insertBefore);
           insertBefore = $element;
+
+          // Flip our TogglableRenderController to true, ensuring any directives on
+          // the list item properly render
+          if (cachedElement.$renderController instanceof ToggableRenderController)
+            cachedElement.$renderController.setShouldRender(true);
         }
 
         // Add this component to our list of rendered components
@@ -222,8 +231,22 @@ export default class ForDirective extends DisplayDirective {
   removeCachedElements(): void {
     const { keyedElements, unkeyedElements } = this;
 
-    Object.values(keyedElements).forEach((ke) => ke.$element.remove());
-    unkeyedElements.forEach((ue) => ue.$element.remove());
+    Object.values(keyedElements).forEach((ke) => {
+      ke.$element.remove();
+
+      // Ensure none of the child directives render once this
+      // element has been removed from the list
+      if (ke.$renderController instanceof ToggableRenderController)
+        ke.$renderController.setShouldRender(false);
+    });
+    unkeyedElements.forEach((ue) => {
+      ue.$element.remove();
+
+      // Ensure none of the child directives render once this
+      // element has been removed from the list
+      if (ue.$renderController instanceof ToggableRenderController)
+        ue.$renderController.setShouldRender(false);
+    });
   }
 
   dehydrate(): void {
@@ -241,5 +264,29 @@ export default class ForDirective extends DisplayDirective {
 
     // Default dehydrate behavior
     super.dehydrate();
+  }
+
+  // Render Controller
+
+  dirty(): void {
+    // Tell of our child elements that they must wait on the list to finish
+    // rendering before they can
+    [...this.unkeyedElements, ...Object.values(this.keyedElements)].forEach((vc) => {
+      if (vc.$renderController != null)
+        vc.$renderController.$dirty = true;
+    });
+
+    super.dirty();
+  }
+
+  clean(): void {
+    // Tell of our child elements that the list has been updated and they can proceed
+    // with rendering (if they should)
+    [...this.unkeyedElements, ...Object.values(this.keyedElements)].forEach((vc) => {
+      if (vc.$renderController != null)
+        vc.$renderController.$dirty = false;
+    });
+
+    super.clean();
   }
 }

@@ -41,7 +41,7 @@ export default class ReactiveArray {
                 return new Reactive(target, a, null);
               });
               const result = value.apply(target, reactiveArgs);
-              listeners.forEach((l) => l.report(target, oldValue));
+              listeners.forEach((l) => l.report(oldValue));
               return result;
             };
           case 'pop':
@@ -52,7 +52,7 @@ export default class ReactiveArray {
             return (...args: unknown[]): unknown => {
               const oldValue = [...target];
               const result = value.apply(target, args);
-              listeners.forEach((l) => l.report(target, oldValue));
+              listeners.forEach((l) => l.report(oldValue));
               return result;
             };
           case 'splice':
@@ -64,7 +64,7 @@ export default class ReactiveArray {
                 return new Reactive(target, i, null);
               });
               const result = value.apply(target, [start, deleteCount, ...reactiveItems]);
-              listeners.forEach((l) => l.report(target, oldValue));
+              listeners.forEach((l) => l.report(oldValue));
               return result;
             };
           case '$$registerListener':

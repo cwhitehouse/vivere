@@ -7,16 +7,22 @@ export default class DisplayDirective extends Directive {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lastValue: any;
 
+  $dirty = true;
+
+  renderCallback(): void {
+    this.dirty();
+    this.component.$queueRender(this);
+  }
+
   // Evaluation
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseExpression(): any {
-    const { component, expression } = this;
-    const callback = (): void => { component.$queueRender(this); };
+    const { component, expression, renderCallback } = this;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any;
-    Watcher.watch(this, callback, () => {
+    Watcher.watch(this, renderCallback.bind(this), () => {
       value = Evaluator.parse(component, expression);
     });
 
@@ -24,14 +30,46 @@ export default class DisplayDirective extends Directive {
   }
 
   evaluate(): void {
-    const value = this.parseExpression();
+    let { renderController } = this;
 
-    this.evaluateValue(value);
-    this.lastValue = value;
+    let shouldRender: boolean;
+    if (renderController != null) {
+      shouldRender = true;
+
+      do {
+        const ancestorShouldEvaluate = renderController.shouldRender();
+        if (!ancestorShouldEvaluate)
+          // Whichever render controller tells us not to render should
+          // also keep track of this Directive so that it can be rendered
+          // whenever that ancestor's logic changes
+          renderController.awaitingRender.add(this);
+
+        shouldRender = shouldRender && ancestorShouldEvaluate;
+        renderController = renderController.renderController;
+      } while (shouldRender && renderController != null);
+    } else
+      shouldRender = true;
+
+    if (shouldRender) {
+      const value = this.parseExpression();
+
+      this.evaluateValue(value);
+      this.lastValue = value;
+    }
+
+    this.clean();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   evaluateValue(value: unknown): void {
     throw new DirectiveError('Directives must implement `evaluateValue`', this);
+  }
+
+  dirty(): void {
+    this.$dirty = true;
+  }
+
+  clean(): void {
+    this.$dirty = false;
   }
 }

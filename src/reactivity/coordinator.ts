@@ -1,18 +1,17 @@
 import VivereComponent from '../components/vivere-component';
 
-const delayedHooks = [];
+const delayedHooks: { component: VivereComponent, hook: (oldValue: unknown) => void, oldValue: unknown }[] = [];
 let chainReactions = 0;
 
 export default {
-  chanReactionStarted(): void {
+  chainReactionStarted(): void {
     chainReactions += 1;
   },
 
-  trackComponent(component: VivereComponent, hook: (newValue: unknown, oldValue: unknown) => void, newValue: unknown, oldValue: unknown): void {
+  trackComponent(component: VivereComponent, hook: (oldValue: unknown) => void, oldValue: unknown): void {
     delayedHooks.push({
       component,
       hook,
-      newValue,
       oldValue,
     });
   },
@@ -22,7 +21,7 @@ export default {
 
     while (chainReactions <= 0 && !!delayedHooks.length) {
       const entry = delayedHooks.shift();
-      entry.hook(entry.newValue, entry.oldValue);
+      entry.hook(entry.oldValue);
     }
   },
 };

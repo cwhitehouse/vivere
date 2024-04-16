@@ -6,7 +6,7 @@ import Coordinator from './coordinator';
 import VivereComponent from '../components/vivere-component';
 
 export default class Reactive {
-  listeners: Registry<unknown, (newValue: unknown, oldValue: unknown) => void> = new Registry();
+  listeners: Registry<unknown, (oldValue: unknown) => void> = new Registry();
 
   host: unknown;
 
@@ -28,14 +28,23 @@ export default class Reactive {
   // Dirty value
 
   dirty(): void {
-    this.computeValue();
+    // If we have a currently computed value for this property,
+    // it is now out of date and we should report that to any
+    // other entities that are listeneing
+    if (this.computed) {
+      this.computed = false;
+
+      // We'll report the value has changed, but we won't bother
+      // recalculating the value until we need to
+      this.report(this.value);
+    }
   }
 
   computeValue(): void {
     const callback = (): void => { this.dirty(); };
     Watcher.watch(this, callback, () => {
       const newValue = this.getter.call(this.host);
-      this.set(newValue, false);
+      this.set(newValue, false, true);
       this.computed = true;
     });
   }
@@ -56,12 +65,15 @@ export default class Reactive {
       this.registerHook(context, callback);
     }
 
+    if (!this.computed && this.getter != null)
+      this.computeValue();
+
     return this.getValue();
   }
 
   // Assigning values, and reacting
 
-  set(value: unknown, makeReactive: boolean): void {
+  set(value: unknown, makeReactive: boolean, skipReport = false): void {
     const oldValue = this.value;
 
     // Deal with undefined/null confusion
@@ -72,23 +84,27 @@ export default class Reactive {
     const newValueJSON = JSON.stringify(value);
 
     // Don't bother reporting if nothing substantive has changed
-    if (oldValueJSON !== newValueJSON) {
-      Coordinator.chanReactionStarted();
+    if (oldValueJSON === newValueJSON)
+      return;
 
-      if (makeReactive)
-        this.updateValue(value);
-      else
-        this.value = value;
+    Coordinator.chainReactionStarted();
 
-      // If the new value implements $$registerListener (i.e. it is
-      // a ReactiveArray), we need to make sure we're listening to changes
-      // since multiple Reactives can have a ReactiveArray value (e.g. via
-      // a $passed or computed property)
-      if (this.value?.$$registerListener)
-        this.value.$$registerListener(this);
+    if (makeReactive)
+      this.updateValue(value);
+    else
+      this.value = value;
 
-      this.$report(value, oldValue);
-    }
+    // If the new value implements $$registerListener (i.e. it is
+    // a ReactiveArray), we need to make sure we're listening to changes
+    // since multiple Reactives can have a ReactiveArray value (e.g. via
+    // a $passed or computed property)
+    if (this.value?.$$registerListener)
+      this.value.$$registerListener(this);
+
+    if (!skipReport)
+      this.$report(oldValue);
+    else
+      Coordinator.chainReactionEnded();
   }
 
   updateValue(value: unknown): void {
@@ -118,21 +134,22 @@ export default class Reactive {
 
   // Reporting
 
-  registerHook(object: unknown, hook: (newValue: unknown, oldValue: unknown) => void): void {
-    this.listeners.register(object, hook);
+  registerHook(object: unknown, hook: (oldValue: unknown) => void): void {
+    if (object !== this)
+      this.listeners.register(object, hook);
   }
 
-  report(newValue: unknown, oldValue: unknown): void {
-    Coordinator.chanReactionStarted();
-    this.$report(newValue, oldValue);
+  report(oldValue: unknown): void {
+    Coordinator.chainReactionStarted();
+    this.$report(oldValue);
   }
 
-  $report(newValue: unknown, oldValue: unknown): void {
+  $report(oldValue: unknown): void {
     this.listeners.forEach((entity, hook) => {
       if (entity instanceof VivereComponent)
-        Coordinator.trackComponent(entity, hook, newValue, oldValue);
+        Coordinator.trackComponent(entity, hook, oldValue);
       else
-        hook(newValue, oldValue);
+        hook(oldValue);
     });
 
     Coordinator.chainReactionEnded();

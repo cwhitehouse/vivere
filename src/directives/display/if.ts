@@ -2,8 +2,10 @@ import DisplayDirective from './display';
 import DOM, { NodeHost } from '../../lib/dom';
 import Walk from '../../lib/walk';
 import Animator from '../../lib/animator';
+import { RenderController } from '../../rendering/render-controller';
+import Directive from '../directive';
 
-export default class IfDirective extends DisplayDirective implements NodeHost {
+export default class IfDirective extends DisplayDirective implements NodeHost, RenderController {
   static id = 'v-if';
 
   container: Node;
@@ -17,6 +19,8 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
   rendered = false;
 
   animator: Animator;
+
+  awaitingRender: Set<Directive> = new Set();
 
   // Parsing
 
@@ -60,7 +64,7 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
     if (showing && firstRender) {
       this.rendered = true;
       this.resumeParsing();
-      Walk.tree(element, component);
+      Walk.tree(element, component, this);
       component.$forceRender();
     }
 
@@ -82,9 +86,25 @@ export default class IfDirective extends DisplayDirective implements NodeHost {
     } else
       DOM.conditionallyRender(this, showing);
 
+    if (value)
+      // Ensure we re-render any directives that didn't render
+      // because they were waiting on this
+      this.awaitingRender.forEach((d) => {
+        d.component?.$queueRender(d);
+        this.awaitingRender.delete(d);
+      });
+
     // Track whether this has been evaluated to avoid
     // animating on our first evaluation
     this.evaluated = true;
+  }
+
+  // Render Logic
+
+  shouldRender(): boolean {
+    // Only render descendant directives if
+    // they are attached to the DOM
+    return this.lastValue;
   }
 
   // Dehdyration

@@ -12,7 +12,7 @@ export default class ClassDirective extends DisplayDirective {
     if (rawKey) {
       // If we have a key (and modifiers), parse the value as a boolean for toggling classes
       // (Also parse the key as a comma separated list)
-      const keyParts = rawKey.split(',');
+      const keyParts = rawKey.split('::');
       [...keyParts].forEach((className) => {
         DOM.toggleClass(element, className, !!value);
       });

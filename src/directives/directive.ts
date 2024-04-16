@@ -1,5 +1,6 @@
 import DirectiveError from '../errors/directive-error';
 import VivereComponent from '../components/vivere-component';
+import { RenderController } from '../rendering/render-controller';
 
 export default class Directive {
   static id: string;
@@ -16,6 +17,8 @@ export default class Directive {
 
   component?: VivereComponent;
 
+  renderController?: RenderController;
+
   element: Element;
 
   expression: string;
@@ -28,12 +31,13 @@ export default class Directive {
 
   // Constructor
 
-  constructor(element: Element, name: string, expression: string, component?: VivereComponent) {
+  constructor(element: Element, name: string, expression: string, component?: VivereComponent, renderController?: RenderController) {
     if (element instanceof HTMLElement && element.dataset[Directive.DATA_SUSPEND_PARSING] === 'true')
       return;
 
     // Check to see if element is still in the DOM tree
     this.component = component;
+    this.renderController = renderController;
     this.element = element;
     this.expression = expression;
 
