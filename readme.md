@@ -3,7 +3,10 @@ A lightweight Javascript framework for enriching HTML, heavily inspired by `vue`
 
 `yarn add vivere`
 
-You can view the documentation on:
+### Documentation
+
+You can view the documentation at...
+
 https://viverejs.com
 
 ...and few a gallery of examples at...
