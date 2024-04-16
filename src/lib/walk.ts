@@ -24,7 +24,7 @@ import HideDirective from '../directives/hide';
 import RefDirective from '../directives/ref';
 import VivereComponent from '../components/vivere-component';
 import ComponentRegistry from '../components/registry';
-import { LogicalDirective, isLogicalDirective } from '../directives/logical';
+import { RenderController, isRenderController } from '../rendering/render-controller';
 
 const directives: (typeof Directive)[] = [
   // v-for must be first since all other directives on the template
@@ -61,20 +61,20 @@ const directives: (typeof Directive)[] = [
 ];
 
 const Walk = {
-  tree(element: Element, component?: VivereComponent, logicalDirective?: LogicalDirective): void {
+  tree(element: Element, component?: VivereComponent, renderController?: RenderController): void {
     Timer.time('Tree parsed', () => {
       // Walk the tree to initialize components
-      Walk.element(element, component, logicalDirective);
+      Walk.element(element, component, renderController);
 
       // Connect any new components
       ComponentRegistry.components.forEach((c) => { c.$connect(); });
     });
   },
 
-  element(element: Element, component?: VivereComponent, logicalDirective?: LogicalDirective): void {
+  element(element: Element, component?: VivereComponent, renderController?: RenderController): void {
     const { attributes } = element;
     let $component = component;
-    let $logicalDirective = logicalDirective;
+    let $renderController = renderController;
 
     // v-static stops tree walking for improved performance
     if (attributes['v-static'] != null) return;
@@ -111,24 +111,24 @@ const Walk = {
       // Initialize every directive
       parsedDirectives.forEach(({ Dir, name, value }) => {
         // Initialize and parse the directive
-        const directive = new Dir(element, name, value, $component, $logicalDirective);
+        const directive = new Dir(element, name, value, $component, $renderController);
 
         // Re-assign component (for v-component directives)
         $component = directive.component;
 
-        if (isLogicalDirective(directive))
-          $logicalDirective = directive;
+        if (isRenderController(directive))
+          $renderController = directive;
       });
     }
 
     if (!(element instanceof HTMLElement) || element.dataset[Directive.DATA_SUSPEND_PARSING] !== 'true')
-      Walk.children(element, $component, $logicalDirective);
+      Walk.children(element, $component, $renderController);
   },
 
-  children(element: Element, component: VivereComponent, logicalDirective?: LogicalDirective): void {
+  children(element: Element, component: VivereComponent, renderController?: RenderController): void {
     Object.values(element.children).forEach((child) => {
       // Continue checking the element's children
-      Walk.element(child, component, logicalDirective);
+      Walk.element(child, component, renderController);
     });
   },
 };

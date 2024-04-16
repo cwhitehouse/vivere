@@ -5,7 +5,7 @@ import Evaluator from '../../lib/evaluator';
 import Directive from '../directive';
 import Utility from '../../lib/utility';
 import { VivereComponent } from '../../vivere';
-import TogglableLogicalDirective from '../togglable-logical-directive';
+import ToggableRenderController from '../../rendering/togglable-render-controller';
 
 const directiveRegex = /(?:([A-z_$0-9]+)|\(([A-z_$0-9]+), ([A-z_$0-9]+)\)) of ([A-z_$0-9[\]().?]+)/;
 
@@ -149,13 +149,13 @@ export default class ForDirective extends DisplayDirective {
           // Remove the suspend parsing data directive
           this.resumeParsing(el);
 
-          // LogicalDirective management — we need a manual LogicalDirective so we can
+          // RenderController management — we need a manual RenderController so we can
           // control list item rendering
-          const logicalDirective = new TogglableLogicalDirective(true, this.logicalAncestor);
+          const renderController = new ToggableRenderController(true, this.renderController);
 
           // Add the cloned node back to the list and track
           // where the next node is supposed to be inserted
-          component.$attachElement(el, parent, insertBefore, logicalDirective);
+          component.$attachElement(el, parent, insertBefore, renderController);
           insertBefore = el;
 
           // Track the component or element in our array
@@ -186,10 +186,10 @@ export default class ForDirective extends DisplayDirective {
           parent.insertBefore($element, insertBefore);
           insertBefore = $element;
 
-          // Flip our TogglableLogicalDirective to true, ensuring any directives on
+          // Flip our TogglableRenderController to true, ensuring any directives on
           // the list item properly render
-          if (cachedElement.$logicalAncestor instanceof TogglableLogicalDirective)
-            cachedElement.$logicalAncestor.setShouldEvaluate(true);
+          if (cachedElement.$renderController instanceof ToggableRenderController)
+            cachedElement.$renderController.setShouldRender(true);
         }
 
         // Add this component to our list of rendered components
@@ -236,16 +236,16 @@ export default class ForDirective extends DisplayDirective {
 
       // Ensure none of the child directives render once this
       // element has been removed from the list
-      if (ke.$logicalAncestor instanceof TogglableLogicalDirective)
-        ke.$logicalAncestor.setShouldEvaluate(false);
+      if (ke.$renderController instanceof ToggableRenderController)
+        ke.$renderController.setShouldRender(false);
     });
     unkeyedElements.forEach((ue) => {
       ue.$element.remove();
 
       // Ensure none of the child directives render once this
       // element has been removed from the list
-      if (ue.$logicalAncestor instanceof TogglableLogicalDirective)
-        ue.$logicalAncestor.setShouldEvaluate(false);
+      if (ue.$renderController instanceof ToggableRenderController)
+        ue.$renderController.setShouldRender(false);
     });
   }
 
@@ -266,14 +266,14 @@ export default class ForDirective extends DisplayDirective {
     super.dehydrate();
   }
 
-  // Logical Directive
+  // Render Controller
 
   dirty(): void {
     // Tell of our child elements that they must wait on the list to finish
     // rendering before they can
     [...this.unkeyedElements, ...Object.values(this.keyedElements)].forEach((vc) => {
-      if (vc.$logicalAncestor != null)
-        vc.$logicalAncestor.$dirty = true;
+      if (vc.$renderController != null)
+        vc.$renderController.$dirty = true;
     });
 
     super.dirty();
@@ -283,8 +283,8 @@ export default class ForDirective extends DisplayDirective {
     // Tell of our child elements that the list has been updated and they can proceed
     // with rendering (if they should)
     [...this.unkeyedElements, ...Object.values(this.keyedElements)].forEach((vc) => {
-      if (vc.$logicalAncestor != null)
-        vc.$logicalAncestor.$dirty = false;
+      if (vc.$renderController != null)
+        vc.$renderController.$dirty = false;
     });
 
     super.clean();

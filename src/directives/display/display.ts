@@ -30,27 +30,27 @@ export default class DisplayDirective extends Directive {
   }
 
   evaluate(): void {
-    let { logicalAncestor } = this;
+    let { renderController } = this;
 
-    let shouldEvaluate: boolean;
-    if (logicalAncestor != null) {
-      shouldEvaluate = true;
+    let shouldRender: boolean;
+    if (renderController != null) {
+      shouldRender = true;
 
       do {
-        const ancestorShouldEvaluate = logicalAncestor.shouldEvaluate();
+        const ancestorShouldEvaluate = renderController.shouldRender();
         if (!ancestorShouldEvaluate)
-          // Whichever logical directive tells us not to render should
+          // Whichever render controller tells us not to render should
           // also keep track of this Directive so that it can be rendered
           // whenever that ancestor's logic changes
-          logicalAncestor.awaitingRender.add(this);
+          renderController.awaitingRender.add(this);
 
-        shouldEvaluate = shouldEvaluate && ancestorShouldEvaluate;
-        logicalAncestor = logicalAncestor.logicalAncestor;
-      } while (shouldEvaluate && logicalAncestor != null);
+        shouldRender = shouldRender && ancestorShouldEvaluate;
+        renderController = renderController.renderController;
+      } while (shouldRender && renderController != null);
     } else
-      shouldEvaluate = true;
+      shouldRender = true;
 
-    if (shouldEvaluate) {
+    if (shouldRender) {
       const value = this.parseExpression();
 
       this.evaluateValue(value);

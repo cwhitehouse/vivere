@@ -17,7 +17,7 @@ export default class ComponentDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { component, element, expression, key, logicalAncestor, modifiers } = this;
+    const { component, element, expression, key, renderController, modifiers } = this;
 
     // The previous component is now the parent
     const parent = component;
@@ -29,7 +29,7 @@ export default class ComponentDirective extends Directive {
     if (Definition == null)
       throw new VivereError(`Tried to instantiate unknown component ${componentName}`);
 
-    this.component = new Definition(componentName, element, parent, logicalAncestor);
+    this.component = new Definition(componentName, element, parent, renderController);
     this.component.$directives.add(this);
 
     // Handle hydration unless we're defering loading
@@ -73,7 +73,7 @@ export default class ComponentDirective extends Directive {
     // Resume parsing, hydrate the data, finish parsing, and render
     this.resumeParsing();
     this.hydrate();
-    Walk.tree(this.element, this.component, this.component?.$logicalAncestor);
+    Walk.tree(this.element, this.component, this.component?.$renderController);
     this.component.$forceRender();
 
     // Remove our event listener

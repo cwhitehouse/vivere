@@ -2,7 +2,7 @@ import Utility from '../lib/utility';
 import Reactive from '../reactivity/reactive';
 import Walk from '../lib/walk';
 import Directive from '../directives/directive';
-import Renderer from '../renderer';
+import Renderer from '../rendering/renderer';
 import Storage from '../reactivity/storage';
 import StoredInterface from './definition/stored-interface';
 import ComponentError from '../errors/component-error';
@@ -11,7 +11,7 @@ import Properties from '../lib/properties';
 import ComponentRegistry from './registry';
 import PassedInterface from './definition/passed-interface';
 import Evaluator from '../lib/evaluator';
-import { LogicalDirective } from '../directives/logical';
+import { RenderController } from '../rendering/render-controller';
 
 declare global {
   interface Element {
@@ -38,7 +38,7 @@ export default class VivereComponent extends ReactiveHost {
 
   $parent?: VivereComponent;
 
-  $logicalAncestor?: LogicalDirective;
+  $renderController?: RenderController;
 
   $refs: { [key: string]: (Element | VivereComponent) } = {};
 
@@ -63,14 +63,14 @@ export default class VivereComponent extends ReactiveHost {
   // CONSTRUCTOR
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  constructor(name: string, element: Element, parent?: VivereComponent, logicalAncestor?: LogicalDirective) {
+  constructor(name: string, element: Element, parent?: VivereComponent, renderController?: RenderController) {
     super();
 
     // Internals
     this.$name = name;
     this.$element = element;
     this.$parent = parent;
-    this.$logicalAncestor = logicalAncestor;
+    this.$renderController = renderController;
 
     // Attach the component to the DOM
     element.$component = this;
@@ -257,22 +257,22 @@ export default class VivereComponent extends ReactiveHost {
       element.appendChild(child);
 
       if (child instanceof HTMLElement)
-        Walk.tree(child, this, this.$logicalAncestor);
+        Walk.tree(child, this, this.$renderController);
     });
 
     // Force a render for children
     this.$forceRender();
   }
 
-  $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node, logicalAncestor?: LogicalDirective): void {
+  $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node, renderController?: RenderController): void {
     if (before != null)
       parent.insertBefore(element, before);
     else
       parent.appendChild(element);
 
-    // Allow passing a logical directive for more control, otherwise pass
-    // the components LogicalDirective as we walk the tree
-    Walk.tree(element, this, logicalAncestor || this.$logicalAncestor);
+    // Allow passing a render controller for more control, otherwise pass
+    // the components RenderController as we walk the tree
+    Walk.tree(element, this, renderController || this.$renderController);
 
     this.$forceRender();
   }

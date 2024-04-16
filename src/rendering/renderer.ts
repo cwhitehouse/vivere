@@ -1,5 +1,5 @@
-import Directive from './directives/directive';
-import Timer from './lib/timer';
+import Directive from '../directives/directive';
+import Timer from '../lib/timer';
 
 let $dirty = false;
 
@@ -20,16 +20,16 @@ const render: () => void = () => {
       // we have into an array so they can be processed in order or deferred for later
       const directivesArray = Array.from($directives);
 
-      // Start rendering directives, but we must ensure logical directives
+      // Start rendering directives, but we must ensure render controllers
       // are rendered first, so we will defer any directive rendering until
-      // their logical ancestor has finished rendering
+      // their render controller ancestor has finished rendering
       while (directivesArray.length) {
         const [directive] = directivesArray.splice(0, 1);
 
-        // Only try to render if there's not relevant logical ancestor, or
+        // Only try to render if there's not relevant render controller ancestor, or
         // if that ancestor has already been rendered
-        const { logicalAncestor } = directive;
-        if (logicalAncestor == null || !logicalAncestor.$dirty) {
+        const { renderController } = directive;
+        if (renderController == null || !renderController.$dirty) {
           directive.evaluate();
           $directives.delete(directive);
         }

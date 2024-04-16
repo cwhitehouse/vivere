@@ -2,10 +2,10 @@ import DisplayDirective from './display';
 import DOM, { NodeHost } from '../../lib/dom';
 import Walk from '../../lib/walk';
 import Animator from '../../lib/animator';
-import { LogicalDirective } from '../logical';
+import { RenderController } from '../../rendering/render-controller';
 import Directive from '../directive';
 
-export default class IfDirective extends DisplayDirective implements NodeHost, LogicalDirective {
+export default class IfDirective extends DisplayDirective implements NodeHost, RenderController {
   static id = 'v-if';
 
   container: Node;
@@ -101,7 +101,7 @@ export default class IfDirective extends DisplayDirective implements NodeHost, L
 
   // Render Logic
 
-  shouldEvaluate(): boolean {
+  shouldRender(): boolean {
     // Only render descendant directives if
     // they are attached to the DOM
     return this.lastValue;
