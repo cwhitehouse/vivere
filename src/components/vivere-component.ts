@@ -197,7 +197,7 @@ export default class VivereComponent extends ReactiveHost {
 
         // Invoke any watchers
         if (this[methodName] != null)
-          this[methodName](oldValue);
+          this[methodName](newValue, oldValue);
       }
     }
   }
