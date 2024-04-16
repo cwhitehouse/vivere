@@ -11,6 +11,7 @@ import Properties from '../lib/properties';
 import ComponentRegistry from './registry';
 import PassedInterface from './definition/passed-interface';
 import Evaluator from '../lib/evaluator';
+import { LogicalDirective } from '../directives/logical';
 
 declare global {
   interface Element {
@@ -37,6 +38,8 @@ export default class VivereComponent extends ReactiveHost {
 
   $parent?: VivereComponent;
 
+  $logicalAncestor?: LogicalDirective;
+
   $refs: { [key: string]: (Element | VivereComponent) } = {};
 
   $passed: { [key: string]: PassedInterface } = {};
@@ -60,13 +63,14 @@ export default class VivereComponent extends ReactiveHost {
   // CONSTRUCTOR
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  constructor(name: string, element: Element, parent?: VivereComponent) {
+  constructor(name: string, element: Element, parent?: VivereComponent, logicalAncestor?: LogicalDirective) {
     super();
 
     // Internals
     this.$name = name;
     this.$element = element;
     this.$parent = parent;
+    this.$logicalAncestor = logicalAncestor;
 
     // Attach the component to the DOM
     element.$component = this;
@@ -122,7 +126,7 @@ export default class VivereComponent extends ReactiveHost {
     if (reactive == null) return null;
 
     // Listen for changes to this reactive property
-    reactive.registerHook(this, (newValue: unknown, oldValue: unknown) => this.#react(key, newValue, oldValue));
+    reactive.registerHook(this, (oldValue: unknown) => this.#react(key, oldValue));
 
     // Return reactive
     return reactive;
@@ -150,16 +154,10 @@ export default class VivereComponent extends ReactiveHost {
         const $definition = this.$passed[key];
 
         let value = Evaluator.parse($parent, $definition.expression);
+
         // If it's an array accessor, access the relevant child
-        // TODO: Handle this null issue when rendering lists
-        if ($definition.index != null) value = value?.[$definition.index];
-
-        if (value == null) {
-          if (definition?.required)
-            throw new ComponentError(`${key} is required to be passed`, this);
-
-          value = definition?.default;
-        }
+        if ($definition.index != null)
+          value = value[$definition.index];
 
         return value;
       }, (value): void => {
@@ -177,24 +175,30 @@ export default class VivereComponent extends ReactiveHost {
     $reactives[key]?.dirty();
   }
 
-  #react(key: string, newValue: unknown, oldValue: unknown): void {
+  #react(key: string, oldValue: unknown): void {
     const { $stored } = this;
 
-    // Treat undefined and null the same
-    if (newValue == null && oldValue == null)
-      return;
+    // If we're storing the value, or have a watcher for the value
+    // changing, we need to check to see if the value actually changed
+    const storedDefinition = $stored[key];
+    const methodName = `on${Utility.pascalCase(key)}Changed`;
+    if (this[methodName] != null || storedDefinition != null) {
+      const newValue = this[key];
 
-    // Check if our property actually changed
-    if (newValue !== oldValue) {
-      // If we're storing this value, save it to storage
-      const storedDefinition = $stored[key];
-      if (storedDefinition != null)
-        Storage.save(key, storedDefinition, newValue);
+      // All null like values we'll consider the same
+      if (newValue == null && oldValue == null)
+        return;
 
-      // Invoke any watchers
-      const methodName = `on${Utility.pascalCase(key)}Changed`;
-      if (this[methodName])
-        this[methodName](newValue, oldValue);
+      // Check if our property actually changed
+      if (newValue !== oldValue) {
+        // If we're storing this value, save it to storage
+        if (storedDefinition != null)
+          Storage.save(key, storedDefinition, newValue);
+
+        // Invoke any watchers
+        if (this[methodName] != null)
+          this[methodName](oldValue);
+      }
     }
   }
 
@@ -253,19 +257,22 @@ export default class VivereComponent extends ReactiveHost {
       element.appendChild(child);
 
       if (child instanceof HTMLElement)
-        Walk.tree(child, this);
+        Walk.tree(child, this, this.$logicalAncestor);
     });
 
     // Force a render for children
     this.$forceRender();
   }
 
-  $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node): void {
+  $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node, logicalAncestor?: LogicalDirective): void {
     if (before != null)
       parent.insertBefore(element, before);
     else
       parent.appendChild(element);
-    Walk.tree(element, this);
+
+    // Allow passing a logical directive for more control, otherwise pass
+    // the components LogicalDirective as we walk the tree
+    Walk.tree(element, this, logicalAncestor || this.$logicalAncestor);
 
     this.$forceRender();
   }

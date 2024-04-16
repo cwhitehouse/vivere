@@ -15,8 +15,8 @@ export default class ReactiveObject {
       // We want any Reactives referencing this ReactiveObject or ReactiveArray to
       // be notified if any of its children change (this is necessary for repoerting
       // changes to objects nested within objects or arrays)
-      reactive.registerHook(object, (_newValue: unknown, oldValue: unknown) => {
-        listeners.forEach((l) => l.report(object, { ...object, key: oldValue }));
+      reactive.registerHook(object, (oldValue: unknown) => {
+        listeners.forEach((l) => l.report({ ...object, key: oldValue }));
       });
   }
 
@@ -63,7 +63,7 @@ export default class ReactiveObject {
             };
           case '$$report':
             return (oldValue: unknown) => {
-              listeners.forEach((l) => l.report(target, oldValue));
+              listeners.forEach((l) => l.report(oldValue));
             };
           case '$$reactiveObject':
             return true;

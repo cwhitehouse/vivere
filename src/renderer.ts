@@ -12,13 +12,29 @@ const tick: () => void = () => {
 };
 
 const render: () => void = () => {
-  Timer.time('Directives rendered', () => {
-    $directives.forEach((d) => {
-      // Delete this directive in case it gets
-      // re-added during this render sequence
-      $directives.delete(d);
-      d.evaluate();
-    });
+  Timer.time('Directives rendered :', () => {
+    // New directives can be added to the set mid rendering, e.g. when
+    // a v-for directive evaluates
+    while ($directives.size) {
+      // We want to be able to defer rendering of certain $directives, so convert what
+      // we have into an array so they can be processed in order or deferred for later
+      const directivesArray = Array.from($directives);
+
+      // Start rendering directives, but we must ensure logical directives
+      // are rendered first, so we will defer any directive rendering until
+      // their logical ancestor has finished rendering
+      while (directivesArray.length) {
+        const [directive] = directivesArray.splice(0, 1);
+
+        // Only try to render if there's not relevant logical ancestor, or
+        // if that ancestor has already been rendered
+        const { logicalAncestor } = directive;
+        if (logicalAncestor == null || !logicalAncestor.$dirty) {
+          directive.evaluate();
+          $directives.delete(directive);
+        }
+      }
+    }
 
     // Reset system so we're not waiting on anything
     $dirty = false;

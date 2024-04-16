@@ -1,0 +1,76 @@
+<div
+<%
+  const generateEntry = function(idx) {
+    const string = (Math.random() + 1).toString(36).substring(2);
+    return {
+      id: idx,
+      string,
+      metadata: {
+        color: 'purple',
+        size: Math.floor(Math.random() * 100),
+      },
+    }
+  }
+
+  let data = [];
+  for (let i = 0; i < 20; i += 1) {
+    const entry = generateEntry(i);
+    data.push(entry);
+  }
+%>
+
+<div
+  v-component
+  v-data:data="<%= JSON.stringify(data) %>"
+  v-data:show-list="true"
+  v-data:show-even="true"
+  v-data:truncate-data="false"
+  v-compute:display-data="truncateData ? data.slice(0, 10) : data"
+>
+  <div class="flex items-center space-x-2 mt-4">
+    <button
+      class="button"
+      v-event:click="showList = !showList"
+    >Toggle List</button>
+    <button
+      class="button"
+      v-event:click="truncateData = !truncateData"
+    >Toggle Truncation</button>
+    <button
+      class="button"
+      v-event:click="showEven = !showEven"
+    >Toggle Even/Odd</button>
+  </div>
+  <ol
+    v-if="showList"
+    class="list-decimal list-inside mt-6"
+  >
+    <li
+      v-for="(entry, idx) of displayData"
+      v-pass:show-even
+      v-pass:color-class
+      v-compute:is-even="idx % 2 !== 0"
+      v-compute:metadata="showEven ? entry.metadata : null"
+    >
+      <span
+        v-if="(showEven && isEven) || (!showEven && !isEven)"
+        v-text="entry.string"
+        v-class="colorClass"
+      ></span>
+      <div
+        v-if="metadata"
+        class="flex items-center justify-around"
+      >
+        <span>Color:</span>
+        <span v-text="metadata.color"></span>
+      </div>
+      <div
+        v-if="metadata"
+        class="flex items-center justify-around"
+      >
+        <span>Size:</span>
+        <span v-text="metadata.size"></span>
+      </div>
+    </li>
+  </ol>
+</div>

@@ -6,7 +6,7 @@ import Coordinator from './coordinator';
 import VivereComponent from '../components/vivere-component';
 
 export default class Reactive {
-  listeners: Registry<unknown, (newValue: unknown, oldValue: unknown) => void> = new Registry();
+  listeners: Registry<unknown, (oldValue: unknown) => void> = new Registry();
 
   host: unknown;
 
@@ -28,7 +28,11 @@ export default class Reactive {
   // Dirty value
 
   dirty(): void {
-    this.computeValue();
+    this.computed = false;
+
+    // We'll report the value has changed, but we won't bother
+    // recalculating the value until we need to
+    this.report(this.value);
   }
 
   computeValue(): void {
@@ -56,6 +60,9 @@ export default class Reactive {
       this.registerHook(context, callback);
     }
 
+    if (!this.computed && this.getter != null)
+      this.computeValue();
+
     return this.getValue();
   }
 
@@ -73,7 +80,7 @@ export default class Reactive {
 
     // Don't bother reporting if nothing substantive has changed
     if (oldValueJSON !== newValueJSON) {
-      Coordinator.chanReactionStarted();
+      Coordinator.chainReactionStarted();
 
       if (makeReactive)
         this.updateValue(value);
@@ -87,7 +94,7 @@ export default class Reactive {
       if (this.value?.$$registerListener)
         this.value.$$registerListener(this);
 
-      this.$report(value, oldValue);
+      this.$report(oldValue);
     }
   }
 
@@ -118,21 +125,21 @@ export default class Reactive {
 
   // Reporting
 
-  registerHook(object: unknown, hook: (newValue: unknown, oldValue: unknown) => void): void {
+  registerHook(object: unknown, hook: (oldValue: unknown) => void): void {
     this.listeners.register(object, hook);
   }
 
-  report(newValue: unknown, oldValue: unknown): void {
-    Coordinator.chanReactionStarted();
-    this.$report(newValue, oldValue);
+  report(oldValue: unknown): void {
+    Coordinator.chainReactionStarted();
+    this.$report(oldValue);
   }
 
-  $report(newValue: unknown, oldValue: unknown): void {
+  $report(oldValue: unknown): void {
     this.listeners.forEach((entity, hook) => {
       if (entity instanceof VivereComponent)
-        Coordinator.trackComponent(entity, hook, newValue, oldValue);
+        Coordinator.trackComponent(entity, hook, oldValue);
       else
-        hook(newValue, oldValue);
+        hook(oldValue);
     });
 
     Coordinator.chainReactionEnded();

@@ -4,15 +4,14 @@ const delayedHooks = [];
 let chainReactions = 0;
 
 export default {
-  chanReactionStarted(): void {
+  chainReactionStarted(): void {
     chainReactions += 1;
   },
 
-  trackComponent(component: VivereComponent, hook: (newValue: unknown, oldValue: unknown) => void, newValue: unknown, oldValue: unknown): void {
+  trackComponent(component: VivereComponent, hook: (oldValue: unknown) => void, oldValue: unknown): void {
     delayedHooks.push({
       component,
       hook,
-      newValue,
       oldValue,
     });
   },

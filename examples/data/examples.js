@@ -223,6 +223,18 @@ const exampleGroups = [
       },
     ],
   },
+  {
+    id: 'data-integrity',
+    name: 'Data Integrity',
+    description: 'Ensure passing and conditional rendering respect different types of data',
+    examples: [
+      {
+        id: 'logical-directives',
+        name: 'Logical Directives',
+        width: 1,
+      },
+    ],
+  },
 ];
 
 exampleGroups.forEach(eg => {
