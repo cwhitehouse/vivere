@@ -84,19 +84,6 @@ export default class VivereComponent extends ReactiveHost {
       parent.$children.push(this);
   }
 
-  $setupReactivity(): void {
-    // Set up reactivity for all properties
-    Properties.parse(this, (key, descriptor) => {
-      // Ignore reserved keys, like stored, passed, constructor
-      if (reservedKeywords.includes(key))
-        return;
-
-      // Make everything reactive
-      const { get, set, value } = descriptor;
-      this.$set(key, value, get, set);
-    });
-  }
-
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // HELPER METHODS
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,6 +96,19 @@ export default class VivereComponent extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // REACTIVE DATA
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  $setupReactivity(): void {
+    // Set up reactivity for all properties
+    Properties.parse(this, (key, descriptor) => {
+      // Ignore reserved keys, like stored, passed, constructor
+      if (reservedKeywords.includes(key))
+        return;
+
+      // Make everything reactive
+      const { get, set, value } = descriptor;
+      this.$set(key, value, get, set);
+    });
+  }
 
   $set(key: string, value: unknown, getter: () => unknown = null, setter: (value: unknown) => void = null): Reactive {
     // Functions need not be reactive, and will fail at JSON.stringify
@@ -302,16 +302,23 @@ export default class VivereComponent extends ReactiveHost {
   // LIFE CYCLE
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  $setup(): void {
+    const { beforeConnected } = this;
+
+    // Callback hooks
+    beforeConnected?.call(this);
+
+    // Turn on all of our reactive properties
+    this.$setupReactivity();
+  }
+
   $connect(): void {
-    const { $isConnected, beforeConnected, connected, rendered } = this;
+    const { $isConnected, connected, rendered } = this;
 
     // If this has already been connected, then we don't need to
     // run through all of these commands (because we already have)
     if ($isConnected)
       return;
-
-    // Callback hook
-    beforeConnected?.call(this);
 
     // Load data from storage
     this.#loadStoredData.call(this);

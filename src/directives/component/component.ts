@@ -60,7 +60,7 @@ export default class ComponentDirective extends Directive {
 
   hydrate(): void {
     const { component } = this;
-    component.$setupReactivity();
+    component.$setup();
   }
 
   completeParsing(): boolean {
