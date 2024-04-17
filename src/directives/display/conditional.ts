@@ -6,7 +6,7 @@ import { RenderController } from '../../rendering/render-controller';
 import Directive from '../directive';
 import Registry from '../../reactivity/registry';
 
-export default abstract class ConditionalDirective extends DisplayDirective implements NodeHost, RenderController {
+export default class ConditionalDirective extends DisplayDirective implements NodeHost, RenderController {
   container: Node;
 
   current: Node;

@@ -66,9 +66,13 @@
         <span v-text="metadata.color"></span>
       </div>
       <p
+        v-else-if="entry.metadata.size >= 50"
+        class="pl-8"
+      >No metadata present (but the size is big)</p>
+      <p
         v-else
         class="pl-8"
-      >No metadata present</p>
+      >No metadata present (but the size is small)</p>
       <div
         v-if="metadata"
         class="flex items-center justify-around"

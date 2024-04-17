@@ -26,6 +26,7 @@ import VivereComponent from '../components/vivere-component';
 import ComponentRegistry from '../components/registry';
 import { RenderController, isRenderController } from '../rendering/render-controller';
 import ElseDirective from '../directives/display/conditional/else';
+import ElseIfDirective from '../directives/display/conditional/else-if';
 
 declare global {
   interface Element {
@@ -49,9 +50,10 @@ const directives: (typeof Directive)[] = [
   PassDirective,
   RefDirective,
   StoreDirective,
-  // v-if (and v-else) needs to be the first display directive since we can defer
-  // futher rendering and hydrating until the element comes into view
+  // v-if (and v-else-if and v-else) need to be the first display directive since we
+  // can defer futher rendering and hydrating until the element comes into view
   IfDirective,
+  ElseIfDirective,
   ElseDirective,
   // For the remaining directives, order is irrelevant
   AttrDirective,
@@ -79,13 +81,13 @@ const Walk = {
     });
   },
 
-  element(element: Element, component?: VivereComponent, renderController?: RenderController, previousDirectives?: { Dir: typeof Directive, name: string, value: string }[]): { Dir: typeof Directive, name: string, value: string }[] {
+  element(element: Element, component?: VivereComponent, renderController?: RenderController) {
     const { attributes } = element;
     let $component = component;
     let $renderController = renderController;
 
     // v-static stops tree walking for improved performance
-    if (attributes['v-static'] != null) return [];
+    if (attributes['v-static'] != null) return;
 
     // Track which directives we've found so we can parse them in order
     const parsedDirectives: { Dir: typeof Directive, name: string, value: string }[] = [];
@@ -136,15 +138,12 @@ const Walk = {
 
     if (!(element instanceof HTMLElement) || element.dataset[Directive.DATA_SUSPEND_PARSING] !== 'true')
       Walk.children(element, $component, $renderController);
-
-    return parsedDirectives;
   },
 
   children(element: Element, component: VivereComponent, renderController?: RenderController): void {
-    let previousDirectives: { Dir: typeof Directive, name: string, value: string }[] = [];
     Object.values(element.children).forEach((child) => {
       // Continue checking the element's children (and track our last siblings directives)
-      previousDirectives = Walk.element(child, component, renderController);
+      Walk.element(child, component, renderController);
     });
   },
 };
