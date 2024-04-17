@@ -13,7 +13,7 @@ import ClassDirective from '../directives/display/class';
 import DisabledDirective from '../directives/display/disabled';
 import HrefDirective from '../directives/display/href';
 import HtmlDirective from '../directives/display/html';
-import IfDirective from '../directives/display/if';
+import IfDirective from '../directives/display/conditional/if';
 import ShowDirective from '../directives/display/show';
 import SrcDirective from '../directives/display/src';
 import StyleDirective from '../directives/display/style';
@@ -25,6 +25,13 @@ import RefDirective from '../directives/ref';
 import VivereComponent from '../components/vivere-component';
 import ComponentRegistry from '../components/registry';
 import { RenderController, isRenderController } from '../rendering/render-controller';
+import ElseDirective from '../directives/display/conditional/else';
+
+declare global {
+  interface Element {
+    $directives?: Directive[];
+  }
+}
 
 const directives: (typeof Directive)[] = [
   // v-for must be first since all other directives on the template
@@ -42,9 +49,10 @@ const directives: (typeof Directive)[] = [
   PassDirective,
   RefDirective,
   StoreDirective,
-  // v-if needs to be the first display directive since we can defer
+  // v-if (and v-else) needs to be the first display directive since we can defer
   // futher rendering and hydrating until the element comes into view
   IfDirective,
+  ElseDirective,
   // For the remaining directives, order is irrelevant
   AttrDirective,
   ClassDirective,
@@ -71,13 +79,13 @@ const Walk = {
     });
   },
 
-  element(element: Element, component?: VivereComponent, renderController?: RenderController): void {
+  element(element: Element, component?: VivereComponent, renderController?: RenderController, previousDirectives?: { Dir: typeof Directive, name: string, value: string }[]): { Dir: typeof Directive, name: string, value: string }[] {
     const { attributes } = element;
     let $component = component;
     let $renderController = renderController;
 
     // v-static stops tree walking for improved performance
-    if (attributes['v-static'] != null) return;
+    if (attributes['v-static'] != null) return [];
 
     // Track which directives we've found so we can parse them in order
     const parsedDirectives: { Dir: typeof Directive, name: string, value: string }[] = [];
@@ -98,6 +106,8 @@ const Walk = {
     });
 
     if (parsedDirectives.length) {
+      element.$directives = [];
+
       // Parse the directives in the proper order
       parsedDirectives.sort((a, b) => {
         const aIdx = directives.indexOf(a.Dir);
@@ -113,6 +123,9 @@ const Walk = {
         // Initialize and parse the directive
         const directive = new Dir(element, name, value, $component, $renderController);
 
+        // Add the directive to the element for tracking
+        element.$directives?.push(directive);
+
         // Re-assign component (for v-component directives)
         $component = directive.component;
 
@@ -123,12 +136,15 @@ const Walk = {
 
     if (!(element instanceof HTMLElement) || element.dataset[Directive.DATA_SUSPEND_PARSING] !== 'true')
       Walk.children(element, $component, $renderController);
+
+    return parsedDirectives;
   },
 
   children(element: Element, component: VivereComponent, renderController?: RenderController): void {
+    let previousDirectives: { Dir: typeof Directive, name: string, value: string }[] = [];
     Object.values(element.children).forEach((child) => {
-      // Continue checking the element's children
-      Walk.element(child, component, renderController);
+      // Continue checking the element's children (and track our last siblings directives)
+      previousDirectives = Walk.element(child, component, renderController);
     });
   },
 };

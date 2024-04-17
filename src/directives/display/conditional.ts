@@ -4,10 +4,9 @@ import Walk from '../../lib/walk';
 import Animator from '../../lib/animator';
 import { RenderController } from '../../rendering/render-controller';
 import Directive from '../directive';
+import Registry from '../../reactivity/registry';
 
-export default class IfDirective extends DisplayDirective implements NodeHost, RenderController {
-  static id = 'v-if';
-
+export default abstract class ConditionalDirective extends DisplayDirective implements NodeHost, RenderController {
   container: Node;
 
   current: Node;
@@ -19,6 +18,8 @@ export default class IfDirective extends DisplayDirective implements NodeHost, R
   rendered = false;
 
   animator: Animator;
+
+  listeners: Registry<unknown, () => void> = new Registry();
 
   awaitingRender: Set<Directive> = new Set();
 
@@ -93,6 +94,11 @@ export default class IfDirective extends DisplayDirective implements NodeHost, R
         d.component?.$queueRender(d);
         this.awaitingRender.delete(d);
       });
+
+    // Report that we've updated our value to any listeners
+    this.listeners.forEach((listener, callback) => {
+      callback();
+    });
 
     // Track whether this has been evaluated to avoid
     // animating on our first evaluation
