@@ -17,6 +17,6 @@ export default class MethodDirective extends Directive {
     const { component, expression } = this;
 
     this.camelKey = Utility.camelCase(this.key);
-    this.component[this.camelKey] = (...args: unknown[]) => Evaluator.execute(component, expression, ...args);
+    this.component[this.camelKey] = (...args: unknown[]): unknown => Evaluator.execute(component, expression, ...args);
   }
 }
