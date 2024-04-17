@@ -81,7 +81,7 @@ const Walk = {
     });
   },
 
-  element(element: Element, component?: VivereComponent, renderController?: RenderController) {
+  element(element: Element, component?: VivereComponent, renderController?: RenderController): void {
     const { attributes } = element;
     let $component = component;
     let $renderController = renderController;
