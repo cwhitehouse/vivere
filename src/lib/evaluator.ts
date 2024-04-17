@@ -285,25 +285,27 @@ export default {
     return undefined;
   },
 
-  execute(component: VivereComponent, expression: string, ...args: unknown[]): void {
+  execute(component: VivereComponent, expression: string, ...args: unknown[]): unknown {
     // Shallow parse the expression
     const response = parse(component, expression, true, args);
 
-    // If it looked like an assignment and it was executed, we're done
-    if (response === ParseResult.AssignmentExpressionExecuted) return;
+    // If it looked like an assignment and it was executed, return `undefined`
+    if (response === ParseResult.AssignmentExpressionExecuted) return undefined;
 
-    // If it looked like nothing (e.g. the second half of a `??` operator), we're done
-    if (response === ParseResult.EmptyExpression) return;
+    // If it looked like nothing (e.g. the second half of a `??` operator), return null
+    if (response === ParseResult.EmptyExpression) return null;
 
-    // If it looked like a function call and it was executed, we're done
-    if (response instanceof ShallowCallResult) return;
+    // If it looked like a function call and it was executed, return the result
+    if (response instanceof ShallowCallResult) return response.value;
 
-    // Otherwise, invoke the method on our shallow parser result
+    // Otherwise, invoke the method on our shallow parser result and return that value
     if (response instanceof ShallowParseResult) {
       const { object: caller, prop: property } = response;
-      caller[property](args);
-    } else
-      throw new EvaluatorError('Tried to invoke method on a deeply parsed value', component, expression);
+      return caller[property](args);
+    }
+
+    // If it's not a special case response, simply return whatever the response was
+    return response;
   },
 
   compute(component: VivereComponent, expression: string): unknown {
@@ -318,11 +320,13 @@ export default {
     // If it looked like a function call and it was executed, we're done
     if (response instanceof ShallowCallResult) return response.value;
 
+    // If we're parsing a property on the caller, do that
     if (response instanceof ShallowParseResult) {
       const { object: caller, prop: property } = response;
       return caller[property];
     }
 
+    // Otherwise let's just return whatever we found
     return response;
   },
 };

@@ -49,7 +49,8 @@
       v-for="(entry, idx) of displayData"
       v-pass:show-even
       v-pass:color-class
-      v-compute:is-even="idx % 2 !== 0"
+      v-method:test-is-even="$args[0] % 2 == 0"
+      v-compute:is-even="testIsEven(idx)"
       v-compute:metadata="showEven ? entry.metadata : null"
     >
       <span
