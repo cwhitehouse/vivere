@@ -48,10 +48,14 @@ export default class VivereComponent extends ReactiveHost {
 
   $isConnected = false;
 
+  $isDehydrated = false;
+
   $isDestroyed = false;
 
   beforeConnected?(): void;
   connected?(): void;
+
+  rendered?(): void;
 
   beforeDestroyed?(): void;
   destroyed?(): void;
@@ -299,7 +303,7 @@ export default class VivereComponent extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   $connect(): void {
-    const { $isConnected, beforeConnected, connected } = this;
+    const { $isConnected, beforeConnected, connected, rendered } = this;
 
     // If this has already been connected, then we don't need to
     // run through all of these commands (because we already have)
@@ -307,8 +311,7 @@ export default class VivereComponent extends ReactiveHost {
       return;
 
     // Callback hook
-    if (beforeConnected != null)
-      beforeConnected.call(this);
+    beforeConnected?.call(this);
 
     // Load data from storage
     this.#loadStoredData.call(this);
@@ -316,14 +319,19 @@ export default class VivereComponent extends ReactiveHost {
     // Force initial render
     this.$forceRender.call(this, true);
 
+    // Update state tracking
     this.$isConnected = true;
+    this.$isDehydrated = false;
 
     // Callback hook
-    if (connected != null)
-      connected.call(this);
+    connected?.call(this);
+
+    this.$nextRender(() => {
+      rendered?.call(this);
+    });
   }
 
-  $destroy(shallow = false): void {
+  $destroy(): void {
     const { $children, $directives, $isDestroyed, $element, $parent, beforeDestroyed, destroyed } = this;
 
     // If this has already been destroyed (likely because a parent was destroyed), then we
@@ -332,8 +340,7 @@ export default class VivereComponent extends ReactiveHost {
       return;
 
     // Callback hook
-    if (beforeDestroyed != null)
-      beforeDestroyed.call(this);
+    beforeDestroyed?.call(this);
 
     // Destroy directives
     $directives.forEach((d) => d.destroy());
@@ -341,7 +348,7 @@ export default class VivereComponent extends ReactiveHost {
     // Destroy all children (recusive)
     $children.forEach((c) => c.$destroy());
 
-    if (!shallow && $parent != null) {
+    if ($parent != null) {
       // Remove from parent's children
       const childIdx = $parent.$children.indexOf(this);
       if (childIdx >= 0)
@@ -354,11 +361,12 @@ export default class VivereComponent extends ReactiveHost {
     // Remove from DOM
     $element.parentNode.removeChild(this.$element);
 
+    // Update state tracking
     this.$isDestroyed = true;
+    this.$isConnected = false;
 
     // Callback hook
-    if (destroyed != null)
-      destroyed.call(this);
+    destroyed?.call(this);
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -379,11 +387,8 @@ export default class VivereComponent extends ReactiveHost {
     const { beforeDehydrated, beforeDestroyed, dehydrated, destroyed } = this;
 
     // Callback hook
-    if (beforeDehydrated != null)
-      beforeDehydrated.call(this);
-
-    if (beforeDestroyed != null)
-      beforeDestroyed.call(this);
+    beforeDehydrated?.call(this);
+    beforeDestroyed?.call(this);
 
     // Dehydrate this component
     this.#dehydrateData.call(this);
@@ -400,14 +405,15 @@ export default class VivereComponent extends ReactiveHost {
         $parent.$children.splice(childIdx, 1);
     }
 
+    // Update state tracking
+    this.$isDehydrated = true;
+    this.$isConnected = false;
+
     // Remove from global component registry
     ComponentRegistry.untrack(this);
 
     // Callback hooks
-    if (dehydrated != null)
-      dehydrated.call(this);
-
-    if (destroyed != null)
-      destroyed.call(this);
+    dehydrated?.call(this);
+    destroyed?.call(this);
   }
 }
