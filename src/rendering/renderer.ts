@@ -11,7 +11,7 @@ const tick: () => void = () => {
   $ticks.clear();
 };
 
-const render: () => void = () => {
+const render: (shouldTick: boolean) => void = (shouldTick = true) => {
   Timer.time('Directives rendered :', () => {
     // New directives can be added to the set mid rendering, e.g. when
     // a v-for directive evaluates
@@ -40,13 +40,22 @@ const render: () => void = () => {
     $dirty = false;
   });
 
-  // Run all waiting ticks
-  tick();
+  if (shouldTick)
+    // Run all waiting ticks
+    tick();
+};
+
+const renderAndTick = () => {
+  render(true);
 };
 
 const Renderer = {
-  $forceRender(): void {
-    render();
+  $forceTick(): void {
+    tick();
+  },
+
+  $forceRender(shouldTick = true): void {
+    render(shouldTick);
   },
 
   $queueRender(directive: Directive): void {
@@ -57,7 +66,7 @@ const Renderer = {
     // Reqeust animation frame if we aren't
     // currently waiting on one
     if (!$dirty) {
-      window.requestAnimationFrame(render);
+      window.requestAnimationFrame(renderAndTick);
       $dirty = true;
     }
   },

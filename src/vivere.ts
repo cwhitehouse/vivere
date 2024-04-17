@@ -49,8 +49,11 @@ document.addEventListener('turbo:before-render', (event: Record<string, any>) =>
 
   $setup(newBody);
 
-  // Force an initial render on the main thread
-  Renderer.$forceRender();
+  // Force an initial render on the main thread (but don't tick!)
+  // - Want the DOM to be in the correct state before turbo has rendered the new DOM
+  // - But things waiting for rendering should wait until turbo has rendered the new DOM
+  // - Our ticks will be invoked when `requestAnimationFrame` resolves
+  Renderer.$forceRender(false);
 });
 
 // For click.outside handlers, we need to see every click

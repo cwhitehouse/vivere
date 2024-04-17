@@ -18,6 +18,8 @@ import ComplexNestedContainerB from './includes/examples/complex/nested-containe
 import ComplexToggle from './includes/examples/complex/toggle';
 import ComplexToggleList from './includes/examples/complex/toggle-list';
 
+import InputsText from './includes/examples/inputs/text';
+
 import FancyCounter from './includes/examples/counters/fancy';
 
 import ListsFilter from './includes/examples/lists/filter';
@@ -50,6 +52,8 @@ Vivere.register('ComplexNestedContainerA', ComplexNestedContainerA);
 Vivere.register('ComplexNestedContainerB', ComplexNestedContainerB);
 Vivere.register('ComplexToggle', ComplexToggle);
 Vivere.register('ComplexToggleList', ComplexToggleList);
+
+Vivere.register('InputsText', InputsText);
 
 Vivere.register('FancyCounter', FancyCounter);
 
