@@ -46,6 +46,8 @@ export default class VivereComponent extends ReactiveHost {
 
   $stored: { [key: string]: StoredInterface } = {};
 
+  $listeners: { [key: string]: ((...args: unknown[]) => unknown)[] } = {};
+
   $isConnected = false;
 
   $isDehydrated = false;
@@ -302,11 +304,27 @@ export default class VivereComponent extends ReactiveHost {
   // LIFE CYCLE
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  $addCallbackListener(callback: string, listener: (...args: unknown[]) => unknown): void {
+    this.$listeners[callback] ||= [];
+    this.$listeners[callback].push(listener);
+  }
+
+  $removeCallbackListener(callback: string, listener: (...args: unknown[]) => unknown): void {
+    this.$listeners[callback] = this.$listeners[callback]?.filter((l) => l !== listener);
+  }
+
+  #reportCallback(callback: string): void {
+    this.$listeners[callback]?.forEach((listener) => {
+      listener();
+    });
+  }
+
   $setup(): void {
     const { beforeConnected } = this;
 
     // Callback hooks
     beforeConnected?.call(this);
+    this.#reportCallback('beforeConnected');
 
     // Turn on all of our reactive properties
     this.$setupReactivity();
@@ -332,9 +350,11 @@ export default class VivereComponent extends ReactiveHost {
 
     // Callback hook
     connected?.call(this);
+    this.#reportCallback('connected');
 
     this.$nextRender(() => {
       rendered?.call(this);
+      this.#reportCallback('rendered');
     });
   }
 
@@ -348,6 +368,7 @@ export default class VivereComponent extends ReactiveHost {
 
     // Callback hook
     beforeDestroyed?.call(this);
+    this.#reportCallback('beforeDestroyed');
 
     // Destroy directives
     $directives.forEach((d) => d.destroy());
@@ -374,6 +395,7 @@ export default class VivereComponent extends ReactiveHost {
 
     // Callback hook
     destroyed?.call(this);
+    this.#reportCallback('destroyed');
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -395,7 +417,9 @@ export default class VivereComponent extends ReactiveHost {
 
     // Callback hook
     beforeDehydrated?.call(this);
+    this.#reportCallback('beforeDehydrated');
     beforeDestroyed?.call(this);
+    this.#reportCallback('beforeDestroyed');
 
     // Dehydrate this component
     this.#dehydrateData.call(this);
@@ -421,6 +445,8 @@ export default class VivereComponent extends ReactiveHost {
 
     // Callback hooks
     dehydrated?.call(this);
+    this.#reportCallback('dehydrated');
     destroyed?.call(this);
+    this.#reportCallback('destroyed');
   }
 }

@@ -2,6 +2,7 @@ import Directive from './directive';
 import Evaluator from '../lib/evaluator';
 import EventBus from '../lib/events/bus';
 import Event from '../lib/events/event';
+import Utility from '../lib/utility';
 import DirectiveError from '../errors/directive-error';
 
 export default class EventDirective extends Directive {
@@ -16,24 +17,36 @@ export default class EventDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { element, expression, key, modifiers } = this;
+    const { component, element, expression, key, modifiers } = this;
 
     if (expression == null && !(modifiers?.includes('prevent') || modifiers?.includes('cancel')))
       throw new DirectiveError('Events must `prevent` or `cancel` to be valid without an expression', this, null);
 
+    // Bind this for our callback
     this.binding = this.execute.bind(this);
-    this.clickOutsideBinding = this.handleClickOutside.bind(this);
 
-    if (key === 'click' && modifiers?.includes('outside'))
-      // Click outside requires special handling
-      EventBus.register(Event.CLICK, this.clickOutsideBinding);
-    else
-      element.addEventListener(key, this.binding);
+    const camelKey = Utility.camelCase(key);
+    if (['beforeConnected', 'connected', 'rendered', 'beforeDehydrated', 'beforeDestroyed'].includes(camelKey))
+      // We can listen for callbacks on the component with special logic here
+      // that ignores modifiers, etc.
+      component.$addCallbackListener(camelKey, this.binding);
+    else {
+      // Otherwise we treat it as a normal event that will come from
+      // the element
+      this.clickOutsideBinding = this.handleClickOutside.bind(this);
+
+      if (key === 'click' && modifiers?.includes('outside'))
+        // Click outside requires special handling
+        EventBus.register(Event.CLICK, this.clickOutsideBinding);
+      else
+        element.addEventListener(key, this.binding);
+    }
   }
 
   // Destruction (detach event listeners)
 
   destroy(): void {
+    this.component?.$removeCallbackListener(this.key, this.binding);
     this.element.removeEventListener(this.key, this.binding);
     EventBus.deregister(Event.CLICK, this.clickOutsideBinding);
   }

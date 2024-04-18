@@ -5,6 +5,7 @@
   v-bind:input="updateText"
   v-event:keydown.esc="clear"
   v-event:keydown.ent="blur"
+  v-event:rendered="$refs.input.focus"
   class="flex-1"
 >
   <input
