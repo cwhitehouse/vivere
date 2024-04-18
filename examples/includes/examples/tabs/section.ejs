@@ -3,12 +3,12 @@
   v-data:value='<%= section.value %>'
   v-pass:active-section
   v-bind:select="selectSection"
-  v-class:border-indigo-500::z-10="isActive"
+  v-class:border-indigo-500.z-10="isActive"
   class="border-2 bg-white relative first:rounded-t last:rounded-b"
 >
   <button
     v-event:click="select"
-    v-class:bg-indigo-50::text-indigo-600="isActive"
+    v-class:bg-indigo-50.text-indigo-600="isActive"
     class="font-semibold p-4 w-full focus:outline-none text-left hover:text-indigo-600 hover:bg-indigo-50"
   ><%= section.title %></button>
   <div
