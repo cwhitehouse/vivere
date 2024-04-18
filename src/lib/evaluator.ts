@@ -120,9 +120,9 @@ const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, opti
   throw new EvaluatorError('Tried to invoke method on deeply parsed value', caller, type);
 };
 
-const evaluateCompound = (caller: unknown, tree: jsep.Compound, options: EvaluatorOptions): unknown => {
+const evaluateCompound = (caller: unknown, tree: jsep.Compound, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { body } = tree;
-  return body.map((exp) => evaluateTree(caller, exp, options));
+  return body.map((exp) => evaluateTree(caller, exp, options, shallow));
 };
 
 const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
@@ -224,7 +224,7 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
     case 'CallExpression':
       return evaluateCallExpression(caller, tree as jsep.CallExpression, options, shallow);
     case 'Compound':
-      return evaluateCompound(caller, tree as jsep.Compound, options);
+      return evaluateCompound(caller, tree as jsep.Compound, options, shallow);
     case 'ConditionalExpression':
       return evaluateConditionalExpression(caller, tree as jsep.ConditionalExpression, options, shallow);
     case 'BinaryExpression':
@@ -303,6 +303,14 @@ export default {
       const { object: caller, prop: property } = response;
       return caller[property](args);
     }
+
+    if (Array.isArray(response))
+      response.forEach((resp) => {
+        if (resp instanceof ShallowParseResult) {
+          const { object: caller, prop: property } = resp;
+          caller[property](args);
+        }
+      });
 
     // If it's not a special case response, simply return whatever the response was
     return response;
