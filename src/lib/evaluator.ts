@@ -131,7 +131,7 @@ const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, opti
   throw new EvaluatorError('Tried to invoke method on deeply parsed value', caller, type);
 };
 
-const evaluateArrowExpression = (caller: unknown, tree: ArrowExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
+const evaluateArrowExpression = (caller: unknown, tree: ArrowExpression, options: EvaluatorOptions): unknown => {
   const { body, params, type } = tree;
   const { local } = options;
 
@@ -293,7 +293,7 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
     case 'CallExpression':
       return evaluateCallExpression(caller, tree as jsep.CallExpression, options, shallow);
     case 'ArrowFunctionExpression':
-      return evaluateArrowExpression(caller, tree as ArrowExpression, options, shallow);
+      return evaluateArrowExpression(caller, tree as ArrowExpression, options);
     case 'Compound':
       return evaluateCompound(caller, tree as jsep.Compound, options, shallow);
     case 'ConditionalExpression':
