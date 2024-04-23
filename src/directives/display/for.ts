@@ -23,6 +23,8 @@ export default class ForDirective extends DisplayDirective {
 
   placeholder: Node;
 
+  keyAttribute?: string;
+
   keyedElements: { [key:string]: VivereComponent } = {};
 
   unkeyedElements: VivereComponent[] = [];
@@ -48,6 +50,10 @@ export default class ForDirective extends DisplayDirective {
 
     // Remove our element from the parent
     this.parent.removeChild(element);
+
+    // Extract the (optional) key attribute from the element
+    this.keyAttribute = element.getAttribute(':key');
+    element.removeAttribute(':key');
   }
 
   // Evaluation
@@ -77,7 +83,7 @@ export default class ForDirective extends DisplayDirective {
   }
 
   evaluateValue(value: ForDirectiveValue): void {
-    const { component, element, keyedElements, unkeyedElements, parent, placeholder } = this;
+    const { component, element, keyAttribute, keyedElements, unkeyedElements, parent, placeholder } = this;
     const { itemExpression, indexExpression, list, listExpression } = value;
 
     const isList = Array.isArray(list);
@@ -109,7 +115,12 @@ export default class ForDirective extends DisplayDirective {
         const item = list[$key];
 
         // Generate a key for tracking this element
-        const key = isList ? this.itemKey(item) : $key;
+        let key: string;
+        if (isList) {
+          if (keyAttribute != null)
+            key = item[keyAttribute];
+        } else
+          key = $key;
 
         // See if we have a cached element with a matching key in our cache,
         // and remove it from the cache to be used
@@ -183,7 +194,23 @@ export default class ForDirective extends DisplayDirective {
           // position for the updated list
           const { $element } = cachedElement;
           // $element.remove();
-          parent.insertBefore($element, insertBefore);
+
+          // Index of the element we're adding to the array
+          const currentIdx = Array.prototype.indexOf.call(parent.children, $element);
+
+          // The array we'll be inserting into (or -1) if it's the end of the list
+          const insertIdx = Array.prototype.indexOf.call(parent.children, insertBefore);
+
+          // This element is not in DOM
+          const requiresInsert = currentIdx === -1;
+
+          // This element is in the correct position and doesn't need to move
+          const inPosition = currentIdx === (insertIdx - 1) // The current index is where we want to end up
+            || (insertIdx === -1 && (currentIdx === parent.children.length - 1)); // We are at the end of the list where we belong
+
+          // If we're at the position we're trying to insert (and if it's the end of the list we're at the end)
+          if (requiresInsert || !inPosition)
+            parent.insertBefore($element, insertBefore);
           insertBefore = $element;
 
           // Flip our TogglableRenderController to true, ensuring any directives on
@@ -202,7 +229,7 @@ export default class ForDirective extends DisplayDirective {
 
     // Ensure all our rendered components are cached
     // for the next time the list udpates
-    renderedElements.forEach((re) => {
+    renderedElements.reverse().forEach((re) => {
       const { key, el } = re;
       if (key != null)
         keyedElements[key] = el;
@@ -218,10 +245,10 @@ export default class ForDirective extends DisplayDirective {
     if (Array.isArray(item))
       return JSON.stringify(item);
 
-    const props = ['key', 'id', 'name'];
+    const props = ['id', 'key', 'name'];
     for (let i = 0; i < props.length; i += 1) {
       const prop = props[i];
-      if (item[prop])
+      if (item[prop] != null)
         return item[prop].toString();
     }
 
