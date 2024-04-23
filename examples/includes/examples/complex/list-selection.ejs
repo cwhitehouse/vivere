@@ -15,7 +15,7 @@
   v-compute:selection="list[selectedIdx]"
 >
   <p class="italic">Current selection:</p>
-  <p v-text="selection?.name"></p>
+  <p v-attr:text="selection?.name"></p>
   <div class="mt-4 space-y-2">
     <div
       v-for="(item, idx) of list"
@@ -30,8 +30,8 @@
         name="list-selection"
       />
       <label
-        v-attr:for="'list-' + idx"
-        v-text="item.name"
+        :for="'list-' + idx"
+        :text="item.name"
         class="pl-2"
       ></p>
     </div>

@@ -3,17 +3,17 @@
   class="flex items-center"
 >
   <button
-    v-event:click="$log('Decrementing the count...'); decrementCount()"
-    v-disabled="!canDecrement"
+    @click="$log('Decrementing the count...'); decrementCount()"
+    :disabled="!canDecrement"
     class="button"
   >-</button>
   <p
-    v-text="count"
+    :text="count"
     v-class:text-red-600.font-medium="countHigh"
     class="flex-1 text-center"
   ></p>
   <button
-    v-event:click="incrementCount; $log('Incrementing the count...')"
+    @click="incrementCount; $log('Incrementing the count...')"
     class="button"
   >+</button>
 </div>

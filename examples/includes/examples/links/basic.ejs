@@ -1,15 +1,17 @@
 <div
   v-component
-  v-data:toggle="false"
+  #toggle="false"
+  🖥️:href="toggle ? 'https://www.google.com' : null"
+  🖥️:text="toggle ? 'A working link' : 'A broken link'"
   class="flex items-center space-x-4"
 >
   <button
-    v-event:click="toggle = !toggle"
+    @click="toggle = !toggle"
     class="button"
   >Toggle Link</button>
   <a
-    v-href="toggle ? 'https://www.google.com' : null"
-    v-text="toggle ? 'A working link' : 'A broken link'"
+    :href="href"
+    :text="text"
     class="text-link"
     target="_blank"
   ></a>

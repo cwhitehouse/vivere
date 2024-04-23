@@ -3,13 +3,6 @@ import { VivereComponent } from "../../../../src/vivere";
 export default class extends VivereComponent {
   label = null;
 
-  $passed = {
-    showing: {
-      type: Boolean,
-      default: true,
-    },
-  };
-
   get hasLabel() {
     return this.label != null
       && this.label.length > 0;

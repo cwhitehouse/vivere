@@ -101,6 +101,32 @@ module.exports = {
       directives.push(directive);
     }
 
+    // Parse directive shotcuts
+    const attributeMatches = fileContent
+      .matchAll(/\s:[A-z-]+/g);
+    for (let match of attributeMatches)
+      directives.push('v-attr');
+
+    const dataMatches = fileContent
+      .matchAll(/\s#[A-z-]+/g);
+    for (let match of dataMatches)
+      directives.push('v-data');
+
+    const eventMatches = fileContent
+      .matchAll(/\s@[A-z-]+/g);
+    for (let match of eventMatches)
+      directives.push('v-event');
+
+    const computeMatches = fileContent
+      .matchAll(/\s🖥️:[A-z-]+/g);
+    for (let match of computeMatches)
+      directives.push('v-compute');
+
+    const methodMatches = fileContent
+      .matchAll(/\s🛠️:[A-z-]+/g);
+    for (let match of methodMatches)
+      directives.push('v-method');
+
     // Parse Javascript usage
     const componentMatches = fileContent
       .matchAll(/v-component=["']([A-z-]+)["']/g);

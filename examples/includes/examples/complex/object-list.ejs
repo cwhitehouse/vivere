@@ -17,15 +17,16 @@
   <p class="italic">Current selection:</p>
   <div class="flex items-center">
     <p
-      v-text="selectedKey"
+      v-attr:text="selectedKey"
       class="w-20"
     ></p>
     :
-    <p class="ml-4" v-text="selection"></p>
+    <p class="ml-4" :text="selection"></p>
   </div>
   <div class="mt-4 space-y-2">
     <div
       v-for="(key, value) of object"
+      :key="key"
       v-pass:selected-key
       class="flex items-center"
     >
@@ -38,7 +39,7 @@
       />
       <label
         v-attr:for="'list-' + key"
-        v-text="key"
+        v-attr:text="key"
         class="pl-2"
       ></p>
     </div>

@@ -11,9 +11,9 @@
   #data="<%= JSON.stringify(data) %>"
   #suggestions="<%= JSON.stringify(['Texture', 'Category', 'Section']) %>"
   #next-id="3"
-  🛠️:add-data="data.push({ id: nextId, key: $args[0], value: '' }); nextId += 1"
   🖥️:data-keys="data.map(d => d.key)"
   🖥️:filtered-suggestions="suggestions.filter(s => !dataKeys.includes(s))"
+  🛠️:add-data="data.push({ id: nextId, key: $args[0], value: '' }); nextId += 1"
 >
   <ul class="space-y-4">
     <li
@@ -40,7 +40,7 @@
     >Add Property</button>
     <button
       v-for="suggestion of filteredSuggestions"
-      ⛓️:append="addData"
+      v-bind:append="addData"
       @click="$emit('append', suggestion)"
       class="button"
     >+ <span :text="suggestion"></span></button>

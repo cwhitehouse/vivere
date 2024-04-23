@@ -11,24 +11,24 @@
 >
   <input
     v-sync="text"
-    v-disabled="saving"
+    v-attr:disabled="saving"
     type="text"
     placeholder="Required!"
     class="flex-1"
   />
   <button
-    v-disabled="!text?.length || saving"
+    v-attr:disabled="!text?.length || saving"
     v-event:click.prevent="text?.length ?? saving = true"
     class="button w-32"
   >
     <span
-      v-text="saving ? '⏳' : 'Submit'"
+      :text="saving ? '⏳' : 'Submit'"
       v-class:animate-spin="saving"
       class="inline-block"
     ></span>
   </button>
   <button
-    v-disabled="!saving"
+    v-attr:disabled="!saving"
     v-event:click.prevent="saving = false"
     class="button w-32"
   >Cancel</button>

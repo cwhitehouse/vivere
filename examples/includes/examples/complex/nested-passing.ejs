@@ -2,7 +2,7 @@
   v-component="ComplexNestedContainerA"
   class="flex flex-col items-center justify-center"
 >
-  <p v-text="communique || 'Choose a phrase to display...'"></p>
+  <p :text="communique || 'Choose a phrase to display...'"></p>
   <div
     v-component="ComplexNestedContainerB"
     v-compute:has-message="message != null"

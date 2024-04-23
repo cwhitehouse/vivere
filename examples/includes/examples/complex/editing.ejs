@@ -18,27 +18,27 @@
     <div class="space-y-2">
       <div class="flex items-center">
         <p class="w-16 text-sm font-medium text-gray-600">ID:</p>
-        <p v-text="item.id"></p>
+        <p :text="item.id"></p>
       </div>
       <div class="flex items-center">
         <p class="w-16 text-sm font-medium text-gray-600">NAME:</p>
-        <p v-text="item.name"></p>
+        <p v-attr:text="item.name"></p>
       </div>
       <p class="w-16 text-sm font-medium text-gray-600">META:</p>
       <div class="flex items-center ml-2">
         <p class="w-20 text-sm font-medium text-gray-600"><span class="text-xs transform -translate-y-0.5 inline-block">↳</span> COUNT:</p>
-        <p v-text="item.meta.count"></p>
+        <p v-attr:text="item.meta.count"></p>
       </div>
       <div class="flex items-center ml-2">
         <p class="w-20 text-sm font-medium text-gray-600"><span class="text-xs transform -translate-y-0.5 inline-block">↳</span> SPEED:</p>
-        <p v-text="item.meta.speed"></p>
+        <p v-attr:text="item.meta.speed"></p>
       </div>
       <div class="flex items-center">
         <p class="w-16 text-sm font-medium text-gray-600">TAGS:</p>
         <div class="flex items-center space-x-1">
           <p
             v-for="tag of item.tags"
-            v-text="tag"
+            :text="tag"
             class="bg-indigo-100 px-1.5 py-1 text-sm rounded-sm font-semibold text-indigo-800"
           ></p>
         </div>
@@ -83,7 +83,7 @@
             class="button flex-1"
           >-</button>
           <p
-            v-text="editItem.meta.count"
+            v-attr:text="editItem.meta.count"
             class="flex-1 text-center"
           ></p>
           <button
@@ -135,7 +135,7 @@
           >
             <div class="flex items-center text-sm font-medium mt-0.5 text-indigo-800 dark:text-indigo-50 bg-indigo-100 dark:bg-indigo-800 rounded-md">
               <p
-                v-text="tag"
+                :text="tag"
                 class="pl-2.5 pr-2 py-1.5"
               ></p>
               <a
@@ -147,7 +147,7 @@
           <a
             v-if="!tagging"
             v-event:click="tagging = true"
-            v-class:disabled="submitting"
+            v-attr:class:disabled="submitting"
             class="inline-block border-2 rounded-md text-sm px-2.5 py-1.5 font-medium text-gray-600 dark:text-gray-200 cursor-pointer shadow-sm hover:shadow-lg mt-2"
           >Add tag...</a>
           <input

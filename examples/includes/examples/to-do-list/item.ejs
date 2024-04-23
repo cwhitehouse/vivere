@@ -1,5 +1,6 @@
 <div
   v-for="toDo of filteredList"
+  :key="id"
   v-component="to-do-item"
   v-bind:remove="removeItem"
   class="to-do-item h-12 flex items-stretch"
@@ -21,7 +22,7 @@
     <button
       class="button-indigo"
       v-event:click="save"
-      v-disabled="!hasLabel"
+      v-attr:disabled="!hasLabel"
     >Save</button>
     <button
       class="button"
@@ -45,24 +46,24 @@
         class="flex-2"
         v-class:line-through="toDo.checked"
         v-class:italic="toDo.checked"
-        v-text="toDo.label"
+        v-attr:text="toDo.label"
       ></p>
     </div>
     <div class="to-do-tags flex-1 flex items-center">
       <p
         v-for="tag of toDo.tags"
-        v-text="tag"
+        v-attr:text="tag"
         class="rounded text-xs uppercase font-semibold px-2 py-1 mr-1 mt-1 bg-indigo-100 text-indigo-900"
       ></p>
     </div>
     <div class="flex-1 flex items-center justify-end space-x-2">
       <button
-        v-disabled="toDo.checked"
+        v-attr:disabled="toDo.checked"
         class="button"
         v-event:click="startEditing"
       >Edit</button>
       <button
-        v-disabled="toDo.checked"
+        v-attr:disabled="toDo.checked"
         class="button-rosy"
         v-event:click="confirmDelete"
       >Delete</button>

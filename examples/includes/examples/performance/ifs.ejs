@@ -56,18 +56,18 @@
       <div class="flex items-center mt-4">
         <button
           v-event:click="count > 0 ?? count -= 1"
-          v-disabled="count <= 0"
+          v-attr:disabled="count <= 0"
           disabled
           class="button compact"
         >−</button>
         <p
-          v-text="count"
+          v-attr:text="count"
           v-class:text-emerald-700.font-semibold="count >= 5"
           class="flex-1 text-center"
         >0</p>
         <button
           v-event:click="count < 10 ?? count += 1"
-          v-disabled="count >= 10"
+          v-attr:disabled="count >= 10"
           class="button compact"
         >+</button>
       </div>

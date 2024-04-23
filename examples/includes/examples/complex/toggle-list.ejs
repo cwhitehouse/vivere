@@ -4,7 +4,7 @@
   v-component="ComplexToggleList"
   v-data:properties="<%= JSON.stringify(opts.slice(1,3)) %>"
 >
-  <p>Selected properties: <span v-text="propertiesString"></span></p>
+  <p>Selected properties: <span :text="propertiesString"></span></p>
   <div class="grid grid-cols-4 gap-2 mt-4">
     <% for (opt of opts) { %>
       <a

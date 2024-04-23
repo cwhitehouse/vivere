@@ -4,13 +4,13 @@
 >
   <button
     v-event:click="toggleFilter"
-    v-text="buttonLabel"
+    v-attr:text="buttonLabel"
     class="button"
   ></button>
   <ul class="mt-6">
     <li
       v-for="item of filteredItems"
-      v-text="item?.name"
+      v-attr:text="item?.name"
     />
   </ul>
 </div>

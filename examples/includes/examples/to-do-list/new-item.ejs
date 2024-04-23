@@ -3,6 +3,8 @@
   v-bind:cancel="stopCreating"
   v-bind:create="create"
   v-pass:showing="creating"
+  @connected="$log('New Item connected!')"
+  @rendered="$log('New Item rendered!'); $refs.input.focus"
   v-ref="newItem"
   class="flex items-stretch h-10 space-x-2"
 >
@@ -18,7 +20,7 @@
   <button
     class="button-indigo"
     v-event:click="create"
-    v-disabled="!hasLabel"
+    v-attr:disabled="!hasLabel"
   >Create</button>
   <button
     class="button"
