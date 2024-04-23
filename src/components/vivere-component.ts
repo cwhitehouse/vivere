@@ -177,8 +177,10 @@ export default class VivereComponent extends ReactiveHost {
     // in the $passed definition
     definition.expression = expression;
     definition.index = index;
+  }
 
-    $reactives[key]?.dirty();
+  #listenerForKey(key: string): string {
+    return `on${Utility.pascalCase(key)}Changed`;
   }
 
   #react(key: string, oldValue: unknown): void {
@@ -187,7 +189,7 @@ export default class VivereComponent extends ReactiveHost {
     // If we're storing the value, or have a watcher for the value
     // changing, we need to check to see if the value actually changed
     const storedDefinition = $stored[key];
-    const methodName = `on${Utility.pascalCase(key)}Changed`;
+    const methodName = this.#listenerForKey(key);
     if (this[methodName] != null || storedDefinition != null) {
       const newValue = this[key];
 
@@ -340,6 +342,20 @@ export default class VivereComponent extends ReactiveHost {
 
     // Load data from storage
     this.#loadStoredData.call(this);
+
+    // Pre-compute all our computed properties with listeners (this
+    // is to ensure they are watching any values we care about, even if
+    // they aren't ever called directly)
+    Object.entries(this.$reactives).forEach(([key, reactive]) => {
+      if (reactive.getter != null) {
+        // A listener needs to know about updated, but it's existence
+        // never otherwise forces the comptued value to compute, therefore
+        // we need to kickstart reactivity for the value
+        const listenerName = this.#listenerForKey(key);
+        if (this[listenerName] != null)
+          reactive.computeValue();
+      }
+    });
 
     // Force initial render
     this.$forceRender.call(this, true);
