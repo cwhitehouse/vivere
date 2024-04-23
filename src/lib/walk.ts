@@ -10,15 +10,9 @@ import PassDirective from '../directives/component/pass';
 import StoreDirective from '../directives/component/store';
 import AttrDirective from '../directives/display/attr';
 import ClassDirective from '../directives/display/class';
-import DisabledDirective from '../directives/display/disabled';
-import HrefDirective from '../directives/display/href';
-import HtmlDirective from '../directives/display/html';
 import IfDirective from '../directives/display/conditional/if';
-import ShowDirective from '../directives/display/show';
-import SrcDirective from '../directives/display/src';
 import StyleDirective from '../directives/display/style';
 import SyncDirective from '../directives/display/sync';
-import TextDirective from '../directives/display/text';
 import EventDirective from '../directives/event';
 import HideDirective from '../directives/hide';
 import RefDirective from '../directives/ref';
@@ -58,16 +52,10 @@ const directives: (typeof Directive)[] = [
   // For the remaining directives, order is irrelevant
   AttrDirective,
   ClassDirective,
-  DisabledDirective,
   EventDirective,
   HideDirective,
-  HrefDirective,
-  HtmlDirective,
-  ShowDirective,
-  SrcDirective,
   StyleDirective,
   SyncDirective,
-  TextDirective,
 ];
 
 const Walk = {
@@ -102,7 +90,7 @@ const Walk = {
 
       // Check for every directive we have registered
       directives.forEach((Dir) => {
-        if (name.startsWith(Dir.id))
+        if (name.startsWith(Dir.id) || name.startsWith(Dir.shortcut))
           parsedDirectives.push({ Dir, name, value });
       });
     });

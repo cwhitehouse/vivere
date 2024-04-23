@@ -5,6 +5,8 @@ import Evaluator from '../../lib/evaluator';
 export default class DataDirective extends Directive {
   static id = 'v-data';
 
+  static shortcut = '#';
+
   static forComponent = true;
 
   static requiresKey = true;

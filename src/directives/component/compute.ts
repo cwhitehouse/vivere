@@ -5,6 +5,8 @@ import Evaluator from '../../lib/evaluator';
 export default class ComputeDirective extends Directive {
   static id = 'v-compute';
 
+  static shortcut = '🖥️:';
+
   static forComponent = true;
 
   static requiresKey = true;

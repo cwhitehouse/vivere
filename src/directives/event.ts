@@ -8,6 +8,8 @@ import DirectiveError from '../errors/directive-error';
 export default class EventDirective extends Directive {
   static id = 'v-event';
 
+  static shortcut = '@';
+
   static requiresKey = true;
 
   binding: (event: Event) => boolean;

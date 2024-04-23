@@ -5,6 +5,8 @@ import { RenderController } from '../rendering/render-controller';
 export default class Directive {
   static id: string;
 
+  static shortcut: string;
+
   static forComponent: boolean;
 
   static requiresComponent: boolean;
@@ -44,9 +46,13 @@ export default class Directive {
     // Extract key and modifiers from attribute name
     let key: string[];
 
-    if (name.includes(':')) {
-      [, ...key] = name.split(':');
-      this.rawKey = key?.join(':');
+    const shortcut = this.shortcut();
+    const isShortcutName = name.startsWith(shortcut);
+    const separator = isShortcutName ? shortcut : ':';
+
+    if (isShortcutName || name.includes(':')) {
+      [, ...key] = name.split(separator);
+      this.rawKey = key?.join(separator);
       [this.key, ...this.modifiers] = this.rawKey.split('.');
     } else
       [, ...this.modifiers] = name.split('.');
@@ -105,6 +111,10 @@ export default class Directive {
 
   id(): string {
     return (this.constructor as typeof Directive).id;
+  }
+
+  shortcut(): string {
+    return (this.constructor as typeof Directive).shortcut;
   }
 
   forComponent(): boolean {
