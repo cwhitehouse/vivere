@@ -123,7 +123,7 @@ module.exports = {
       directives.push('v-compute');
 
     const methodMatches = fileContent
-      .matchAll(/\s🛠️:[A-z-]+/g);
+      .matchAll(/\s✨:[A-z-]+/g);
     for (let match of methodMatches)
       directives.push('v-method');
 

@@ -5,7 +5,7 @@ import Evaluator from '../../lib/evaluator';
 export default class MethodDirective extends Directive {
   static id = 'v-method';
 
-  static shortcut = '🛠️:';
+  static shortcut = '✨:';
 
   static forComponent = true;
 
