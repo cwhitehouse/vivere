@@ -1,18 +1,29 @@
 /* eslint-disable max-classes-per-file */
-import jsep from 'jsep';
+import jsep, { Identifier } from 'jsep';
 import jsepAssignment from '@jsep-plugin/assignment';
+import jsepObject from '@jsep-plugin/object';
+import type { ObjectExpression } from '@jsep-plugin/object';
+import jsepArrow from '@jsep-plugin/arrow';
+import type { ArrowExpression } from '@jsep-plugin/arrow';
 import VivereComponent from '../components/vivere-component';
 import EvaluatorError from '../errors/evaluator-error';
 
 interface EvaluatorOptions {
   component: VivereComponent;
-  $args?: unknown[];
+  local: { [key: string]: unknown },
 }
 
 // We need a plugin to properly parse assignment operations
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 jsep.plugins.register(jsepAssignment);
+
+// We need a plugin to properly parse object literals
+jsep.plugins.register(jsepObject);
+
+// We need a plugin to parse arrow expressions, like
+// in array.map(v -> v.something)
+jsep.plugins.register(jsepArrow);
 
 // Add a special binary operation that behaves like a
 // truncated ternary operation (e.g. boolean ?? action)
@@ -120,6 +131,28 @@ const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, opti
   throw new EvaluatorError('Tried to invoke method on deeply parsed value', caller, type);
 };
 
+const evaluateArrowExpression = (caller: unknown, tree: ArrowExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
+  const { body, params, type } = tree;
+  const { local } = options;
+
+  return (...args) => {
+    args.forEach((arg, idx) => {
+      const param = params[idx];
+
+      // We need not define every arg
+      // that is available to us
+      if (param != null) {
+        if (param.type !== 'Identifier')
+          throw new EvaluatorError('Arrow expression params should always be identifiers', caller, type);
+
+        local[(param as Identifier).name] = arg;
+      }
+    });
+
+    return evaluateTree(caller, body, options, false);
+  };
+};
+
 const evaluateCompound = (caller: unknown, tree: jsep.Compound, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { body } = tree;
   return body.map((exp) => evaluateTree(caller, exp, options, shallow));
@@ -169,6 +202,7 @@ const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, 
 
 const evaluateUnaryExpression = (caller: unknown, tree: jsep.UnaryExpression, options: EvaluatorOptions): unknown => {
   const { argument, operator, type } = tree;
+
   const argumentValue = evaluateTree(caller, argument, options);
 
   switch (operator) {
@@ -179,10 +213,32 @@ const evaluateUnaryExpression = (caller: unknown, tree: jsep.UnaryExpression, op
   }
 };
 
+const evaluateObjectExpression = (caller: unknown, tree: ObjectExpression, options: EvaluatorOptions): unknown => {
+  const { properties } = tree;
+  const object = {};
+
+  properties.forEach((p) => {
+    let key: string;
+    // Identifiers as object keys are just special string literals
+    if (p.key.type === 'Identifier')
+      key = p.key.name as string;
+    else
+      key = evaluateTree(caller, p.key, options, false) as string;
+
+    const value = evaluateTree(caller, p.value, options, false);
+
+    object[key] = value;
+  });
+
+  return object;
+}
+
 const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { computed, object, optional, property } = tree;
 
+  // Shadlow parse the caller to catch a few special cases
   const $object = evaluateTree(caller, object, options);
+
   if (optional && $object == null)
     return null;
 
@@ -198,17 +254,19 @@ const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, 
 
 const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { name } = tree;
+  const { local } = options;
 
-  if (name === '$args' && options.$args)
-    if (shallow)
-      throw new EvaluatorError('Cannot shallow parse $args', caller, name);
-    else
-      return options.$args;
-
+  // When shallow parsing, an Identifier is our end state that we need
+  // to bundle up and return for a function call or assignment expression
   if (shallow)
-    // When shallow parsing, an Identifier is our end state that we need
-    // to bundle up and return for a function call or assignment expression
     return new ShallowParseResult(caller, name);
+
+  // Otherwise...
+
+  // If it's a local variable, we should
+  // unwrap it
+  if (Object.keys(local).includes(name))
+    return local[name];
 
   return caller[name];
 };
@@ -223,6 +281,8 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
       return evaluateAssignmentExpression(caller, tree as jsepAssignment.AssignmentExpression, options);
     case 'CallExpression':
       return evaluateCallExpression(caller, tree as jsep.CallExpression, options, shallow);
+    case 'ArrowFunctionExpression':
+      return evaluateArrowExpression(caller, tree as ArrowExpression, options, shallow);
     case 'Compound':
       return evaluateCompound(caller, tree as jsep.Compound, options, shallow);
     case 'ConditionalExpression':
@@ -233,6 +293,8 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
       return evaluateUnaryExpression(caller, tree as jsep.UnaryExpression, options);
     case 'MemberExpression':
       return evaluateMemberExpression(caller, tree as jsep.MemberExpression, options, shallow);
+    case 'ObjectExpression':
+      return evaluateObjectExpression(caller, tree as ObjectExpression, options);
     case 'Identifier':
       return evaluateIdentifier(caller, tree as jsep.Identifier, options, shallow);
     case 'Literal':
@@ -245,7 +307,15 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
 const parse = (component: VivereComponent, expression: string, executing = false, $args: unknown[] = []): unknown => {
   try {
     const tree = jsep(expression);
-    return evaluateTree(component, tree, { component, $args }, executing);
+    const options: EvaluatorOptions = {
+      component,
+      local: {
+        $args,
+        JSON,
+        Object,
+      },
+    };
+    return evaluateTree(component, tree, options, executing);
   } catch (error) {
     throw new EvaluatorError('Failed to parse expression', component, expression, error);
   }
