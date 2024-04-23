@@ -40,7 +40,7 @@
     >Add Property</button>
     <button
       v-for="suggestion of filteredSuggestions"
-      v-bind:append="addData"
+      🤝:append="addData"
       @click="$emit('append', suggestion)"
       class="button"
     >+ <span :text="suggestion"></span></button>

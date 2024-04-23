@@ -4,7 +4,16 @@ import DOM from '../../lib/dom';
 export default class ClassDirective extends DisplayDirective {
   static id = 'v-class';
 
+  static shortcut = '🎨:';
+
   // Evaluation
+
+  parse(): void {
+    super.parse();
+
+    console.log('PARSING V-CLASS DIRECTIVE');
+    console.log(this.rawKey);
+  }
 
   evaluateValue(value: unknown): void {
     const { element, rawKey, lastValue } = this;

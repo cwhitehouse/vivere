@@ -5,6 +5,8 @@ import DirectiveError from '../../errors/directive-error';
 export default class PassDirective extends Directive {
   static id = 'v-pass';
 
+  static shortcut = '🎁:';
+
   static forComponent = true;
 
   static requiresKey = true;

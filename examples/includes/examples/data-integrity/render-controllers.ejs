@@ -21,25 +21,32 @@
 
 <div
   v-component
-  v-data:data="<%= JSON.stringify(data) %>"
-  v-data:show-list="true"
-  v-data:show-even="true"
-  v-data:truncate-data="false"
-  v-compute:display-data="truncateData ? data.slice(10, 20) : data"
+  #data="<%= JSON.stringify(data) %>"
+  #show-list="true"
+  #show-even="true"
+  #truncate-data="false"
+  #color="text-black"
+  🖥️:display-data="truncateData ? data.slice(10, 20) : data"
+  🖥️:color-class="[this.color]"
+  ✨:toggle-color="color === 'text-blue-600' ? color = 'text-black' : color = 'text-blue-600'"
 >
   <div class="flex items-center space-x-2 mt-4">
     <button
       class="button"
-      v-event:click="showList = !showList"
+      @click="showList = !showList"
     >Toggle List</button>
     <button
       class="button"
-      v-event:click="truncateData = !truncateData"
+      @click="truncateData = !truncateData"
     >Toggle Truncation</button>
     <button
       class="button"
-      v-event:click="showEven = !showEven"
+      @click="showEven = !showEven"
     >Toggle Even/Odd</button>
+    <button
+      class="button"
+      @click="toggleColor"
+    >Toggle Color</button>
   </div>
   <ol
     v-if="showList"
@@ -47,23 +54,26 @@
   >
     <li
       v-for="(entry, idx) of displayData"
-      v-pass:show-even
-      v-pass:color-class
-      v-method:test-is-even="$args[0] % 2 == 0"
-      v-compute:is-even="testIsEven(idx)"
-      v-compute:metadata="showEven ? entry.metadata : null"
+      🎁:show-even
+      🎁:color-class
+      🖥️:is-even="testIsEven(idx)"
+      🖥️:metadata="showEven ? entry.metadata : null"
+      ✨:test-is-even="$args[0] % 2 == 0"
     >
       <span
         v-if="(showEven && isEven) || (!showEven && !isEven)"
-        v-attr:text="entry.string"
-        v-class="colorClass"
+        :text="entry.string"
+        🎨:="colorClass"
       ></span>
       <div
         v-if="metadata"
         class="flex items-center justify-around"
       >
         <span>Color:</span>
-        <span :text="metadata.color"></span>
+        <span
+          :text="metadata.color"
+          🎨:text-red-600="isEven"
+        ></span>
       </div>
       <p
         v-else-if="entry.metadata.size >= 50"
@@ -78,7 +88,7 @@
         class="flex items-center justify-around"
       >
         <span>Size:</span>
-        <span v-attr:text="metadata.size"></span>
+        <span :text="metadata.size"></span>
       </div>
     </li>
   </ol>

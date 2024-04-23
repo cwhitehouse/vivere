@@ -52,7 +52,7 @@ export default class Directive {
 
     if (isShortcutName || name.includes(':')) {
       [, ...key] = name.split(separator);
-      this.rawKey = key?.join(separator);
+      this.rawKey = key?.join(':');
       [this.key, ...this.modifiers] = this.rawKey.split('.');
     } else
       [, ...this.modifiers] = name.split('.');
