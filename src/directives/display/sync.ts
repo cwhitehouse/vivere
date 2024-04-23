@@ -93,7 +93,7 @@ export default class SyncDirective extends DisplayDirective {
       return element.checked;
 
     if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement)
-      return element.innerText;
+      return element.textContent;
 
     return element.value;
   }
