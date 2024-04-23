@@ -229,8 +229,13 @@ const exampleGroups = [
     description: 'Ensure passing and conditional rendering respect different types of data',
     examples: [
       {
-        id: 'logical-directives',
-        name: 'Logical Directives',
+        id: 'render-controllers',
+        name: 'Render Controllers',
+        width: 1,
+      },
+      {
+        id: 'for-sync',
+        name: 'v-for => v-sync',
         width: 1,
       },
     ],
