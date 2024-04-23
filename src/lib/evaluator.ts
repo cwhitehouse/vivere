@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import jsep, { Identifier } from 'jsep';
+import jsep, { ArrayExpression, Identifier } from 'jsep';
 import jsepAssignment from '@jsep-plugin/assignment';
 import jsepObject from '@jsep-plugin/object';
 import type { ObjectExpression } from '@jsep-plugin/object';
@@ -233,6 +233,12 @@ const evaluateObjectExpression = (caller: unknown, tree: ObjectExpression, optio
   return object;
 }
 
+const evaluateArrayExpression = (caller: unknown, tree: ArrayExpression, options: EvaluatorOptions): unknown => {
+  const { elements } = tree;
+
+  return elements.map((element) => evaluateTree(caller, element, options));
+}
+
 const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { computed, object, optional, property } = tree;
 
@@ -250,6 +256,11 @@ const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, 
   }
 
   return evaluateTree($object, property, options, shallow);
+};
+
+// eslint-disable-next-line arrow-body-style
+const evaluateThisExpression = (caller: unknown, tree: jsep.ThisExpression, options: EvaluatorOptions): unknown => {
+  return options.component;
 };
 
 const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: EvaluatorOptions, shallow: boolean): unknown => {
@@ -295,6 +306,10 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
       return evaluateMemberExpression(caller, tree as jsep.MemberExpression, options, shallow);
     case 'ObjectExpression':
       return evaluateObjectExpression(caller, tree as ObjectExpression, options);
+    case 'ArrayExpression':
+      return evaluateArrayExpression(caller, tree as jsep.ArrayExpression, options);
+    case 'ThisExpression':
+      return evaluateThisExpression(caller, tree as jsep.ThisExpression, options);
     case 'Identifier':
       return evaluateIdentifier(caller, tree as jsep.Identifier, options, shallow);
     case 'Literal':
