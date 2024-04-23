@@ -8,13 +8,6 @@ export default class ClassDirective extends DisplayDirective {
 
   // Evaluation
 
-  parse(): void {
-    super.parse();
-
-    console.log('PARSING V-CLASS DIRECTIVE');
-    console.log(this.rawKey);
-  }
-
   evaluateValue(value: unknown): void {
     const { element, rawKey, lastValue } = this;
 

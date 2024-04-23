@@ -231,13 +231,13 @@ const evaluateObjectExpression = (caller: unknown, tree: ObjectExpression, optio
   });
 
   return object;
-}
+};
 
 const evaluateArrayExpression = (caller: unknown, tree: ArrayExpression, options: EvaluatorOptions): unknown => {
   const { elements } = tree;
 
   return elements.map((element) => evaluateTree(caller, element, options));
-}
+};
 
 const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { computed, object, optional, property } = tree;
