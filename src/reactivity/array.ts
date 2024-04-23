@@ -33,15 +33,18 @@ export default class ReactiveArray {
           case 'push':
           case 'unshift':
             return (...args: unknown[]): unknown => {
+              // Copy the array to track what it used to look like
               const oldValue = [...target];
-              // Any new objects must be reactive
-              const reactiveArgs = args.map((a) => {
-                if (a instanceof Reactive)
-                  return a;
-                return new Reactive(target, a, null);
-              });
-              const result = value.apply(target, reactiveArgs);
+
+              // Apply the transformation to our array
+              const result = value.apply(target, args);
+
+              // Loop back through our array and make sure any new items are reactive
+              ReactiveArray.makeArrayReactive(listeners, target);
+
+              // Report that the array has changed
               listeners.forEach((l) => l.report(oldValue));
+
               return result;
             };
           case 'pop':
@@ -57,14 +60,18 @@ export default class ReactiveArray {
             };
           case 'splice':
             return (start: number, deleteCount?: number, ...items: unknown[]): unknown => {
+              // Copy the array to track what it used to look like
               const oldValue = [...target];
-              const reactiveItems = items?.map((i) => {
-                if (i instanceof Reactive)
-                  return i;
-                return new Reactive(target, i, null);
-              });
-              const result = value.apply(target, [start, deleteCount, ...reactiveItems]);
+
+              // Apply the transformation to our array
+              const result = value.apply(target, [start, deleteCount, ...items]);
+
+              // Loop back through our array and make sure any new items are reactive
+              ReactiveArray.makeArrayReactive(listeners, target);
+
+              // Report that the array has changed
               listeners.forEach((l) => l.report(oldValue));
+
               return result;
             };
           case '$$registerListener':

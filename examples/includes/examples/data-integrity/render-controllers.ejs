@@ -55,7 +55,7 @@
     >
       <span
         v-if="(showEven && isEven) || (!showEven && !isEven)"
-        v-text="entry.string"
+        v-attr:text="entry.string"
         v-class="colorClass"
       ></span>
       <div
@@ -63,7 +63,7 @@
         class="flex items-center justify-around"
       >
         <span>Color:</span>
-        <span v-text="metadata.color"></span>
+        <span :text="metadata.color"></span>
       </div>
       <p
         v-else-if="entry.metadata.size >= 50"
@@ -78,7 +78,7 @@
         class="flex items-center justify-around"
       >
         <span>Size:</span>
-        <span v-text="metadata.size"></span>
+        <span v-attr:text="metadata.size"></span>
       </div>
     </li>
   </ol>
