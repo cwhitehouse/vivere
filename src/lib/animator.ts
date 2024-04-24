@@ -88,12 +88,12 @@ export default class Animator {
     // Adjust overflow property for more seamless animation
     const overflowProperty = vertical ? 'overflow-y' : 'overflow-x';
     this.overflow = new AnimatorProperty(element, overflowProperty);
-    element.style[overflowProperty] = 'hidden';
+    element.style.setProperty(overflowProperty, 'hidden', 'important');
 
     // Adjust transition property avoid conflicts with manual animation
-    const transitionProperty = 'transitionDuration';
+    const transitionProperty = 'transition';
     this.transition = new AnimatorProperty(element, transitionProperty);
-    element.style[transitionProperty] = '0ms !important';
+    element.style.setProperty(transitionProperty, 'none', 'important');
 
     // Save the time we're starting our animation
     this.startTime = new Date().getTime();
