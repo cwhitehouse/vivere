@@ -93,7 +93,7 @@ export default class Animator {
     // Adjust transition property avoid conflicts with manual animation
     const transitionProperty = 'transitionDuration';
     this.transition = new AnimatorProperty(element, transitionProperty);
-    element.style[transitionProperty] = '0ms';
+    element.style[transitionProperty] = '0ms !important';
 
     // Save the time we're starting our animation
     this.startTime = new Date().getTime();
