@@ -35,7 +35,7 @@ export default class AnimatableProperty extends AnimatorProperty {
       styleValue += 'px';
 
     // Update the elements style
-    element.style[property] = styleValue;
+    element.style.setProperty(property, styleValue, 'important');
   }
 
   reverse(): void {

@@ -10,7 +10,7 @@ export default class AnimatorProperty {
     this.element = element;
 
     // Track the property and its initial value
-    this.property = property;
+    this.property = property.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
     this.defaultValue = element.style.getPropertyValue(property);
     this.defaultPriority = element.style.getPropertyPriority(property);
   }
