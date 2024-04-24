@@ -12,6 +12,7 @@ import ComponentRegistry from './registry';
 import PassedInterface from './definition/passed-interface';
 import Evaluator from '../lib/evaluator';
 import { RenderController } from '../rendering/render-controller';
+import ErrorHandler from '../lib/error-handler';
 
 declare global {
   interface Element {
@@ -231,16 +232,18 @@ export default class VivereComponent extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   $emit(event: string, arg: unknown): void {
-    // Check bindings
-    const method = this.$bindings[event];
-    if (method == null)
-      throw new ComponentError(`Tried to emit unbound event: ${event}`, this);
+    ErrorHandler.handle(() => {
+      // Check bindings
+      const method = this.$bindings[event];
+      if (method == null)
+        throw new ComponentError(`Tried to emit unbound event: ${event}`, this);
 
-    // Invoke the parent's method (if it exists)
-    if (this.$parent[method] != null)
-      this.$parent[method](arg);
-    else
-      throw new ComponentError(`Parent does not implement ${method}`, this);
+      // Invoke the parent's method (if it exists)
+      if (this.$parent[method] != null)
+        this.$parent[method](arg);
+      else
+        throw new ComponentError(`Parent does not implement ${method}`, this);
+    });
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -248,28 +251,30 @@ export default class VivereComponent extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   $attach(html: string, ref: string): void {
-    const $ref = this.$refs[ref];
-    if ($ref == null)
-      throw new ComponentError(`No reference named ${ref} found`, this);
+    ErrorHandler.handle(() => {
+      const $ref = this.$refs[ref];
+      if ($ref == null)
+        throw new ComponentError(`No reference named ${ref} found`, this);
 
-    let element: Element;
-    if ($ref instanceof Element)
-      element = $ref;
-    else
-      element = $ref.$element;
+      let element: Element;
+      if ($ref instanceof Element)
+        element = $ref;
+      else
+        element = $ref.$element;
 
-    const tempNode = document.createElement('div');
-    tempNode.innerHTML = html;
+      const tempNode = document.createElement('div');
+      tempNode.innerHTML = html;
 
-    Object.values(tempNode.children).forEach((child) => {
-      element.appendChild(child);
+      Object.values(tempNode.children).forEach((child) => {
+        element.appendChild(child);
 
-      if (child instanceof HTMLElement)
-        Walk.tree(child, this, this.$renderController);
+        if (child instanceof HTMLElement)
+          Walk.tree(child, this, this.$renderController);
+      });
+
+      // Force a render for children
+      this.$forceRender();
     });
-
-    // Force a render for children
-    this.$forceRender();
   }
 
   $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node, renderController?: RenderController): void {

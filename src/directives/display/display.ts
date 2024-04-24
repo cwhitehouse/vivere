@@ -2,6 +2,7 @@ import Directive from '../directive';
 import Evaluator from '../../lib/evaluator';
 import Watcher from '../../reactivity/watcher';
 import DirectiveError from '../../errors/directive-error';
+import ErrorHandler from '../../lib/error-handler';
 
 export default class DisplayDirective extends Directive {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,34 +31,36 @@ export default class DisplayDirective extends Directive {
   }
 
   evaluate(): void {
-    let { renderController } = this;
+    ErrorHandler.handle(() => {
+      let { renderController } = this;
 
-    let shouldRender: boolean;
-    if (renderController != null) {
-      shouldRender = true;
+      let shouldRender: boolean;
+      if (renderController != null) {
+        shouldRender = true;
 
-      do {
-        const ancestorShouldEvaluate = renderController.shouldRender();
-        if (!ancestorShouldEvaluate)
-          // Whichever render controller tells us not to render should
-          // also keep track of this Directive so that it can be rendered
-          // whenever that ancestor's logic changes
-          renderController.awaitingRender.add(this);
+        do {
+          const ancestorShouldEvaluate = renderController.shouldRender();
+          if (!ancestorShouldEvaluate)
+            // Whichever render controller tells us not to render should
+            // also keep track of this Directive so that it can be rendered
+            // whenever that ancestor's logic changes
+            renderController.awaitingRender.add(this);
 
-        shouldRender = shouldRender && ancestorShouldEvaluate;
-        renderController = renderController.renderController;
-      } while (shouldRender && renderController != null);
-    } else
-      shouldRender = true;
+          shouldRender = shouldRender && ancestorShouldEvaluate;
+          renderController = renderController.renderController;
+        } while (shouldRender && renderController != null);
+      } else
+        shouldRender = true;
 
-    if (shouldRender) {
-      const value = this.parseExpression();
+      if (shouldRender) {
+        const value = this.parseExpression();
 
-      this.evaluateValue(value);
-      this.lastValue = value;
-    }
+        this.evaluateValue(value);
+        this.lastValue = value;
+      }
 
-    this.clean();
+      this.clean();
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

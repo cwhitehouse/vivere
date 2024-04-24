@@ -1,12 +1,13 @@
+import { Vivere } from '../vivere';
 import AnimatableProperty from './animator/animatable-property';
 import AnimatorProperty from './animator/property';
-
-const ANIMATION_DURATION = 150;
 
 export default class Animator {
   element: HTMLElement;
   vertical: boolean;
   callback: (showing: boolean) => void;
+
+  duration: number;
 
   showing: boolean;
 
@@ -32,6 +33,8 @@ export default class Animator {
     this.element = element;
     this.vertical = vertical;
     this.callback = callback;
+
+    this.duration = Vivere.getOptions().animationDuration;
   }
 
   start(showing: boolean): void {
@@ -128,12 +131,13 @@ export default class Animator {
   #iterate(): void {
     const {
       animatableProperties,
+      duration,
       startTime,
     } = this;
 
     // Calculate percentage of animation
     const elapsedTime = new Date().getTime() - startTime;
-    const percentageElapsed = elapsedTime / ANIMATION_DURATION;
+    const percentageElapsed = elapsedTime / duration;
 
     if (percentageElapsed < 1) {
       // hardcoded values from tailwind ease-out function

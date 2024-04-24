@@ -1,6 +1,7 @@
 import DirectiveError from '../errors/directive-error';
 import VivereComponent from '../components/vivere-component';
 import { RenderController } from '../rendering/render-controller';
+import ErrorHandler from '../lib/error-handler';
 
 export default class Directive {
   static id: string;
@@ -37,39 +38,42 @@ export default class Directive {
     if (element instanceof HTMLElement && element.dataset[Directive.DATA_SUSPEND_PARSING] === 'true')
       return;
 
-    // Check to see if element is still in the DOM tree
-    this.component = component;
-    this.renderController = renderController;
-    this.element = element;
-    this.expression = expression;
+    ErrorHandler.handle(() => {
+      // Check to see if element is still in the DOM tree
+      this.component = component;
+      this.renderController = renderController;
+      this.element = element;
+      this.expression = expression;
 
-    // Extract key and modifiers from attribute name
-    let key: string[];
+      // Extract key and modifiers from attribute name
+      let key: string[];
 
-    const shortcut = this.shortcut();
-    const isShortcutName = name.startsWith(shortcut);
-    const separator = isShortcutName ? shortcut : ':';
+      const shortcut = this.shortcut();
+      const isShortcutName = name.startsWith(shortcut);
+      const separator = isShortcutName ? shortcut : ':';
 
-    if (isShortcutName || name.includes(':')) {
-      [, ...key] = name.split(separator);
-      this.rawKey = key?.join(':');
-      [this.key, ...this.modifiers] = this.rawKey.split('.');
-    } else
-      [, ...this.modifiers] = name.split('.');
+      if (isShortcutName || name.includes(':')) {
+        [, ...key] = name.split(separator);
+        this.rawKey = key?.join(':');
+        [this.key, ...this.modifiers] = this.rawKey.split('.');
+      } else
+        [, ...this.modifiers] = name.split('.');
 
-    if (!this.key && this.requiresKey())
-      throw new DirectiveError(`A key is required for ${this.id()} directives`, this);
+      if (!this.key && this.requiresKey())
+        throw new DirectiveError(`A key is required for ${this.id()} directives`, this);
 
-    // Check the directive if it's valid
-    if (this.id() == null) throw new DirectiveError('Directives must have an identifier', this);
-    if (this.forComponent() && !this.onComponent()) throw new DirectiveError(`${name} only applies to component roots`, this);
-    if (this.requiresComponent() && this.component == null) throw new DirectiveError(`${name} requires a component`, this);
+      // Check the directive if it's valid
+      if (this.id() == null) throw new DirectiveError('Directives must have an identifier', this);
+      if (this.forComponent() && !this.onComponent()) throw new DirectiveError(`${name} only applies to component roots`, this);
+      if (this.requiresComponent() && this.component == null) throw new DirectiveError(`${name} requires a component`, this);
 
-    // Register directive on the component (if necessary)
-    if (this.component != null) this.component.$directives.add(this);
+      // Register directive on the component (if necessary)
+      if (this.component != null) this.component.$directives.add(this);
 
-    // Finish parsing directive
-    this.parse();
+      // Finish parsing directive
+
+      this.parse();
+    });
 
     // Strip the attribute once it's been processed
     this.element.removeAttribute(name);

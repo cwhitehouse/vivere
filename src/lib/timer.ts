@@ -1,3 +1,5 @@
+import { Vivere } from '../vivere';
+
 export default {
   time(message: string, callback: () => void): void {
     const start = performance.now();
@@ -10,7 +12,8 @@ export default {
     else
       method = 'log';
 
-    // eslint-disable-next-line no-console
-    console[method](`Vivere | ${message}: ${time.toFixed(2)}ms`);
+    if (Vivere.getOptions().profiling)
+      // eslint-disable-next-line no-console
+      console[method](`Vivere | ${message}: ${time.toFixed(2)}ms`);
   },
 };

@@ -7,6 +7,29 @@ import ComponentRegistry from './components/registry';
 import ComponentDefinitions from './components/definitions';
 import Timer from './lib/timer';
 
+// Configuration Options
+
+const DEFAULT_ANIMATION_DURATION = 150;
+
+interface VivereConfiguration {
+  animationDuration: number,
+  profiling: boolean,
+  suppressErrors: boolean,
+  logErrors: boolean,
+}
+interface VivereOptions {
+  animationDuration?: number,
+  profiling?: boolean,
+  suppressErrors?: boolean,
+  logErrors?: boolean,
+}
+let configurationOptions: VivereConfiguration = {
+  animationDuration: DEFAULT_ANIMATION_DURATION,
+  profiling: true,
+  suppressErrors: false,
+  logErrors: false,
+};
+
 // Setup logic
 
 const $setup = (element: HTMLElement): void => {
@@ -68,6 +91,21 @@ const Vivere = {
 
   register(name: string, definition: (typeof VivereComponent)): void {
     ComponentDefinitions.register(name, definition);
+  },
+
+  // Options
+
+  DEFAULT_ANIMATION_DURATION,
+
+  getOptions(): VivereConfiguration {
+    return configurationOptions;
+  },
+
+  setOptions(options: VivereOptions): void {
+    configurationOptions = {
+      ...configurationOptions,
+      ...options,
+    };
   },
 };
 
