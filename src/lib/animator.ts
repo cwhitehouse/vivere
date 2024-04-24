@@ -16,6 +16,8 @@ export default class Animator {
   secondMargin: AnimatableProperty;
   firstPadding: AnimatableProperty;
   secondPadding: AnimatableProperty;
+  firstBorder: AnimatableProperty;
+  secondBorder: AnimatableProperty;
   opacity: AnimatableProperty;
 
   overflow: AnimatorProperty;
@@ -41,52 +43,44 @@ export default class Animator {
     // Set up the core property we'll be animating
     const property = vertical ? 'height' : 'width';
     const currentPropertyValue = vertical ? element.offsetHeight : element.offsetWidth;
-    const fromValue = showing ? 0 : currentPropertyValue;
-    const toValue = showing ? currentPropertyValue : 0;
-    this.property = new AnimatableProperty(element, property, fromValue, toValue);
+    this.property = new AnimatableProperty(
+      element,
+      property,
+      showing ? 0 : currentPropertyValue,
+      showing ? currentPropertyValue : 0,
+    );
 
-    // Extract our margin values
+    // Extract our computed styles
     const computedStyle = window.getComputedStyle(element);
+    const computedProperties = {
+      firstMargin: vertical ? 'marginTop' : 'marginLeft',
+      secondMargin: vertical ? 'marginBottom' : 'marginRight',
+      firstPadding: vertical ? 'paddingTop' : 'paddingLeft',
+      secondPadding: vertical ? 'paddingBottom' : 'paddingRight',
+      firstBorder: vertical ? 'borderTopWidth' : 'borderLeftWidth',
+      secondBorder: vertical ? 'borderBottomWidth' : 'borderRightWidth',
+    };
 
-    // Set up our first margin property (top or left)
-    const firstMarginProperty = vertical ? 'marginTop' : 'marginLeft';
-    const currentFirstMarginValue = parseInt(computedStyle[firstMarginProperty], 10);
+    Object.entries(computedProperties).forEach(([name, propertyName]) => {
+      const currentValue = parseInt(computedStyle[propertyName], 10);
 
-    const fromFirstMargin = showing ? 0 : currentFirstMarginValue;
-    const toFirstMargin = showing ? currentFirstMarginValue : 0;
-    this.firstMargin = new AnimatableProperty(element, firstMarginProperty, fromFirstMargin, toFirstMargin);
-
-    // Set up our second margin property (bottom or right)
-    const secondMarginProperty = vertical ? 'marginBottom' : 'marginRight';
-    const currentSecondMarginValue = parseInt(computedStyle[secondMarginProperty], 10);
-
-    const fromSecondMargin = showing ? 0 : currentSecondMarginValue;
-    const toSecondMargin = showing ? currentSecondMarginValue : 0;
-    this.secondMargin = new AnimatableProperty(element, secondMarginProperty, fromSecondMargin, toSecondMargin);
-
-    // Set up our first padding property (top or left)
-    const firstPaddingProperty = vertical ? 'paddingTop' : 'paddingLeft';
-    const currentFirstPaddingValue = parseInt(computedStyle[firstPaddingProperty], 10);
-
-    const fromFirstPadding = showing ? 0 : currentFirstPaddingValue;
-    const toFirstPadding = showing ? currentFirstPaddingValue : 0;
-    this.firstPadding = new AnimatableProperty(element, firstPaddingProperty, fromFirstPadding, toFirstPadding);
-
-    // Set up our first padding property (top or left)
-    const secondPaddingProperty = vertical ? 'paddingBottom' : 'paddingRight';
-    const currentSecondPaddingValue = parseInt(computedStyle[secondPaddingProperty], 10);
-
-    const fromSecondPadding = showing ? 0 : currentSecondPaddingValue;
-    const toSecondPadding = showing ? currentSecondPaddingValue : 0;
-    this.secondPadding = new AnimatableProperty(element, secondPaddingProperty, fromSecondPadding, toSecondPadding);
+      this[name] = new AnimatableProperty(
+        element,
+        propertyName,
+        showing ? 0 : currentValue,
+        showing ? currentValue : 0,
+      );
+    });
 
     // Set up opacity for better dissapearing tricks
     const opacityProperty = 'opacity';
-    const currentOpacityValue = parseFloat(computedStyle[opacityProperty]);
-
-    const fromOpacity = showing ? 0 : currentOpacityValue;
-    const toOpacity = showing ? currentOpacityValue : 0;
-    this.opacity = new AnimatableProperty(element, opacityProperty, fromOpacity, toOpacity);
+    const currentOpacity = parseFloat(computedStyle[opacityProperty]);
+    this.opacity = new AnimatableProperty(
+      element,
+      opacityProperty,
+      showing ? 0 : currentOpacity,
+      showing ? currentOpacity : 0,
+    );
 
     // Adjust overflow property for more seamless animation
     const overflowProperty = vertical ? 'overflow-y' : 'overflow-x';
@@ -113,10 +107,12 @@ export default class Animator {
       secondMargin,
       firstPadding,
       secondPadding,
+      firstBorder,
+      secondBorder,
       opacity,
     } = this;
 
-    return [property, firstMargin, secondMargin, firstPadding, secondPadding, opacity].filter((p) => p != null);
+    return [property, firstMargin, secondMargin, firstPadding, secondPadding, firstBorder, secondBorder, opacity].filter((p) => p != null);
   }
 
   get properties(): AnimatorProperty[] {
@@ -140,13 +136,20 @@ export default class Animator {
     const percentageElapsed = elapsedTime / ANIMATION_DURATION;
 
     if (percentageElapsed < 1) {
+      // hardcoded values from tailwind ease-out function
+      const percentageAnimated = this.#animationCurve(percentageElapsed);
+
       // Update our properties based on percentage elapsed
-      animatableProperties.forEach((p) => p.update(percentageElapsed));
+      animatableProperties.forEach((p) => p.update(percentageAnimated));
 
       // Wait for our next animation frame
       this.frameRequest = requestAnimationFrame(() => { this.#iterate(); });
     } else
       this.onComplete();
+  }
+
+  #animationCurve(t: number): number {
+    return t;
   }
 
   cancel(): void {

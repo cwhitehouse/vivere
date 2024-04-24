@@ -1,8 +1,8 @@
 <%
   const data = [
-    { id: 0, key: 'Color', value: 'purple' },
-    { id: 1, key: 'Size', value: 'large' },
-    { id: 2, key: 'Shape', value: 'round' },
+    { key: 'Color', value: 'purple' },
+    { key: 'Size', value: 'large' },
+    { key: 'Shape', value: 'round' },
   ]
 %>
 
@@ -10,15 +10,13 @@
   v-component
   #data="<%= JSON.stringify(data) %>"
   #suggestions="<%= JSON.stringify(['Texture', 'Category', 'Section']) %>"
-  #next-id="3"
   🖥️:data-keys="data.map(d => d.key)"
   🖥️:filtered-suggestions="suggestions.filter(s => !dataKeys.includes(s))"
-  ✨:add-data="data.push({ id: nextId, key: $args[0], value: '' }); nextId += 1"
+  ✨:add-data="data.push({ key: $args[0], value: '' })"
 >
   <ul class="space-y-4">
     <li
       v-for="item of data"
-      :key="id"
       class="flex items-center justify-evenly space-x-2"
     >
       <input

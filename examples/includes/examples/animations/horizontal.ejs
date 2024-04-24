@@ -2,17 +2,21 @@
   v-component
   v-data:show="false"
 >
-  <div class="flex items-center justify-between">
-    <ul class="flex items-center space-x-2">
-      <li class="button">Bananas</li>
+  <div class="flex flex-col items-stretch justify-between space-y-4">
+    <ul class="flex items-start">
+      <li v-if.anim-x="!show" class="button mr-2">Pineapple</li>
+      <li class="button mr-2">Bananas</li>
+      <li class="button mr-2">Kiwis</li>
       <li v-if.anim-x="show" class="button">Oranges</li>
     </ul>
 
-    <ul class="flex items-center space-x-2">
-      <li class="button">Peaches</li>
-      <li v-if.anim-x="show" class="button">Strawberries</li>
-      <li v-if.anim-x="!show" class="button">Melons</li>
+    <ul class="flex justify-end items-end">
+      <li v-if.anim-x="!show" class="button mr-2">Plums</li>
+      <li class="button mr-2">Peaches</li>
+      <li v-if.anim-x="show" class="button mr-2">Strawberries</li>
+      <li v-if.anim-x="!show" class="button mr-2">Melons</li>
       <li class="button">Kiwis</li>
+      <li v-if.anim-x="!show" class="button ml-2">Mangoes</li>
     </ul>
   </div>
 

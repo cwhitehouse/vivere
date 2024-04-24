@@ -3,16 +3,17 @@
   v-data:show="true"
   class="flex flex-col"
 >
-  <ul class="space-y-4">
-    <li>Bananas</li>
-    <li>Peaches</li>
-    <li v-if.anim-y="show">Oranges</li>
-    <li>Apples</li>
-    <li>Blueberries</li>
-    <li v-if.anim-y="show">Strawberries</li>
-    <li>Mangoes</li>
-    <li v-if.anim-y="!show">Melons</li>
-    <li>Kiwis</li>
+  <!-- pb-2 -->
+  <ul>
+    <li >Bananas</li>
+    <li class="mt-2">Peaches</li>
+    <li v-if.anim-y="show" class="mt-2">Oranges</li>
+    <li class="mt-2">Apples</li>
+    <li class="mt-2">Blueberries</li>
+    <li v-if.anim-y="show" class="mt-2">Strawberries</li>
+    <li class="mt-2">Mangoes</li>
+    <li v-if.anim-y="!show" class="mt-2">Melons</li>
+    <li class="mt-2">Kiwis</li>
   </ul>
 
   <button
