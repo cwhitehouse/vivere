@@ -5,6 +5,8 @@ import jsepObject from '@jsep-plugin/object';
 import type { ObjectExpression } from '@jsep-plugin/object';
 import jsepArrow from '@jsep-plugin/arrow';
 import type { ArrowExpression } from '@jsep-plugin/arrow';
+import jsepTemplate from '@jsep-plugin/template';
+import type { TemplateExpression } from '@jsep-plugin/template';
 import VivereComponent from '../components/vivere-component';
 import EvaluatorError from '../errors/evaluator-error';
 
@@ -25,6 +27,9 @@ jsep.plugins.register(jsepObject);
 // in array.map(v -> v.something)
 jsep.plugins.register(jsepArrow);
 
+// We need a plugin to parse template strings
+jsep.plugins.register(jsepTemplate);
+
 // Add a special binary operation that behaves like a
 // truncated ternary operation (e.g. boolean ?? action)
 jsep.addBinaryOp('??', 0.1);
@@ -32,8 +37,8 @@ jsep.addBinaryOp('??', 0.1);
 // Enum for special pursposes return values, specifically
 // for identifying successful assignments or function calls
 enum ParseResult {
-  AssignmentExpressionExecuted,
-  EmptyExpression,
+  AssignmentExpressionExecuted = 'assignment-expression-executed',
+  EmptyExpression = 'empty-expression',
 }
 
 // Helper object for wrapping parsing an object, that
@@ -44,9 +49,12 @@ class ShallowParseResult {
 
   prop: string;
 
-  constructor(object: unknown, prop: string) {
+  optional = false;
+
+  constructor(object: unknown, prop: string, optional?: boolean) {
     this.object = object;
     this.prop = prop;
+    if (optional != null) this.optional = optional;
   }
 }
 
@@ -116,15 +124,15 @@ const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, opti
 
   // Shallow parse the callee so `this` is handled properly on the function call
   const calleeValues = evaluateTree(caller, callee, options, true);
-
   if (calleeValues instanceof ShallowParseResult) {
+    const { object, prop, optional } = calleeValues;
+
+    if (optional && object == null) return object;
+
     const argsValues = args.map((arg) => evaluateTree(caller, arg, options));
+    const returnValue = object[prop](...argsValues);
 
-    const returnValue = calleeValues.object[calleeValues.prop](...argsValues);
-
-    if (shallow)
-      return new ShallowCallResult(returnValue);
-
+    if (shallow) return new ShallowCallResult(returnValue);
     return returnValue;
   }
 
@@ -171,6 +179,7 @@ const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalEx
 const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { left, operator, right, type } = tree;
 
+  // Start by evaluating the left value
   const leftValue = evaluateTree(caller, left, options);
 
   // Our custom ?? operator is effectively half a ternary statement
@@ -185,6 +194,19 @@ const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, 
       // If false and deep, this is effectively null
       return null;
 
+  // The '\\' operator should not evaluate the right side
+  // if the leftValue is true
+  if (operator === '||')
+    return leftValue
+      || evaluateTree(caller, right, options);
+
+  // The '&&' operator should not evaluate the right side
+  // if the leftValue is false
+  if (operator === '&&')
+    return leftValue
+      && evaluateTree(caller, right, options);
+
+  // Otherwise, let's parse our right value and see what we're working with!
   const rightValue = evaluateTree(caller, right, options);
 
   if (assignmentOperators.includes(operator))
@@ -245,8 +267,12 @@ const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, 
   // Shadlow parse the caller to catch a few special cases
   const $object = evaluateTree(caller, object, options);
 
-  if (optional && $object == null)
-    return null;
+  // If it's optional we don't have an $object, let's return our
+  // null or undefined value
+  if (optional && $object == null) {
+    if (shallow) return new ShallowParseResult($object, null, true);
+    return $object;
+  }
 
   if (computed) {
     const propKey = evaluateTree(options.component, property, options)?.toString();
@@ -282,6 +308,23 @@ const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: Eva
   return caller[name];
 };
 
+const evaluateTemplate = (caller: unknown, tree: TemplateExpression, options: EvaluatorOptions): unknown => {
+  const { quasis, expressions } = tree;
+
+  let string = '';
+
+  const length = Math.max(quasis.length, expressions.length);
+  for (let i = 0; i < length; i += 1) {
+    const expression = expressions[i];
+    const quasi = quasis[i];
+
+    if (quasi) string += quasi.value.cooked;
+    if (expression) string += evaluateTree(caller, expression, options);
+  }
+
+  return string;
+};
+
 const evaluateLiteral = (tree: jsep.Expression): unknown => tree.value;
 
 evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOptions, shallow = false): unknown => {
@@ -312,6 +355,8 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
       return evaluateThisExpression(caller, tree as jsep.ThisExpression, options);
     case 'Identifier':
       return evaluateIdentifier(caller, tree as jsep.Identifier, options, shallow);
+    case 'TemplateLiteral':
+      return evaluateTemplate(caller, tree as TemplateExpression, options);
     case 'Literal':
       return evaluateLiteral(tree);
     default:
@@ -328,6 +373,7 @@ const parse = (component: VivereComponent, expression: string, executing = false
         $args,
         JSON,
         Object,
+        Math,
       },
     };
     return evaluateTree(component, tree, options, executing);
