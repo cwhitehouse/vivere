@@ -6,6 +6,8 @@ import Directive from '../directive';
 import Utility from '../../lib/utility';
 import { VivereComponent } from '../../vivere';
 import ToggableRenderController from '../../rendering/togglable-render-controller';
+import EventDirective from '../event';
+import Walk from '../../lib/walk';
 
 const directiveRegex = /(?:([A-z_$0-9]+)|\(([A-z_$0-9]+), ([A-z_$0-9]+)\)) of ([A-z_$0-9[\]().?]+)/;
 
@@ -180,7 +182,7 @@ export default class ForDirective extends DisplayDirective {
 
             if (indexExpression?.length)
               // Update the index if we have an index expression
-              cachedElement.$set(indexExpression, `${i}`);
+              cachedElement.$set(indexExpression, i);
           } else {
             // We need to update the key of the passed data
             // so we display the right object item
@@ -193,7 +195,9 @@ export default class ForDirective extends DisplayDirective {
           // Insert this element to make sure it's in the right
           // position for the updated list
           const { $element } = cachedElement;
-          // $element.remove();
+
+          // Reactivate any dehydrated directives (v-event specifically)
+          Walk.element($element, cachedElement, cachedElement.$renderController);
 
           // Index of the element we're adding to the array
           const currentIdx = Array.prototype.indexOf.call(parent.children, $element);
@@ -259,6 +263,10 @@ export default class ForDirective extends DisplayDirective {
     const { keyedElements, unkeyedElements } = this;
 
     Object.values(keyedElements).forEach((ke) => {
+      Array.from(ke.$directives)
+        .filter((d) => d instanceof EventDirective)
+        .forEach((d) => { d.dehydrate(); d.destroy(); });
+
       ke.$element.remove();
 
       // Ensure none of the child directives render once this
@@ -267,6 +275,10 @@ export default class ForDirective extends DisplayDirective {
         ke.$renderController.setShouldRender(false);
     });
     unkeyedElements.forEach((ue) => {
+      Array.from(ue.$directives)
+        .filter((d) => d instanceof EventDirective)
+        .forEach((d) => { d.dehydrate(); d.destroy(); });
+
       ue.$element.remove();
 
       // Ensure none of the child directives render once this
