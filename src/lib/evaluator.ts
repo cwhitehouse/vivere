@@ -87,6 +87,8 @@ const binaryOperators = [
   '+', '-', '*', '/', '%',
 ];
 
+const templateLiteralRegex = /^[^`]*\${[^}]+}[^`]*$/;
+
 // Helper method for running eval code (BE CAREFUL!)
 // eslint-disable-next-line arrow-body-style
 const evaluateScript = (script: string, scope: unknown = {}): unknown => {
@@ -366,7 +368,12 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
 
 const parse = (component: VivereComponent, expression: string, executing = false, $args: unknown[] = []): unknown => {
   try {
-    const tree = jsep(expression);
+    let $expression = expression;
+    if (templateLiteralRegex.test($expression))
+      $expression = `\`${$expression}\``;
+
+    const tree = jsep($expression);
+
     const options: EvaluatorOptions = {
       component,
       local: {
