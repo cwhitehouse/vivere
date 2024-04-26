@@ -5,6 +5,8 @@ import Event from '../lib/events/event';
 import Utility from '../lib/utility';
 import DirectiveError from '../errors/directive-error';
 
+const listenerRegex = /on[A-Z][A-z]+Changed/;
+
 export default class EventDirective extends Directive {
   static id = 'v-event';
 
@@ -32,6 +34,8 @@ export default class EventDirective extends Directive {
       // We can listen for callbacks on the component with special logic here
       // that ignores modifiers, etc.
       component.$addCallbackListener(camelKey, this.binding);
+    else if (listenerRegex.test(camelKey))
+      component.$addCallbackListener(camelKey, this.binding);
     else {
       // Otherwise we treat it as a normal event that will come from
       // the element
@@ -48,9 +52,14 @@ export default class EventDirective extends Directive {
   // Destruction (detach event listeners)
 
   destroy(): void {
-    this.component?.$removeCallbackListener(this.key, this.binding);
-    this.element.removeEventListener(this.key, this.binding);
-    EventBus.deregister(Event.CLICK, this.clickOutsideBinding);
+    const { clickOutsideBinding, binding, key } = this;
+
+    const camelKey = Utility.camelCase(key);
+    this.component?.$removeCallbackListener(camelKey, binding);
+    this.element.removeEventListener(key, binding);
+    EventBus.deregister(Event.CLICK, clickOutsideBinding);
+
+    super.destroy();
   }
 
   // Execution
@@ -79,8 +88,8 @@ export default class EventDirective extends Directive {
 
     // Keydown Directives can be scoped via modifiers
     if (e instanceof KeyboardEvent && modifiers != null && modifiers.length > 0) {
-      const keyCode = e.key || e.keyCode;
-      const matchesModifier = modifiers.some((mod) => this.matchesKeycode(keyCode, mod));
+      const { key, keyCode } = e;
+      const matchesModifier = modifiers.some((mod) => this.matchesKeycode(key, keyCode, mod));
       if (!matchesModifier) return undefined;
     }
 
@@ -108,21 +117,37 @@ export default class EventDirective extends Directive {
 
   // Key matching
 
-  matchesKeycode(keyCode: string | number, keyEvent: string): boolean {
+  matchesKeycode(key: string | null, keyCode: number | null, keyEvent: string): boolean {
+    const $key = Utility.kebabCase(key);
+
     switch (keyEvent) {
       case 'enter':
       case 'ent':
-        return keyCode === 'Enter'
+        return $key === 'enter'
           || keyCode === 13;
       case 'escape':
       case 'esc':
-        return keyCode === 'Escape'
+        return $key === 'escape'
           || keyCode === 27;
+      case 'up':
+        return $key === 'arrow-up'
+          || keyCode === 38;
+      case 'down':
+        return $key === 'arrow-down'
+          || keyCode === 40;
+      case 'left':
+        return $key === 'arrow-left'
+          || keyCode === 37;
+      case 'right':
+        return $key === 'arrow-right'
+          || keyCode === 39;
       default:
     }
 
-    if (typeof keyCode === 'string')
-      return keyEvent === keyCode.toLowerCase();
-    return keyEvent === keyCode.toString();
+    const keyEventCode = Number.parseInt(keyEvent, 10);
+    if (Number.isNaN(keyEventCode))
+      return keyEvent === $key;
+
+    return keyEventCode === keyCode;
   }
 }

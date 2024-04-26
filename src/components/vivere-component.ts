@@ -191,7 +191,7 @@ export default class VivereComponent extends ReactiveHost {
     // changing, we need to check to see if the value actually changed
     const storedDefinition = $stored[key];
     const methodName = this.#listenerForKey(key);
-    if (this[methodName] != null || storedDefinition != null) {
+    if (this.#hasListeners(methodName) || storedDefinition != null) {
       const newValue = this[key];
 
       // All null like values we'll consider the same
@@ -204,9 +204,9 @@ export default class VivereComponent extends ReactiveHost {
         if (storedDefinition != null)
           Storage.save(key, storedDefinition, newValue);
 
-        // Invoke any watchers
-        if (this[methodName] != null)
-          this[methodName](newValue, oldValue);
+        // Invoke any listeners
+        this[methodName]?.(newValue, oldValue);
+        this.#reportCallback(methodName);
       }
     }
   }
@@ -320,6 +320,11 @@ export default class VivereComponent extends ReactiveHost {
     this.$listeners[callback] = this.$listeners[callback]?.filter((l) => l !== listener);
   }
 
+  #hasListeners(callback: string): boolean {
+    return this[callback] != null
+      || this.$listeners[callback]?.length > 0;
+  }
+
   #reportCallback(callback: string): void {
     this.$listeners[callback]?.forEach((listener) => {
       listener();
@@ -357,7 +362,7 @@ export default class VivereComponent extends ReactiveHost {
         // never otherwise forces the comptued value to compute, therefore
         // we need to kickstart reactivity for the value
         const listenerName = this.#listenerForKey(key);
-        if (this[listenerName] != null)
+        if (this.#hasListeners(listenerName))
           reactive.computeValue();
       }
     });
