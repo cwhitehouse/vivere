@@ -38,10 +38,6 @@ import ToggleButtonColorful from './includes/examples/toggle-button/colorful';
 
 import InputSelect from './includes/examples/inputs/select';
 
-Vivere.setOptions({
-  animationDuration: 5000,
-});
-
 Vivere.register('Index', Index);
 Vivere.register('ExampleGroup', ExampleGroup);
 Vivere.register('FilterTag', FilterTag);
