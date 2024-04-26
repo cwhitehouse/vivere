@@ -1,0 +1,108 @@
+<%
+  // bg-indigo-50
+
+  const generateEntry = function(idx) {
+    const string = (Math.random() + 1).toString(36).substring(2);
+    return {
+      id: idx,
+      string,
+      metadata: {
+        start: Math.floor(Math.random() * 50),
+        end: Math.floor(Math.random() * 50) + 50,
+      },
+    }
+  }
+
+  let data = [];
+  for (let i = 0; i < 100; i += 1) {
+    const entry = generateEntry(i);
+    data.push(entry);
+  }
+%>
+
+<div
+  v-component
+  #data="<%= JSON.stringify(data) %>"
+  #selected-data="[]"
+  #query="null"
+  #focused="false"
+  #selection-idx="0"
+  @on-max-selection-idx-changed="selectionIdx > maxSelectionIdx ?? selectionIdx = maxSelectionIdx"
+  @on-total-results-changed="hasQuery ?? $log(`Query: ${query} — Total results: ${totalResults}`)"
+  🖥️:has-query="query && query?.trim().length > 0"
+  🖥️:has-results="results != null"
+  🖥️:is-results-empty="hasResults && results.length <= 0"
+  🖥️:searching="focused && hasQuery && !hasResults"
+  🖥️:results="hasQuery ?? data.filter((d) => d.string.includes(query))"
+  🖥️:display-results="results?.slice(0, 4)"
+  🖥️:max-selection-idx="Math.max(0, hasResults ? displayResults.length - 1 : 0)"
+  🖥️:selection="hasResults ?? displayResults[selectionIdx]"
+  🖥️:selected-ids="selectedData.map((s) => s.id)"
+  🖥️:total-results="hasResults ? results.length : 0"
+  ✨:select="selection != null && !selectedData.includes(selection) ?? confirmSelection"
+  ✨:confirm-selection="selectedData.push(displayResults[selectionIdx]); query = null; selectionIdx = 0"
+  ✨:remove-selected="selectedData = selectedData.filter((s) => s.id !== $args[0])"
+  ✨:reset="query = null; focused = false; selectionIdx = 0;"
+  class="relative"
+>
+  <input
+    type="text"
+    placeholder="Search records..."
+    v-ref="input"
+    v-sync="query"
+    @focus="focused = true"
+    @blur.delay="reset"
+    @keydown.up.prevent="selectionIdx > 0 ?? selectionIdx -= 1"
+    @keydown.down.prevent="selectionIdx < maxSelectionIdx ?? selectionIdx += 1"
+    @keydown.ent="select"
+    @keydown.esc="$refs.input.blur"
+    class="w-full"
+  />
+
+  <ul class="mt-6 space-y-2 list-disc">
+    <li
+      v-for="datum of selectedData"
+      :key="id"
+      🤝:remove="removeSelected"
+      class="flex items-center justify-between list-disc"
+    >
+      <p>
+        <span class="text-lg font-bold mr-4">-</span>
+        <span :text="datum.string"></span>
+      </p>
+      <button
+        @click="$emit('remove', datum.id)"
+        class="button compact"
+      >X</button>
+    </li>
+  </ul>
+
+  <div
+    v-if="focused"
+    class="absolute bg-white top-0 left-0 right-0 mt-11 rounded z-10 border-2 shadow-xl text-sm"
+  >
+    <p
+      v-if="!hasResults || isResultsEmpty"
+      :text="isResultsEmpty ? 'No results found' : (searching ? 'Searching records...' : 'Start typing to search...')"
+      class="text-gray-600 italic p-3"
+    ></p>
+
+    <div v-else>
+      <p
+        v-for="(result, idx) of displayResults"
+        :key="id"
+        🎁:selection-idx
+        🎁:selected-ids
+        🤝:select
+        🖥️:is-selection="selectionIdx === idx"
+        🖥️:is-selected="selectedIds.includes(result.id)"
+        @mouseover="selectionIdx = idx"
+        @mousedown="$emit('select')"
+        :text="result.string"
+        🎨:bg-indigo-50="isSelection"
+        🎨:font-semibold="isSelected"
+        class="px-3 py-2 cursor-pointer"
+      ></p>
+    </div>
+  </div>
+</div>

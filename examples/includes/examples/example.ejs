@@ -1,7 +1,12 @@
 <%
-  let exampleClass;
+  // col-span-2 row-span-6
+
+  let exampleClass = ''
   if (example.width === 2)
-    exampleClass = 'lg:col-span-2';
+    exampleClass += 'lg:col-span-2';
+
+  if (example.height === 6)
+    exampleClass += ' lg:row-span-6';
 
   let exampleBodyClass;
   if (!!example.gray)
