@@ -6,7 +6,7 @@ import type { ObjectExpression } from '@jsep-plugin/object';
 import jsepArrow from '@jsep-plugin/arrow';
 import type { ArrowExpression } from '@jsep-plugin/arrow';
 import jsepTemplate from '@jsep-plugin/template';
-import type { TemplateExpression } from '@jsep-plugin/template';
+import type { TemplateLiteral } from '@jsep-plugin/template';
 import VivereComponent from '../components/vivere-component';
 import EvaluatorError from '../errors/evaluator-error';
 
@@ -308,7 +308,7 @@ const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: Eva
   return caller[name];
 };
 
-const evaluateTemplate = (caller: unknown, tree: TemplateExpression, options: EvaluatorOptions): unknown => {
+const evaluateTemplateLiteral = (caller: unknown, tree: TemplateLiteral, options: EvaluatorOptions): unknown => {
   const { quasis, expressions } = tree;
 
   let string = '';
@@ -356,7 +356,7 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
     case 'Identifier':
       return evaluateIdentifier(caller, tree as jsep.Identifier, options, shallow);
     case 'TemplateLiteral':
-      return evaluateTemplate(caller, tree as TemplateExpression, options);
+      return evaluateTemplateLiteral(caller, tree as TemplateLiteral, options);
     case 'Literal':
       return evaluateLiteral(tree);
     default:
