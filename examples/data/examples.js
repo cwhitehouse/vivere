@@ -232,12 +232,18 @@ const exampleGroups = [
         id: 'render-controllers',
         name: 'Render Controllers',
         width: 1,
+        height: 6,
       },
       {
         id: 'for-sync',
         name: 'v-for => v-sync',
         width: 1,
       },
+      {
+        id: 'advanced-search',
+        name: 'Advanced Search',
+        width: 1,
+      }
     ],
   },
 ];
