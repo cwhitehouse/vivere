@@ -10,6 +10,9 @@
     "target": "es6",
     "noEmit": true,
     "removeComments": true,
+    "paths": {
+      "@jsep-plugin/template": ["./src/types/jsep-template"]
+    }
   },
   "exclude": [ "dist", "temp", "_examples" ]
 }
