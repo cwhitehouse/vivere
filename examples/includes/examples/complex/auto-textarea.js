@@ -1,20 +1,21 @@
-import { VivereComponent } from "../../../../src/vivere";
+import { VivereComponent, WindowEventHook, RefEventHook } from "../../../../src/vivere";
 
 export default class extends VivereComponent {
-  $resizeBinding = null;
+  announcement = 'The window resized!';
 
-  connected() {
-    this.$resizeBinding = this.resize.bind(this);
+  beforeConnected() {
+    console.log('AutoTextArea ## beforeConnected');
+    this.$implements(WindowEventHook, 'resize', this.windowresize.bind(this));
+    this.$implements(RefEventHook, 'textarea', 'input', this.resize.bind(this));
+  }
 
-    this.$nextRender(() => {
-      const { $element } = this;
+  rendered() {
+    const { $element } = this;
+    $element.style.resize = 'none';
+  }
 
-      $element.style.resize = 'none';
-
-      $element.addEventListener('input', this.$resizeBinding);
-
-      this.resize();
-    });
+  windowresize() {
+    console.log(this.announcement);
   }
 
   resize() {

@@ -1,3 +1,3 @@
 export default {
-  CLICK: 'click',
+  CLICK: '$vivere-internal--click',
 };
