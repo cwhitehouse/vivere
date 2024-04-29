@@ -1,6 +1,6 @@
 import { Hook, VivereComponent } from '../vivere';
 
-export default (component: VivereComponent, ref: string, event: string, callback: () => void): Hook<void> => {
+export default (component: VivereComponent, ref: string, event: string, callback: (...args: unknown[]) => void): Hook<void> => {
   let element: Element | null;
 
   return {
