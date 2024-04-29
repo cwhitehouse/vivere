@@ -8,6 +8,6 @@ interface Hook<T> {
   beforeDestroyed?(): void;
 }
 
-type HookConstructor<U, T> = (component: VivereComponent, ...args: U) => Hook<T>;
+type HookConstructor<U extends Array<unknown>, T> = (component: VivereComponent, ...args: U) => Hook<T>;
 
 export { HookConstructor, Hook };

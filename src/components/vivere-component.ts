@@ -14,6 +14,7 @@ import Evaluator from '../lib/evaluator';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
 import { HookConstructor, Hook } from '../hooks/hook';
+import { RefEventHook } from '../vivere';
 
 declare global {
   interface Element {
@@ -314,7 +315,7 @@ export default class VivereComponent extends ReactiveHost {
   // LIFE CYCLE
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  $implements<U, T>(hookConstructor: HookConstructor<U, T>, ...args: U): T {
+  $implements<U extends Array<unknown>, T>(hookConstructor: HookConstructor<U, T>, ...args: U): T {
     if (this.$isConnected || this.$isDehydrated || this.$isDestroyed)
       throw new ComponentError('Hooks must be implemented during the `beforeConnected` callback', this);
 
