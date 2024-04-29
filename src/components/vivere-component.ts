@@ -14,7 +14,6 @@ import Evaluator from '../lib/evaluator';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
 import { HookConstructor, Hook } from '../hooks/hook';
-import { RefEventHook } from '../vivere';
 
 declare global {
   interface Element {
