@@ -70,11 +70,10 @@ export default class ReactiveObject {
           case '$$reactiveProxy':
             return true;
           default:
-            if (value && value.bind) {
-              console.log(`ReactiveObject ## return bound value :: ${p}`);
+            if (value && value.bind)
               // Functions need to be bound to the right target
               return value.bind(target);
-            }
+
             // Anything else can pass through as normal
             return value;
         }
