@@ -13,8 +13,7 @@ import PassedInterface from './definition/passed-interface';
 import Evaluator from '../lib/evaluator';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
-import { HookConstructor, VivereHook } from '../hooks/vivere-hook';
-import { WindowEventHook } from '../vivere';
+import { HookConstructor } from '../hooks/vivere-hook';
 
 declare global {
   interface Element {
