@@ -13,7 +13,7 @@ import PassedInterface from './definition/passed-interface';
 import Evaluator from '../lib/evaluator';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
-import { HookConstructor } from '../hooks/vivere-hook';
+import { HookConstructor, VivereHook } from '../hooks/vivere-hook';
 
 declare global {
   interface Element {
@@ -36,7 +36,7 @@ export default class VivereComponent extends ReactiveHost {
 
   $directives: Set<Directive> = new Set();
 
-  $hooks: Set<Hook<unknown>> = new Set();
+  $hooks: Set<VivereHook<unknown, unknown>> = new Set();
 
   $element: Element;
 
