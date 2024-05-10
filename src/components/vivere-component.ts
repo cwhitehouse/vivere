@@ -316,8 +316,8 @@ export default class VivereComponent extends ReactiveHost {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   $implements<U, T>(Hook: HookConstructor<U, T>, args: U): T {
-    if (this.$isConnected || this.$isDehydrated || this.$isDestroyed)
-      throw new ComponentError('Hooks must be implemented during the `beforeConnected` callback', this);
+    if (!this.$isConnected || this.$isDehydrated || this.$isDestroyed)
+      throw new ComponentError('Hooks must be implemented during the `connected` callback', this);
 
     const hook = new Hook(this, args);
     this.$hooks.add(hook);

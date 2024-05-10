@@ -3,8 +3,8 @@ import { VivereComponent, WindowEventHook, RefEventHook } from "../../../../src/
 export default class extends VivereComponent {
   announcement = 'The window resized!';
 
-  beforeConnected() {
-    console.log('AutoTextArea ## beforeConnected');
+  connected() {
+    console.log('AutoTextArea ## connected');
     this.$implements(WindowEventHook, { event: 'resize', callback: this.resize });
     this.$implements(RefEventHook, { ref: 'textarea', event: 'input', callback: this.resize });
   }
