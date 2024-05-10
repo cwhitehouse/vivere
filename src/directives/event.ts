@@ -1,6 +1,5 @@
 import Directive from './directive';
 import Evaluator from '../lib/evaluator';
-import Event from '../lib/events/event';
 import Utility from '../lib/utility';
 import DirectiveError from '../errors/directive-error';
 
