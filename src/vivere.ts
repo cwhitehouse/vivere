@@ -1,6 +1,4 @@
 import Walk from './lib/walk';
-import EventBus from './lib/events/bus';
-import Event from './lib/events/event';
 import Renderer from './rendering/renderer';
 import VivereComponent from './components/vivere-component';
 import ComponentRegistry from './components/registry';
@@ -9,7 +7,6 @@ import Timer from './lib/timer';
 import { Hook } from './hooks/hook';
 import WindowEventHook from './hooks/window-event-hook';
 import DocumentEventHook from './hooks/document-event-hook';
-import EventBusHook from './hooks/event-bus-hook';
 import RefEventHook from './hooks/ref-event-hook';
 
 // Configuration Options
@@ -84,11 +81,6 @@ document.addEventListener('turbo:before-render', (event: Record<string, any>) =>
   Renderer.$forceRender(false);
 });
 
-// For click.outside handlers, we need to see every click
-document.addEventListener('click', (e: Event) => {
-  EventBus.broadcast(Event.CLICK, e);
-});
-
 // Root logic
 
 const Vivere = {
@@ -114,4 +106,4 @@ const Vivere = {
   },
 };
 
-export { Vivere, VivereComponent, Hook, WindowEventHook, DocumentEventHook, EventBusHook, RefEventHook, EventBus };
+export { Vivere, VivereComponent, Hook, WindowEventHook, DocumentEventHook, RefEventHook };

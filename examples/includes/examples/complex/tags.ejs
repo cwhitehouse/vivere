@@ -3,12 +3,11 @@
   v-data:editing="false"
   v-data:filter-tags="[]"
   v-compute:filtering="filterTags?.length"
-  v-event:click.outside.delay="editing = false"
   class="relative z-10"
 >
   <!-- border-dashed border-indigo-500 dark:border-indigo-400 -->
   <button
-    v-event:click="editing = !editing"
+    v-event:click.delay="editing = !editing"
     v-class:border-dashed="!editing"
     v-class:button-indigo="filtering"
     class="button compact"
@@ -18,6 +17,7 @@
   </button>
   <div
     v-if="editing"
+    v-event:click.outside="editing = false"
     class="bg-white dark:bg-gray-800 rounded p-3 border-2 shadow-xl w-64 absolute z-10 mt-2 left-0 -ml-2"
   >
     <p class="text-sm text-gray-700 dark:text-gray-200">Filter by tag:</p>

@@ -1,6 +1,5 @@
 import Directive from './directive';
 import Evaluator from '../lib/evaluator';
-import EventBus from '../lib/events/bus';
 import Event from '../lib/events/event';
 import Utility from '../lib/utility';
 import DirectiveError from '../errors/directive-error';
@@ -43,7 +42,7 @@ export default class EventDirective extends Directive {
 
       if (key === 'click' && modifiers?.includes('outside'))
         // Click outside requires special handling
-        EventBus.register(Event.CLICK, this.clickOutsideBinding);
+        document.addEventListener('click', this.clickOutsideBinding);
       else
         element.addEventListener(key, this.binding);
     }
@@ -57,7 +56,7 @@ export default class EventDirective extends Directive {
     const camelKey = Utility.camelCase(key);
     this.component?.$removeCallbackListener(camelKey, binding);
     this.element.removeEventListener(key, binding);
-    EventBus.deregister(Event.CLICK, clickOutsideBinding);
+    document.removeEventListener('click', clickOutsideBinding);
 
     super.destroy();
   }
