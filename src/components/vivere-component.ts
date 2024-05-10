@@ -13,7 +13,8 @@ import PassedInterface from './definition/passed-interface';
 import Evaluator from '../lib/evaluator';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
-import { HookConstructor, Hook } from '../hooks/hook';
+import { HookConstructor, VivereHook } from '../hooks/vivere-hook';
+import { WindowEventHook } from '../vivere';
 
 declare global {
   interface Element {
@@ -314,11 +315,12 @@ export default class VivereComponent extends ReactiveHost {
   // LIFE CYCLE
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  $implements<U extends Array<unknown>, T>(hookConstructor: HookConstructor<U, T>, ...args: U): T {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  $implements<U, T>(Hook: HookConstructor<U, T>, args: U): T {
     if (this.$isConnected || this.$isDehydrated || this.$isDestroyed)
       throw new ComponentError('Hooks must be implemented during the `beforeConnected` callback', this);
 
-    const hook = hookConstructor(this, ...args);
+    const hook = new Hook(this, args);
     this.$hooks.add(hook);
     return hook.attach?.();
   }

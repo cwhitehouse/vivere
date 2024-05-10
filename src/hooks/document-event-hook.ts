@@ -1,11 +1,26 @@
-import { Hook, VivereComponent } from '../vivere';
+import { VivereHook, VivereComponent } from '../vivere';
 
-export default (component: VivereComponent, event: string, callback: (...args: unknown[]) => void): Hook<void> => ({
-  connected() {
-    document.addEventListener(event, callback);
-  },
+interface DocumentEventHookArgs {
+  event: string;
+  callback: (...args: unknown[]) => void;
+}
 
-  beforeDestroyed() {
-    document.removeEventListener(event, callback);
-  },
-});
+export default class DocumentEventHook extends VivereHook<DocumentEventHookArgs, void> {
+  event: string;
+  callback: (...args: unknown[]) => void;
+
+  constructor(component: VivereComponent, args: DocumentEventHookArgs) {
+    super(component);
+
+    this.event = args.event;
+    this.callback = args.callback.bind(component);
+  }
+
+  connected(): void {
+    document.addEventListener(this.event, this.callback);
+  }
+
+  beforeDestroyed(): void {
+    document.removeEventListener(this.event, this.callback);
+  }
+}

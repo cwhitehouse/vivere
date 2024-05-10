@@ -1,19 +1,35 @@
-import { Hook, VivereComponent } from '../vivere';
+import { VivereHook, VivereComponent } from '../vivere';
 
-export default (component: VivereComponent, ref: string, event: string, callback: (...args: unknown[]) => void): Hook<void> => {
-  let element: Element | null;
+interface RefEventHookArgs {
+  ref: string;
+  event: string;
+  callback: (...args: unknown[]) => void;
+}
 
-  return {
-    rendered() {
-      const $element = component.$refs[ref];
-      if ($element instanceof Element) {
-        element = $element;
-        element.addEventListener(event, callback);
-      }
-    },
+export default class RefEventHook extends VivereHook<RefEventHookArgs, void> {
+  ref: string;
+  event: string;
+  callback: (...args: unknown[]) => void;
 
-    beforeDestroyed() {
-      element?.removeEventListener(event, callback);
-    },
-  };
-};
+  element?: Element;
+
+  constructor(component: VivereComponent, args: RefEventHookArgs) {
+    super(component);
+
+    this.ref = args.ref;
+    this.event = args.event;
+    this.callback = args.callback.bind(component);
+  }
+
+  rendered(): void {
+    const $element = this.$component.$refs[this.ref];
+    if ($element instanceof Element) {
+      this.element = $element;
+      this.element.addEventListener(this.event, this.callback);
+    }
+  }
+
+  beforeDestroyed(): void {
+    this.element?.removeEventListener(this.event, this.callback);
+  }
+}

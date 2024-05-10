@@ -5,17 +5,13 @@ export default class extends VivereComponent {
 
   beforeConnected() {
     console.log('AutoTextArea ## beforeConnected');
-    this.$implements(WindowEventHook, 'resize', this.windowresize.bind(this));
-    this.$implements(RefEventHook, 'textarea', 'input', this.resize.bind(this));
+    this.$implements(WindowEventHook, { event: 'resize', callback: this.resize });
+    this.$implements(RefEventHook, { ref: 'textarea', event: 'input', callback: this.resize });
   }
 
   rendered() {
     const { $element } = this;
     $element.style.resize = 'none';
-  }
-
-  windowresize() {
-    console.log(this.announcement);
   }
 
   resize() {
