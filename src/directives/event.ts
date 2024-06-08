@@ -5,8 +5,8 @@ import DirectiveError from '../errors/directive-error';
 
 const listenerRegex = /on[A-Z][A-z]+Changed/;
 
-export default class EventDirective extends Directive {
-  static id = 'v-event';
+export default class OnDirective extends Directive {
+  static id = 'v-on';
 
   static shortcut = '@';
 
