@@ -1,24 +1,13 @@
-import Directive from '../directive';
-import Utility from '../../lib/utility';
 import Evaluator from '../../lib/evaluator';
+import RootDirective from './root';
 
-export default class MethodDirective extends Directive {
+export default class MethodDirective extends RootDirective {
   static id = 'v-method';
-
-  static shortcut = '✨:';
-
-  static forComponent = true;
-
-  static requiresKey = true;
-
-  camelKey: string;
 
   // Parsing
 
-  parse(): void {
-    const { component, expression } = this;
-
-    this.camelKey = Utility.camelCase(this.key);
-    this.component[this.camelKey] = (...args: unknown[]): unknown => Evaluator.execute(component, expression, ...args);
+  evaluate(): void {
+    const { camelKey, component, expression } = this;
+    component[camelKey] = (...args: unknown[]): unknown => Evaluator.execute(component, expression, ...args);
   }
 }

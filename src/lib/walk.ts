@@ -2,7 +2,6 @@ import Timer from './timer';
 import Directive from '../directives/directive';
 import ForDirective from '../directives/display/for';
 import ComponentDirective from '../directives/component/component';
-import BindDirective from '../directives/component/bind';
 import ComputeDirective from '../directives/component/compute';
 import DataDirective from '../directives/component/data';
 import MethodDirective from '../directives/component/method';
@@ -37,7 +36,6 @@ const directives: (typeof Directive)[] = [
   ComponentDirective,
   // Data directives must come next to ensure data is probably set up
   // before rendering (especially for defered rendering)
-  BindDirective,
   ComputeDirective,
   DataDirective,
   MethodDirective,

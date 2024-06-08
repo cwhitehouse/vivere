@@ -30,32 +30,20 @@ export default class VivereComponent extends ReactiveHost {
 
   $name: string;
 
-  $bindings: { [key: string]: string } = {};
-
+  $element: Element;
+  $parent?: VivereComponent;
   $children: [VivereComponent?] = [];
 
-  $directives: Set<Directive> = new Set();
-
-  $hooks: Set<VivereHook<unknown, unknown>> = new Set();
-
-  $element: Element;
-
-  $parent?: VivereComponent;
-
   $renderController?: RenderController;
-
+  $directives: Set<Directive> = new Set();
   $refs: { [key: string]: (Element | VivereComponent) } = {};
-
-  $passed: { [key: string]: PassedInterface } = {};
 
   $stored: { [key: string]: StoredInterface } = {};
 
   $listeners: { [key: string]: ((...args: unknown[]) => unknown)[] } = {};
 
   $isConnected = false;
-
   $isDehydrated = false;
-
   $isDestroyed = false;
 
   beforeConnected?(): void;
@@ -94,6 +82,16 @@ export default class VivereComponent extends ReactiveHost {
   // HELPER METHODS
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  $find(name: string): VivereComponent | null {
+    const { $parent } = this;
+    if ($parent == null) return null;
+
+    const { $name } = $parent;
+    if ($name === Utility.pascalCase(name)) return $parent;
+
+    return $parent.$find(name);
+  }
+
   $log(message: string): void {
     // eslint-disable-next-line no-console
     console.log(message);
@@ -116,10 +114,13 @@ export default class VivereComponent extends ReactiveHost {
     });
   }
 
-  $set(key: string, value: unknown, getter: () => unknown = null, setter: (value: unknown) => void = null): Reactive {
+  $set(key: string, value: unknown, getter: () => unknown = null, setter: (value: unknown) => void = null, override = false): Reactive {
     // Functions need not be reactive, and will fail at JSON.stringify
     if (typeof value === 'function')
-      return null;
+      throw new ComponentError('Methods can not be reactive', this);
+
+    // If we're overriding (like via pass), delete this reactive
+    if (override) delete this.$reactives[key];
 
     // Internal properties might not be safe to pass to JSON.stringify
     if (key.startsWith('$') || key.startsWith('#'))
@@ -140,47 +141,6 @@ export default class VivereComponent extends ReactiveHost {
 
     // Return reactive
     return reactive;
-  }
-
-  $pass(key: string, expression: string, index?: number | string): void {
-    const { $passed, $reactives } = this;
-
-    let definition = $passed[key];
-    if (definition == null) {
-      definition = {};
-      $passed[key] = definition;
-    }
-
-    // Only set up the reactive property the first time $pass
-    // is called for a given key
-    if (!definition.expression?.length) {
-      // If we were storing a default value in our $reactives, we will
-      // clear it out for the sake of v-pass
-      delete $reactives[key];
-
-      // Passed properties get from their parent, and are unsetable
-      this.$set(key, null, () => {
-        const { $parent } = this;
-        const $definition = this.$passed[key];
-
-        let value = Evaluator.parse($parent, $definition.expression);
-
-        // If it's an array accessor, access the relevant child
-        if ($definition.index != null)
-          value = value[$definition.index];
-
-        return value;
-      }, (value): void => {
-        const { $parent } = this;
-        // Allow setting $passed values by assigning to the parent
-        $parent.$set(expression, value);
-      });
-    }
-
-    // Store the expression and index
-    // in the $passed definition
-    definition.expression = expression;
-    definition.index = index;
   }
 
   #listenerForKey(key: string): string {
@@ -235,18 +195,7 @@ export default class VivereComponent extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   $emit(event: string, arg: unknown): void {
-    ErrorHandler.handle(() => {
-      // Check bindings
-      const method = this.$bindings[event];
-      if (method == null)
-        throw new ComponentError(`Tried to emit unbound event: ${event}`, this);
-
-      // Invoke the parent's method (if it exists)
-      if (this.$parent[method] != null)
-        this.$parent[method](arg);
-      else
-        throw new ComponentError(`Parent does not implement ${method}`, this);
-    });
+    // TODO: Re-implement as event emitter
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -313,16 +262,6 @@ export default class VivereComponent extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // LIFE CYCLE
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  $implements<U, T>(Hook: HookConstructor<U, T>, args: U): T {
-    if (!this.$isConnected || this.$isDehydrated || this.$isDestroyed)
-      throw new ComponentError('Hooks must be implemented during the `connected` callback', this);
-
-    const hook = new Hook(this, args);
-    this.$hooks.add(hook);
-    return hook.attach?.();
-  }
 
   $addCallbackListener(callback: string, listener: (...args: unknown[]) => unknown): void {
     this.$listeners[callback] ||= [];
@@ -391,15 +330,9 @@ export default class VivereComponent extends ReactiveHost {
     connected?.call(this);
     this.#reportCallback('connected');
 
-    // Invoke hook callbacks
-    this.$hooks.forEach((h) => { h.connected?.(); });
-
     this.$nextRender(() => {
       rendered?.call(this);
       this.#reportCallback('rendered');
-
-      // Invoke hook callbacks
-      this.$hooks.forEach((h) => { h.rendered?.(); });
     });
   }
 
@@ -414,7 +347,6 @@ export default class VivereComponent extends ReactiveHost {
     // Callback hook
     beforeDestroyed?.call(this);
     this.#reportCallback('beforeDestroyed');
-    this.$hooks.forEach((h) => { h.beforeDestroyed?.(); });
 
     // Destroy directives
     $directives.forEach((d) => d.destroy());
@@ -464,10 +396,8 @@ export default class VivereComponent extends ReactiveHost {
     // Callback hook
     beforeDehydrated?.call(this);
     this.#reportCallback('beforeDehydrated');
-    this.$hooks.forEach((h) => { h.beforeDehydrated?.(); });
     beforeDestroyed?.call(this);
     this.#reportCallback('beforeDestroyed');
-    this.$hooks.forEach((h) => { h.beforeDestroyed?.(); });
 
     // Dehydrate this component
     this.#dehydrateData.call(this);

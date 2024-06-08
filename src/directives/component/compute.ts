@@ -1,24 +1,16 @@
-import Directive from '../directive';
-import Utility from '../../lib/utility';
 import Evaluator from '../../lib/evaluator';
+import RootDirective from './root';
 
-export default class ComputeDirective extends Directive {
+export default class ComputeDirective extends RootDirective {
   static id = 'v-compute';
-
-  static shortcut = '🖥️:';
-
-  static forComponent = true;
-
-  static requiresKey = true;
-
-  camelKey: string;
 
   // Parsing
 
-  parse(): void {
-    const { component, expression } = this;
+  evaluate(): void {
+    const { camelKey, component, expression } = this;
 
-    this.camelKey = Utility.camelCase(this.key);
-    this.component.$set(this.camelKey, null, () => Evaluator.compute(component, expression));
+    component.$set(camelKey, null, () => {
+      Evaluator.compute(component, expression);
+    }, null);
   }
 }

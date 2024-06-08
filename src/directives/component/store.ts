@@ -1,20 +1,15 @@
-import Directive from '../directive';
-import Utility from '../../lib/utility';
 import Evaluator from '../../lib/evaluator';
+import RootDirective from './root';
 
-export default class StoreDirective extends Directive {
+export default class StoreDirective extends RootDirective {
   static id = 'v-store';
-
-  static forComponent = true;
-
-  static requiresKey = true;
 
   static shouldRehydrate = false;
 
   // Parsing
 
-  parse(): void {
-    const { component, expression, key, modifiers } = this;
+  evaluate(): void {
+    const { camelKey, component, expression, modifiers } = this;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let $expression: any;
@@ -26,8 +21,6 @@ export default class StoreDirective extends Directive {
 
     if ($expression === undefined)
       $expression = expression;
-
-    const camelKey = Utility.camelCase(key);
 
     // Store the storage definition on the component
     const storageType = modifiers[0] || 'session';

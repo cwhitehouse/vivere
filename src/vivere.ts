@@ -4,10 +4,6 @@ import VivereComponent from './components/vivere-component';
 import ComponentRegistry from './components/registry';
 import ComponentDefinitions from './components/definitions';
 import Timer from './lib/timer';
-import { VivereHook } from './hooks/vivere-hook';
-import WindowEventHook from './hooks/window-event-hook';
-import DocumentEventHook from './hooks/document-event-hook';
-import RefEventHook from './hooks/ref-event-hook';
 
 // Configuration Options
 
@@ -106,4 +102,4 @@ const Vivere = {
   },
 };
 
-export { Vivere, VivereComponent, VivereHook, WindowEventHook, DocumentEventHook, RefEventHook };
+export { Vivere, VivereComponent };

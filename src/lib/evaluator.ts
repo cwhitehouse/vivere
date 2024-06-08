@@ -34,6 +34,10 @@ jsep.plugins.register(jsepTemplate);
 // truncated ternary operation (e.g. boolean ?? action)
 jsep.addBinaryOp('??', 0.1);
 
+// Add a special identifier character for referencing components
+const componentIdentifier = '@';
+jsep.addIdentifierChar(componentIdentifier);
+
 // Enum for special pursposes return values, specifically
 // for identifying successful assignments or function calls
 enum ParseResult {
@@ -293,7 +297,7 @@ const evaluateThisExpression = (caller: unknown, tree: jsep.ThisExpression, opti
 
 const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: EvaluatorOptions, shallow: boolean): unknown => {
   const { name } = tree;
-  const { local } = options;
+  const { component, local } = options;
 
   // When shallow parsing, an Identifier is our end state that we need
   // to bundle up and return for a function call or assignment expression
@@ -306,6 +310,12 @@ const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: Eva
   // unwrap it
   if (Object.keys(local).includes(name))
     return local[name];
+
+  // Special case for our component shorthand
+  if (name.startsWith(componentIdentifier)) {
+    const componentName = name.substring(1);
+    return component.$find(componentName);
+  }
 
   return caller[name];
 };

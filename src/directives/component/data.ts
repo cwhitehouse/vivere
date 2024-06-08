@@ -1,36 +1,26 @@
-import Directive from '../directive';
-import Utility from '../../lib/utility';
 import Evaluator from '../../lib/evaluator';
+import RootDirective from './root';
 
-export default class DataDirective extends Directive {
+export default class DataDirective extends RootDirective {
   static id = 'v-data';
-
-  static shortcut = '#';
-
-  static forComponent = true;
-
-  static requiresKey = true;
 
   static shouldRehydrate = false;
 
-  camelKey: string;
-
   // Parsing
 
-  parse(): void {
-    const { expression } = this;
+  evaluate(): void {
+    const { camelKey, expression } = this;
 
-    let $expression: unknown;
+    let value: unknown;
     try {
-      $expression = JSON.parse(expression);
+      value = JSON.parse(expression);
     } catch (err) {
-      $expression = Evaluator.parsePrimitive(expression);
+      value = Evaluator.parsePrimitive(expression);
     }
 
-    if ($expression === undefined)
-      $expression = expression;
+    if (value === undefined)
+      value = expression;
 
-    this.camelKey = Utility.camelCase(this.key);
-    this.component.$set(this.camelKey, $expression);
+    this.component.$set(camelKey, value);
   }
 }

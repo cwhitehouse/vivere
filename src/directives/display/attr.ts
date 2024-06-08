@@ -2,10 +2,8 @@ import DisplayDirective from './display';
 import Utility from '../../lib/utility';
 import DirectiveError from '../../errors/directive-error';
 
-export default class DisabledDirective extends DisplayDirective {
+export default class AttributeDirective extends DisplayDirective {
   static id = 'v-attr';
-
-  static shortcut = ':';
 
   static requiresKey = true;
 
