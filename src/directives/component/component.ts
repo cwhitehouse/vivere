@@ -6,7 +6,7 @@ import ComponentDefinitions from '../../components/definitions';
 import Walk from '../../lib/walk';
 
 export default class ComponentDirective extends Directive {
-  static id = 'v-component';
+  static id = 'component';
 
   static needsComponent = false;
 
@@ -23,7 +23,7 @@ export default class ComponentDirective extends Directive {
     const parent = component;
 
     // Instantiate the new component
-    const componentName = Utility.pascalCase(expression);
+    const componentName = Utility.pascalCase(expression || key);
     const Definition = ComponentDefinitions.getDefinition(componentName);
 
     if (Definition == null)

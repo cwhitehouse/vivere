@@ -35,7 +35,7 @@ jsep.plugins.register(jsepTemplate);
 jsep.addBinaryOp('??', 0.1);
 
 // Add a special identifier character for referencing components
-const componentIdentifier = '@';
+const componentIdentifier = '*';
 jsep.addIdentifierChar(componentIdentifier);
 
 // Enum for special pursposes return values, specifically
@@ -387,6 +387,7 @@ const parse = (component: VivereComponent, expression: string, executing = false
     const options: EvaluatorOptions = {
       component,
       local: {
+        $arg: $args[0],
         $args,
         JSON,
         Object,
@@ -400,6 +401,10 @@ const parse = (component: VivereComponent, expression: string, executing = false
 };
 
 export default {
+  tree(expression: string): jsep.Expression {
+    return jsep(expression);
+  },
+
   assign(component: VivereComponent, expression: string, value: unknown): void {
     // Shallow parse the expression (left side of the assignment)
     const result = parse(component, expression, true);
@@ -430,7 +435,7 @@ export default {
     if (expression.match(/^(('.*')|(".*"))$/))
       return expression.slice(1, expression.length - 1);
 
-    return undefined;
+    return expression;
   },
 
   execute(component: VivereComponent, expression: string, ...args: unknown[]): unknown {

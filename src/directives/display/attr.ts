@@ -1,26 +1,67 @@
 import DisplayDirective from './display';
 import Utility from '../../lib/utility';
-import DirectiveError from '../../errors/directive-error';
+import DOM from '../../lib/dom';
 
 export default class AttributeDirective extends DisplayDirective {
-  static id = 'v-attr';
+  static id = 'attr';
+
+  static shortcut = ':';
 
   static requiresKey = true;
 
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    const { element } = this;
-    const $key = Utility.camelCase(this.key);
+    const { element, key, lastValue, modifiers } = this;
+    const $key = Utility.camelCase(key);
 
     // Map our $key to the proper value parsing
     switch ($key) {
       // The class attribute requires special handling
       case 'class':
-        throw new DirectiveError('Class properties should be set with the v-class directive', this);
-      // The style attribute should be set via v-style
+        if (modifiers?.length)
+          // If we have a modifiers, parse the value as a boolean for toggling classes
+          // (Also parse the key as a dot separated list)
+          modifiers.forEach((className) => {
+            DOM.toggleClass(element, className, !!value);
+          });
+        else {
+          if (Array.isArray(lastValue))
+            // Otherwise, disable any classes that were turned on as lastValue
+            lastValue.forEach((className) => {
+              DOM.toggleClass(element, className, false);
+            });
+
+          if (Array.isArray(value))
+            // Turn on any classes described by the value
+            value.forEach((className) => {
+              DOM.toggleClass(element, className, true);
+            });
+        }
+        break;
+      // The style attribute requires special handling
       case 'style':
-        throw new DirectiveError('Style properties should be set with the v-style directive', this);
+        if (element instanceof HTMLElement)
+          if (modifiers?.length)
+            // If we have modifiers, assume we're trying to set the value
+            // of multiple styles to a text value
+            modifiers.forEach((style) => {
+              element.style[style] = value;
+            });
+          else {
+            if (typeof lastValue === 'object')
+              // Otherwise, remove any styles set by the last value
+              Object.keys(lastValue).forEach((style) => {
+                element.style[style] = null;
+              });
+
+            if (typeof value === 'object')
+              // Set any styles described by the value
+              Object.entries(value).forEach(([style, val]) => {
+                element.style[style] = val;
+              });
+          }
+        break;
       // text / text-content set the textContent of the element
       case 'text':
       case 'textContent':

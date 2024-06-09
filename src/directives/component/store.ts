@@ -2,13 +2,13 @@ import Evaluator from '../../lib/evaluator';
 import RootDirective from './root';
 
 export default class StoreDirective extends RootDirective {
-  static id = 'v-store';
+  static id = 'store';
 
   static shouldRehydrate = false;
 
   // Parsing
 
-  evaluate(): void {
+  process(): void {
     const { camelKey, component, expression, modifiers } = this;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

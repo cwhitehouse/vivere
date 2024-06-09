@@ -2,24 +2,20 @@ import Timer from './timer';
 import Directive from '../directives/directive';
 import ForDirective from '../directives/display/for';
 import ComponentDirective from '../directives/component/component';
-import ComputeDirective from '../directives/component/compute';
 import DataDirective from '../directives/component/data';
-import MethodDirective from '../directives/component/method';
-import PassDirective from '../directives/component/pass';
+import FunctionDirective from '../directives/component/function';
 import StoreDirective from '../directives/component/store';
 import AttrDirective from '../directives/display/attr';
-import ClassDirective from '../directives/display/class';
 import IfDirective from '../directives/display/conditional/if';
-import StyleDirective from '../directives/display/style';
 import SyncDirective from '../directives/display/sync';
-import EventDirective from '../directives/event';
-import HideDirective from '../directives/hide';
+import OnDirective from '../directives/on';
 import RefDirective from '../directives/ref';
 import VivereComponent from '../components/vivere-component';
 import ComponentRegistry from '../components/registry';
 import { RenderController, isRenderController } from '../rendering/render-controller';
 import ElseDirective from '../directives/display/conditional/else';
 import ElseIfDirective from '../directives/display/conditional/else-if';
+import { Vivere } from '../vivere';
 
 declare global {
   interface Element {
@@ -36,10 +32,8 @@ const directives: (typeof Directive)[] = [
   ComponentDirective,
   // Data directives must come next to ensure data is probably set up
   // before rendering (especially for defered rendering)
-  ComputeDirective,
   DataDirective,
-  MethodDirective,
-  PassDirective,
+  FunctionDirective,
   RefDirective,
   StoreDirective,
   // v-if (and v-else-if and v-else) need to be the first display directive since we
@@ -49,11 +43,8 @@ const directives: (typeof Directive)[] = [
   ElseDirective,
   // For the remaining directives, order is irrelevant
   AttrDirective,
-  ClassDirective,
-  EventDirective,
-  HideDirective,
-  StyleDirective,
   SyncDirective,
+  OnDirective,
 ];
 
 const Walk = {
@@ -69,11 +60,16 @@ const Walk = {
 
   element(element: Element, component?: VivereComponent, renderController?: RenderController): void {
     const { attributes } = element;
+    const { options } = Vivere;
+    const { prefix } = options;
+
     let $component = component;
     let $renderController = renderController;
 
     // v-static stops tree walking for improved performance
-    if (attributes['v-static'] != null) return;
+    if (attributes[`${prefix}static`] != null) return;
+    // Remove v-hide attributes
+    element.removeAttribute('v-hide');
 
     // Track which directives we've found so we can parse them in order
     const parsedDirectives: { Dir: typeof Directive, name: string, value: string }[] = [];
@@ -82,13 +78,23 @@ const Walk = {
     // through every directive for every element
     Object.values(element.attributes).forEach((attr) => {
       const { name, value } = attr;
-      // 'class' is our most common attribute, so we'll add a special
-      // case exception for noticing class
-      if (name === 'class') return;
+      // Explicitly break early if we encounter the most
+      // common HTML attributes
+      if (['class', 'id'].includes(name)) return;
+
+      // Find magic component references
+      if (name.match(/\*[\w-]+\*/)) {
+        const $value = name.substring(1, name.length - 1);
+        parsedDirectives.push({ Dir: ComponentDirective, name, value: $value });
+        return;
+      }
 
       // Check for every directive we have registered
       directives.forEach((Dir) => {
-        if (name.startsWith(Dir.id) || name.startsWith(Dir.shortcut))
+        const id = `${Vivere.options.prefix}${Dir.id}`;
+        const shortcut = Dir.shortcut || `*${Dir.id}`;
+
+        if (name.startsWith(id) || name.startsWith(shortcut))
           parsedDirectives.push({ Dir, name, value });
       });
     });
@@ -128,7 +134,7 @@ const Walk = {
 
   children(element: Element, component: VivereComponent, renderController?: RenderController): void {
     Object.values(element.children).forEach((child) => {
-      // Continue checking the element's children (and track our last siblings directives)
+      // Continue checking the element's children
       Walk.element(child, component, renderController);
     });
   },

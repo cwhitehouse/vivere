@@ -9,11 +9,9 @@ import ComponentError from '../errors/component-error';
 import ReactiveHost from '../reactivity/reactive-host';
 import Properties from '../lib/properties';
 import ComponentRegistry from './registry';
-import PassedInterface from './definition/passed-interface';
-import Evaluator from '../lib/evaluator';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
-import { HookConstructor, VivereHook } from '../hooks/vivere-hook';
+import Evaluator from '../lib/evaluator';
 
 declare global {
   interface Element {
@@ -116,8 +114,7 @@ export default class VivereComponent extends ReactiveHost {
 
   $set(key: string, value: unknown, getter: () => unknown = null, setter: (value: unknown) => void = null, override = false): Reactive {
     // Functions need not be reactive, and will fail at JSON.stringify
-    if (typeof value === 'function')
-      throw new ComponentError('Methods can not be reactive', this);
+    if (typeof value === 'function') return null;
 
     // If we're overriding (like via pass), delete this reactive
     if (override) delete this.$reactives[key];
@@ -141,6 +138,15 @@ export default class VivereComponent extends ReactiveHost {
 
     // Return reactive
     return reactive;
+  }
+
+  $proxy(key: string, expression: string): void {
+    // eslint-disable-next-line arrow-body-style
+    this.$set(key, null, () => {
+      return Evaluator.parse(this, expression);
+    }, (value: unknown) => {
+      Evaluator.assign(this, expression, value);
+    }, true);
   }
 
   #listenerForKey(key: string): string {

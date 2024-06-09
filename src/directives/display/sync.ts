@@ -3,7 +3,7 @@ import Evaluator from '../../lib/evaluator';
 import DirectiveError from '../../errors/directive-error';
 
 export default class SyncDirective extends DisplayDirective {
-  static id = 'v-sync';
+  static id = 'sync';
 
   element: (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLParagraphElement | HTMLSpanElement);
 

@@ -1,3 +1,4 @@
+import DirectiveError from '../../errors/directive-error';
 import Utility from '../../lib/utility';
 import Directive from '../directive';
 
@@ -9,6 +10,10 @@ export default class RootDirective extends Directive {
 
   parse(): void {
     this.camelKey = Utility.camelCase(this.key);
-    this.evaluate();
+    this.process();
+  }
+
+  process(): void {
+    throw new DirectiveError('Directive mut implement process', this);
   }
 }

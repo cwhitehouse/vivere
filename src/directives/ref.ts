@@ -1,7 +1,7 @@
 import Directive from './directive';
 
 export default class RefDirective extends Directive {
-  static id = 'v-ref';
+  static id = 'ref';
 
   // Parsing
 

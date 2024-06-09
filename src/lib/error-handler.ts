@@ -5,7 +5,8 @@ export default {
     try {
       block();
     } catch (error) {
-      const { suppressErrors, logErrors } = Vivere.getOptions();
+      const { options } = Vivere;
+      const { suppressErrors, logErrors } = options;
 
       if (!suppressErrors)
         throw error;

@@ -4,9 +4,9 @@ import DisplayDirective from './display';
 import Evaluator from '../../lib/evaluator';
 import Directive from '../directive';
 import Utility from '../../lib/utility';
-import { VivereComponent } from '../../vivere';
+import { Vivere, VivereComponent } from '../../vivere';
 import ToggableRenderController from '../../rendering/togglable-render-controller';
-import EventDirective from '../event';
+import OnDirective from '../on';
 import Walk from '../../lib/walk';
 
 const directiveRegex = /(?:([A-z_$0-9]+)|\(([A-z_$0-9]+), ([A-z_$0-9]+)\)) of ([A-z_$0-9[\]().?]+)/;
@@ -19,7 +19,7 @@ interface ForDirectiveValue {
 }
 
 export default class ForDirective extends DisplayDirective {
-  static id = 'v-for';
+  static id = 'for';
 
   parent: HTMLElement;
 
@@ -34,6 +34,9 @@ export default class ForDirective extends DisplayDirective {
   // Parsing
 
   parse(): void {
+    console.log('ForDirective#parse');
+    console.log(this.component);
+
     // Save this element as a template
     // Do something with the directives
     const { element } = this;
@@ -69,6 +72,11 @@ export default class ForDirective extends DisplayDirective {
       try {
         const [, iExp, $iExp, indexExpression, listExpression] = directiveRegex.exec(expression);
         const itemExpression = iExp || $iExp;
+
+        console.log(expression);
+        console.log(`listExpression = ${listExpression}`);
+        console.log(`itemExpression = ${itemExpression}`);
+        console.log(`indexExpression = ${indexExpression}`);
 
         value = {
           list: Evaluator.parse(component, listExpression),
@@ -139,24 +147,27 @@ export default class ForDirective extends DisplayDirective {
 
           // Duplicate our template element
           const el: HTMLElement = element.cloneNode(true) as HTMLElement;
+          const { options } = Vivere;
+          const { prefix } = options;
 
           // If the list item doesn't already have a `v-component` directive, add one to
           // make each list item behave as a component
-          if (!el.hasAttribute('v-component'))
-            el.setAttribute('v-component', '');
+          if (!el.hasAttribute('*component') && !el.hasAttribute('v-component'))
+            el.setAttribute(`${prefix}component`, '');
 
           if (isList) {
             // Pass the invidual list item
             //   e.g. v-pass:to-do="toDos[2]"
-            el.setAttribute(`v-pass:${Utility.kebabCase(itemExpression)}.list`, `${listExpression}[${i}]`);
+            el.setAttribute(`${prefix}data:${Utility.kebabCase(itemExpression)}`, `$parent.${listExpression}[${i}]`);
             if (indexExpression?.length)
               // If we have an index expression, we want to set that as well e.g. v-data:idx="2"
-              el.setAttribute(`v-data:${Utility.kebabCase(indexExpression)}`, `${i}`);
+              el.setAttribute(`${prefix}data:${Utility.kebabCase(indexExpression)}`, `${i}`);
           } else {
+            console.log(` v-for : itemExpression = ${itemExpression} : key = ${key}`);
             // Pass the invidual object item (for objects, item and index are swapped)
             //   e.g. v-pass:to-do="toDos['banana']"
-            el.setAttribute(`v-pass:${Utility.kebabCase(indexExpression)}.list`, `${listExpression}['${key}']`);
-            el.setAttribute(`v-data:${Utility.kebabCase(itemExpression)}`, `${key}`);
+            el.setAttribute(`${prefix}data:${Utility.kebabCase(indexExpression)}`, `$parent.${listExpression}['${key}']`);
+            el.setAttribute(`${prefix}data:${Utility.kebabCase(itemExpression)}`, `${key}`);
           }
 
           // Remove the suspend parsing data directive
@@ -178,7 +189,7 @@ export default class ForDirective extends DisplayDirective {
           if (isList) {
             // We need to update the index of the passed data
             // so we display the right list item
-            cachedElement.$pass(itemExpression, listExpression, i);
+            cachedElement.$proxy(itemExpression, `$parent.${listExpression}[${i}]`);
 
             if (indexExpression?.length)
               // Update the index if we have an index expression
@@ -186,8 +197,7 @@ export default class ForDirective extends DisplayDirective {
           } else {
             // We need to update the key of the passed data
             // so we display the right object item
-            cachedElement.$pass(indexExpression, listExpression, key);
-
+            cachedElement.$proxy(indexExpression, `$parent.${listExpression}[${key}]`);
             // Also pass the key along if we have it
             cachedElement.$set(itemExpression, key);
           }
@@ -264,7 +274,7 @@ export default class ForDirective extends DisplayDirective {
 
     Object.values(keyedElements).forEach((ke) => {
       Array.from(ke.$directives)
-        .filter((d) => d instanceof EventDirective)
+        .filter((d) => d instanceof OnDirective)
         .forEach((d) => { d.dehydrate(); d.destroy(); });
 
       ke.$element.remove();
@@ -276,7 +286,7 @@ export default class ForDirective extends DisplayDirective {
     });
     unkeyedElements.forEach((ue) => {
       Array.from(ue.$directives)
-        .filter((d) => d instanceof EventDirective)
+        .filter((d) => d instanceof OnDirective)
         .forEach((d) => { d.dehydrate(); d.destroy(); });
 
       ue.$element.remove();

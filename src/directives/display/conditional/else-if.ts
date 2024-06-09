@@ -1,7 +1,7 @@
 import AntecedentConditionalDirective from './antecedent';
 
 export default class ElseIfDirective extends AntecedentConditionalDirective {
-  static id = 'v-else-if';
+  static id = 'else-if';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseExpression(): any {

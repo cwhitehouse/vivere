@@ -4,12 +4,14 @@ import VivereComponent from './components/vivere-component';
 import ComponentRegistry from './components/registry';
 import ComponentDefinitions from './components/definitions';
 import Timer from './lib/timer';
+import Evaluator from './lib/evaluator';
 
 // Configuration Options
 
 const DEFAULT_ANIMATION_DURATION = 150;
 
 interface VivereConfiguration {
+  prefix: string,
   animationDuration: number,
   profiling: boolean,
   suppressErrors: boolean,
@@ -21,11 +23,39 @@ interface VivereOptions {
   suppressErrors?: boolean,
   logErrors?: boolean,
 }
-let configurationOptions: VivereConfiguration = {
+let config: VivereConfiguration = {
+  prefix: 'v-',
   animationDuration: DEFAULT_ANIMATION_DURATION,
   profiling: true,
   suppressErrors: false,
   logErrors: false,
+};
+
+// Root logic
+
+const Vivere = {
+  Evaluator,
+
+  // Track components and definitions
+
+  register(name: string, definition: (typeof VivereComponent)): void {
+    ComponentDefinitions.register(name, definition);
+  },
+
+  // Options
+
+  DEFAULT_ANIMATION_DURATION,
+
+  get options(): VivereConfiguration {
+    return config;
+  },
+
+  setOptions(options: VivereOptions): void {
+    config = {
+      ...config,
+      ...options,
+    };
+  },
 };
 
 // Setup logic
@@ -76,30 +106,5 @@ document.addEventListener('turbo:before-render', (event: Record<string, any>) =>
   // - Our ticks will be invoked when `requestAnimationFrame` resolves
   Renderer.$forceRender(false);
 });
-
-// Root logic
-
-const Vivere = {
-  // Track components and definitions
-
-  register(name: string, definition: (typeof VivereComponent)): void {
-    ComponentDefinitions.register(name, definition);
-  },
-
-  // Options
-
-  DEFAULT_ANIMATION_DURATION,
-
-  getOptions(): VivereConfiguration {
-    return configurationOptions;
-  },
-
-  setOptions(options: VivereOptions): void {
-    configurationOptions = {
-      ...configurationOptions,
-      ...options,
-    };
-  },
-};
 
 export { Vivere, VivereComponent };

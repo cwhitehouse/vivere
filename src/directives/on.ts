@@ -6,7 +6,7 @@ import DirectiveError from '../errors/directive-error';
 const listenerRegex = /on[A-Z][A-z]+Changed/;
 
 export default class OnDirective extends Directive {
-  static id = 'v-on';
+  static id = 'on';
 
   static shortcut = '@';
 
@@ -42,8 +42,16 @@ export default class OnDirective extends Directive {
       if (key === 'click' && modifiers?.includes('outside'))
         // Click outside requires special handling
         document.addEventListener('click', this.clickOutsideBinding);
-      else
-        element.addEventListener(key, this.binding);
+      else {
+        let target: Element | Document | Window = element;
+
+        if (modifiers?.includes('document'))
+          target = document;
+        if (modifiers?.includes('window'))
+          target = window;
+
+        target.addEventListener(key, this.binding);
+      }
     }
   }
 

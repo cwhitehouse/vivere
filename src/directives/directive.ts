@@ -2,6 +2,7 @@ import DirectiveError from '../errors/directive-error';
 import VivereComponent from '../components/vivere-component';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
+import { Vivere } from '../vivere';
 
 export default class Directive {
   static id: string;
@@ -100,7 +101,11 @@ export default class Directive {
 
   dehydrate(): void {
     if (this.shouldRehydrate()) {
-      let attributeName = this.id();
+      const { options } = Vivere;
+      const { prefix } = options;
+
+      let attributeName = `${prefix}${this.id()}`;
+
       if (this.key)
         attributeName += `:${this.key}`;
 

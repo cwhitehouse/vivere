@@ -34,7 +34,7 @@ export default class Animator {
     this.vertical = vertical;
     this.callback = callback;
 
-    this.duration = Vivere.getOptions().animationDuration;
+    this.duration = Vivere.options.animationDuration;
   }
 
   start(showing: boolean): void {
