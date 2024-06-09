@@ -34,9 +34,6 @@ export default class ForDirective extends DisplayDirective {
   // Parsing
 
   parse(): void {
-    console.log('ForDirective#parse');
-    console.log(this.component);
-
     // Save this element as a template
     // Do something with the directives
     const { element } = this;
@@ -72,11 +69,6 @@ export default class ForDirective extends DisplayDirective {
       try {
         const [, iExp, $iExp, indexExpression, listExpression] = directiveRegex.exec(expression);
         const itemExpression = iExp || $iExp;
-
-        console.log(expression);
-        console.log(`listExpression = ${listExpression}`);
-        console.log(`itemExpression = ${itemExpression}`);
-        console.log(`indexExpression = ${indexExpression}`);
 
         value = {
           list: Evaluator.parse(component, listExpression),
@@ -163,7 +155,6 @@ export default class ForDirective extends DisplayDirective {
               // If we have an index expression, we want to set that as well e.g. v-data:idx="2"
               el.setAttribute(`${prefix}data:${Utility.kebabCase(indexExpression)}`, `${i}`);
           } else {
-            console.log(` v-for : itemExpression = ${itemExpression} : key = ${key}`);
             // Pass the invidual object item (for objects, item and index are swapped)
             //   e.g. v-pass:to-do="toDos['banana']"
             el.setAttribute(`${prefix}data:${Utility.kebabCase(indexExpression)}`, `$parent.${listExpression}['${key}']`);

@@ -63,29 +63,20 @@ export default class DataDirective extends RootDirective {
       return;
     }
 
-    console.log('DataDirective#process');
-    console.log(`  - key = ${camelKey}`);
-    console.log(`  - exp = ${expression}`);
-
     const tree = Evaluator.tree(expression);
     const type = this.categorize(tree);
-    console.log(`  - typ = ${type}`);
 
     switch (type) {
       case DataType.Value:
-        console.log('  - component.$set(key, parsePrimitive)');
         component.$set(camelKey, Evaluator.parsePrimitive(expression));
         break;
       case DataType.Object:
-        console.log('  - component.$set(key, parse)');
         component.$set(camelKey, Evaluator.parse(component, expression));
         break;
       case DataType.Reference:
-        console.log('  - component.$proxy(key, expression)');
         component.$proxy(camelKey, expression);
         break;
       default:
-        console.log('  - component.$set(key, () => compute)');
         // Other expressions are interpreted as computed properties
         component.$set(camelKey, null, () => Evaluator.compute(component, expression), null);
     }
