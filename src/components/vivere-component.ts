@@ -3,8 +3,6 @@ import Reactive from '../reactivity/reactive';
 import Walk from '../lib/walk';
 import Directive from '../directives/directive';
 import Renderer from '../rendering/renderer';
-import Storage from '../reactivity/storage';
-import StoredInterface from './definition/stored-interface';
 import ComponentError from '../errors/component-error';
 import ReactiveHost from '../reactivity/reactive-host';
 import Properties from '../lib/properties';
@@ -35,8 +33,6 @@ export default class VivereComponent extends ReactiveHost {
   $renderController?: RenderController;
   $directives: Set<Directive> = new Set();
   $refs: { [key: string]: (Element | VivereComponent) } = {};
-
-  $stored: { [key: string]: StoredInterface } = {};
 
   $listeners: { [key: string]: ((...args: unknown[]) => unknown)[] } = {};
 
@@ -102,7 +98,7 @@ export default class VivereComponent extends ReactiveHost {
   $setupReactivity(): void {
     // Set up reactivity for all properties
     Properties.parse(this, (key, descriptor) => {
-      // Ignore reserved keys, like stored, passed, constructor
+      // Ignore reserved keys, like constructor
       if (reservedKeywords.includes(key))
         return;
 
@@ -154,13 +150,10 @@ export default class VivereComponent extends ReactiveHost {
   }
 
   #react(key: string, oldValue: unknown): void {
-    const { $stored } = this;
-
-    // If we're storing the value, or have a watcher for the value
-    // changing, we need to check to see if the value actually changed
-    const storedDefinition = $stored[key];
+    // If we ave a watcher for the value changing, we need
+    // to check to see if the value actually changed
     const methodName = this.#listenerForKey(key);
-    if (this.#hasListeners(methodName) || storedDefinition != null) {
+    if (this.#hasListeners(methodName)) {
       const newValue = this[key];
 
       // All null like values we'll consider the same
@@ -169,31 +162,11 @@ export default class VivereComponent extends ReactiveHost {
 
       // Check if our property actually changed
       if (newValue !== oldValue) {
-        // If we're storing this value, save it to storage
-        if (storedDefinition != null)
-          Storage.save(key, storedDefinition, newValue);
-
         // Invoke any listeners
         this[methodName]?.(newValue, oldValue);
         this.#reportCallback(methodName);
       }
     }
-  }
-
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // STORED DATA
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  #loadStoredData(): void {
-    // Iterate through our `stored` object to find which objects
-    // we expect to be in storage
-    Object.entries(this.$stored).forEach(([key, definition]) => {
-      const storedValue = Storage.retrieve(key, definition);
-      const defaultValue = definition.default || this[key];
-
-      // Set the data from storage or our fallback value
-      this.$set(key, storedValue || defaultValue);
-    });
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -307,9 +280,6 @@ export default class VivereComponent extends ReactiveHost {
     // run through all of these commands (because we already have)
     if ($isConnected)
       return;
-
-    // Load data from storage
-    this.#loadStoredData.call(this);
 
     // Pre-compute all our computed properties with listeners (this
     // is to ensure they are watching any values we care about, even if
