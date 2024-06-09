@@ -1,10 +1,10 @@
 <div
-  v-component="input-select"
+  *input-select*
   class="flex items-center space-x-4"
 >
   <div class="flex-1">
     <select
-      v-sync="value"
+      *sync="value"
       class="w-full"
     >
       <option value="rome">Rome</option>
@@ -17,12 +17,12 @@
   </div>
   <div class="flex-1">
     <p
-      v-attr:text="value"
+      :text="value"
       class="w-full"
     ></p>
   </div>
   <button
-    v-event:click="reset"
+    @click="reset"
     class="button"
   >Reset</button>
 </div>

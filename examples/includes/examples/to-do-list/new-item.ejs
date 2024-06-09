@@ -1,29 +1,28 @@
 <div
-  v-component="to-do-new-item"
-  v-bind:cancel="stopCreating"
-  v-bind:create="create"
-  v-pass:showing="creating"
+  *to-do-new-item*
+  $cancel="$parent.stopCreating"
+  #showing="$parent.creating"
   @connected="$log('New Item connected!')"
   @rendered="$log('New Item rendered!'); $refs.input.focus"
-  v-ref="newItem"
+  *ref="newItem"
   class="flex items-stretch h-10 space-x-2"
 >
   <input
     type="text"
     class="flex-1"
     placeholder="New to-do..."
-    v-sync="label"
-    v-ref="input"
-    v-event:keydown.enter="create"
-    v-event:keydown.escape="reset"
+    *sync="label"
+    *ref="input"
+    @keydown.enter="create"
+    @keydown.escape="reset"
   ></input>
   <button
     class="button-indigo"
-    v-event:click="create"
-    v-attr:disabled="!hasLabel"
+    @click="create"
+    :disabled="!hasLabel"
   >Create</button>
   <button
     class="button"
-    v-event:click="reset"
+    @click="reset"
   >Cancel</button>
 </div>

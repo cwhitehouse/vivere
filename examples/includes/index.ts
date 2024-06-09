@@ -7,4 +7,4 @@ export default class extends VivereComponent {
   updateFilter(tag: string): void {
     this.filterTag = tag;
   }
-};
+}

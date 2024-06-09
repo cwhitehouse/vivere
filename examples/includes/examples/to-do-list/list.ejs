@@ -24,8 +24,8 @@
 %>
 
 <div
-  v-component="to-do-list"
-  v-data:to-dos="<%= JSON.stringify(items) %>"
+  *component="to-do-list"
+  #to-dos="<%= JSON.stringify(items) %>"
 >
   <div class="flex items-center">
     <p class="text-sm text-gray-700 font-semibold uppercase">List of To-Dos</p>
@@ -35,7 +35,7 @@
 
     <div class="w-8"></div>
 
-    <select v-sync="filter" >
+    <select *sync="filter" >
       <option value="">All tags...</option>
       <option value="urgent">URGENT</option>
       <option value="blocked">BLOCKED</option>
@@ -44,7 +44,7 @@
 
     <div class="w-2"></div>
 
-    <select v-sync="sort">
+    <select *sync="sort">
       <option value="">Default order</option>
       <option value="alphaAsc">Alphabetical (A-Z)</option>
       <option value="alphaDesc">Alphabetical (Z-A)</option>
@@ -53,18 +53,18 @@
 
   <div
     class="mt-6"
-    v-ref="list"
+    *ref="list"
   >
     <%- include('/examples/to-do-list/item') %>
   </div>
 
   <div class="mt-6">
     <button
-      v-if="!creating"
+      *if="!creating"
       class="button-indigo"
-      v-event:click="startCreating"
+      @click="startCreating"
     >New To-Do</button>
-    <div v-if="creating">
+    <div *if="creating">
       <%- include('/examples/to-do-list/new-item') %>
     </div>
   </div>

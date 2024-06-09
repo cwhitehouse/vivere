@@ -11,14 +11,6 @@ export default class extends VivereComponent {
   state = State.SHOW;
   label = null;
 
-  $passed = {
-    toDo: {
-      default: {
-        tags: [],
-      },
-    },
-  };
-
   get isShowing() {
     return this.state === State.SHOW;
   }
@@ -58,11 +50,6 @@ export default class extends VivereComponent {
 
   confirmDelete() {
     this.state = State.DELETE;
-  }
-
-  delete() {
-    const { toDo } = this;
-    this.$emit('remove', toDo);
   }
 
   reset() {

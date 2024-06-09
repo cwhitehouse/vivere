@@ -1,24 +1,26 @@
 <div
-  v-component="ComplexAutoTextareaWrapper"
-  v-data:name=""
+  *complex-auto-textarea-wrapper*
+  #name
 >
   <textarea
-    v-component="ComplexAutoTextarea"
-    v-pass:name
-    v-sync="name"
-    v-event:keydown.esc="$element.blur"
-    v-ref="textarea"
+    *complex-auto-textarea*
+    #name="$parent.name"
+    *sync="name"
+    @input="resize"
+    @resize.window="resize"
+    @keydown.esc="$element.blur"
+    *ref="textarea"
     class="w-full"
     value="Christian Whitehouse"
   ></textarea>
   <div class="flex items-center justify-between">
     <button
       class="button mt-4"
-      v-event:click="$log($children[0].name)"
+      @click="$log($children[0].name)"
     >Check Values</button>
     <button
       class="button mt-4"
-      v-event:click="name = 'Christian Whitehouse'"
+      @click="name = 'Christian Whitehouse'"
     >Reset</button>
   </div>
 </div>

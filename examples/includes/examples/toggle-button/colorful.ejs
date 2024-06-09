@@ -1,6 +1,6 @@
 <button
-  v-component="toggle-button-colorful"
-  v-class="buttonClass"
+  *toggle-button-colorful*
+  :class="buttonClass"
   :text="buttonText"
   @click="on = !on"
   @before-connected="$log('LifecycleCallbacks # beforeConnected')"

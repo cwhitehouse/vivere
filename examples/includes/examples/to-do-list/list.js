@@ -63,10 +63,6 @@ export default class extends VivereComponent {
     this.creating = false;
   }
 
-  updateText(text) {
-    this.text = text;
-  }
-
   orderArrayBy(array, keys, directions){
     return [...array].sort((a, b) => {
       for (let i = 0; i < keys.length; i += 1) {
@@ -86,6 +82,7 @@ export default class extends VivereComponent {
   }
 
   create(label) {
+    console.log(label);
     id += 1;
     this.toDos.push({ id, label, tags: [] });
   }

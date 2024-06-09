@@ -4,7 +4,7 @@ export default class extends VivereComponent {
   exampleGroup = {};
   tags = [];
 
-  filterTag = null;
+  activeTag = null;
   filterText = null;
 
   $passed = {
@@ -13,15 +13,15 @@ export default class extends VivereComponent {
   }
 
   get shouldShow() {
-    const { exampleGroup, filterTag, filterText, tags } = this;
+    const { exampleGroup, activeTag, filterText, tags } = this;
     const { description, name } = exampleGroup;
 
     const lowerText = filterText.toLowerCase();
     const lowerName = name.toLowerCase();
     const lowerDescription = description.toLowerCase();
 
-    const matchesTag = !filterTag ||
-      tags.includes(filterTag);
+    const matchesTag = !activeTag ||
+      tags.includes(activeTag);
     const matchesText = !filterText ||
       lowerName.includes(lowerText) ||
       lowerDescription.includes(lowerText);

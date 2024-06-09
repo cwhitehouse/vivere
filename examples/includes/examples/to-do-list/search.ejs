@@ -1,17 +1,16 @@
 <div
-  v-component="to-do-search"
-  v-pass:filtering
-  v-pass:text
-  v-bind:input="updateText"
-  v-event:keydown.esc="clear"
-  v-event:keydown.ent="blur"
-  v-event:rendered="$refs.input.focus"
+  *to-do-search*
+  #filtering="$parent.filtering"
+  #text="$parent.text"
+  @keydown.esc="clear"
+  @keydown.ent="blur"
+  @rendered="$refs.input.focus"
   class="flex-1"
 >
   <input
-    v-sync="inputText"
-    v-attr:disabled="filtering"
-    v-ref="input"
+    *ref="input"
+    *sync="text"
+    :disabled="filtering"
     type="text"
     class="w-full"
     placeholder="Search to-dos..."

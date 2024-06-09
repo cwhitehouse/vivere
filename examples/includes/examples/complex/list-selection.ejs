@@ -9,23 +9,23 @@
 %>
 
 <div
-  v-component
-  v-data:list="<%= JSON.stringify(list) %>"
-  v-data:selected-idx="0"
-  v-compute:selection="list[selectedIdx]"
+  *component
+  #list="<%= JSON.stringify(list) %>"
+  #selected-idx="0"
+  #selection="list[selectedIdx]"
 >
   <p class="italic">Current selection:</p>
-  <p v-attr:text="selection?.name"></p>
+  <p :text="selection?.name"></p>
   <div class="mt-4 space-y-2">
     <div
-      v-for="(item, idx) of list"
-      v-pass:selected-idx
+      *for="(item, idx) of list"
+      #selected-idx="$parent.selectedIdx"
       class="flex items-center"
     >
       <input
-        v-attr:id="'list-' + idx"
-        v-attr:value="idx"
-        v-sync="selectedIdx"
+        :id="'list-' + idx"
+        :value="idx"
+        *sync="selectedIdx"
         type="radio"
         name="list-selection"
       />

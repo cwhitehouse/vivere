@@ -1,18 +1,18 @@
 <% const opts = ['🎨','📏','🖥','🚗','💰','⚙️','🔮','🚫','🕒','🚩','📌','📎'] %>
 
 <div
-  v-component="ComplexToggleList"
-  v-data:properties="<%= JSON.stringify(opts.slice(1,3)) %>"
+  *complex-toggle-list*
+  #properties="<%= JSON.stringify(opts.slice(1,3)) %>"
 >
   <p>Selected properties: <span :text="propertiesString"></span></p>
   <div class="grid grid-cols-4 gap-2 mt-4">
     <% for (opt of opts) { %>
       <a
-        v-component="ComplexToggle"
-        v-data:value="<%= opt %>"
-        v-pass:properties="properties"
-        v-class="buttonClass"
-        v-event:click="toggleSelection"
+        *complex-toggle*
+        #value="'<%= opt %>'"
+        #properties="*complexToggleList.properties"
+        :class="buttonClass"
+        @click="toggleSelection"
         class="button flex items-center justify-center"
       ><span class="text-2xl"><%= opt %></span></a>
     <% } %>

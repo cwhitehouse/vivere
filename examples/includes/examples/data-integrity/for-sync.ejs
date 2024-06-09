@@ -7,26 +7,26 @@
 %>
 
 <div
-  v-component
+  *component
   #data="<%= JSON.stringify(data) %>"
   #suggestions="<%= JSON.stringify(['Texture', 'Category', 'Section']) %>"
-  🖥️:data-keys="data.map(d => d.key)"
-  🖥️:filtered-suggestions="suggestions.filter(s => !dataKeys.includes(s))"
-  ✨:add-data="data.push({ key: $args[0], value: '' })"
+  #data-keys="data.map(d => d.key)"
+  #filtered-suggestions="suggestions.filter(s => !dataKeys.includes(s))"
+  $add-data="data.push({ key: $arg, value: '' })"
 >
   <ul class="space-y-4">
     <li
-      v-for="item of data"
+      *for="item of data"
       class="flex items-center justify-evenly space-x-2"
     >
       <input
         type="text"
-        v-sync="item.key"
+        *sync="item.key"
         class="flex-1 w-0"
       />
       <input
         type="text"
-        v-sync="item.value"
+        *sync="item.value"
         class="flex-1 w-0"
       />
     </li>
@@ -37,9 +37,8 @@
       class="button"
     >Add Property</button>
     <button
-      v-for="suggestion of filteredSuggestions"
-      🤝:append="addData"
-      @click="$emit('append', suggestion)"
+      *for="suggestion of filteredSuggestions"
+      @click="$parent.addData(suggestion)"
       class="button"
     >+ <span :text="suggestion"></span></button>
   </div>

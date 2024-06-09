@@ -1,23 +1,23 @@
 <div
-  v-component
-  v-data:show="true"
+  *component
+  #show="true"
   class="flex flex-col"
 >
   <!-- pb-2 -->
   <ul>
     <li >Bananas</li>
     <li class="mt-2">Peaches</li>
-    <li v-if.anim-y="show" class="mt-2">Oranges</li>
+    <li *if.anim-y="show" class="mt-2">Oranges</li>
     <li class="mt-2">Apples</li>
     <li class="mt-2">Blueberries</li>
-    <li v-if.anim-y="show" class="mt-2">Strawberries</li>
+    <li *if.anim-y="show" class="mt-2">Strawberries</li>
     <li class="mt-2">Mangoes</li>
-    <li v-if.anim-y="!show" class="mt-2">Melons</li>
+    <li *if.anim-y="!show" class="mt-2">Melons</li>
     <li class="mt-2">Kiwis</li>
   </ul>
 
   <button
-    v-event:click="show = !show"
+    @click="show = !show"
     class="button mt-4"
   >Toggle</button>
 </div>

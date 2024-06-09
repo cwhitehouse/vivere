@@ -3,16 +3,11 @@ layout: default
 allTags:
   - v-event
   - v-ref
-  - v-bind
   - v-data
-  - v-compute
   - v-method
-  - v-pass
   - v-store
-  - v-class
   - v-if
   - v-for
-  - v-style
   - v-sync
   - $stored
   - $passed
@@ -34,12 +29,14 @@ allTags:
 %>
 
 <div
-  v-component="index"
+  *index*
+  #active-tag
+  $toggle-active-tag="activeTag === $arg ? activeTag = null : activeTag = $arg"
   class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8"
 >
   <div class="md:col-span-2 lg:col-span-3">
     <input
-      v-sync="filterText"
+      *sync="filterText"
       type="text"
       class="w-full"
       placeholder="Search examples..."
@@ -57,13 +54,13 @@ allTags:
           }
         %>
         <button
-          v-component="filter-tag"
-          v-bind:update-filter
-          v-data:tag="<%= JSON.stringify(tag) %>"
-          v-pass:filter-tag
-          v-event:click="toggleFilter"
-          v-class:<%= classesOff.join('.') %>="filterTag !== tag"
-          v-class:<%= classesOn.join('.') %>="filterTag === tag"
+          *filter-tag*
+          #tag="'<%= tag %>'"
+          #active-tag="*index.activeTag"
+          #is-selected="activeTag === tag"
+          @click="*index.toggleActiveTag(tag)"
+          :class.<%= classesOff.join('.') %>="!isSelected"
+          :class.<%= classesOn.join('.') %>="isSelected"
           class="rounded text-xs uppercase font-semibold px-2 py-1 mr-1 mt-1"
         ><%= tag %></button>
       <% } %>
@@ -79,12 +76,12 @@ allTags:
         .sort(list.directives);
     %>
     <div
-      v-component="example-group"
-      v-if="shouldShow"
-      v-data:example-group="<%= JSON.stringify(exampleGroup) %>"
-      v-data:tags="<%= JSON.stringify(groupTags) %>"
-      v-pass:filter-tag
-      v-pass:filter-text
+      *example-group*
+      *if="shouldShow"
+      #active-tag="*index.activeTag"
+      #filter-text="*index.filterText"
+      #example-group="<%= JSON.stringify(exampleGroup) %>"
+      #tags="<%= JSON.stringify(groupTags) %>"
     >
       <a href="<%= exampleGroup.id %>">
         <div class="border rounded bg-white shadow-md hover:shadow-xl active:shadow-none p-4">

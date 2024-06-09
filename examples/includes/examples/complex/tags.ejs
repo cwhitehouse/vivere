@@ -1,23 +1,23 @@
 <div
-  v-component
-  v-data:editing="false"
-  v-data:filter-tags="[]"
-  v-compute:filtering="filterTags?.length"
+  *component
+  #editing="false"
+  #filter-tags="[]"
+  #filtering="filterTags?.length"
   class="relative z-10"
 >
   <!-- border-dashed border-indigo-500 dark:border-indigo-400 -->
   <button
-    v-event:click.delay="editing = !editing"
-    v-class:border-dashed="!editing"
-    v-class:button-indigo="filtering"
+    @click.delay="editing = !editing"
+    :class.border-dashed="!editing"
+    :class.button-indigo="filtering"
     class="button compact"
   >
     <span class="mr-2">🔎</span>
     Filter items...
   </button>
   <div
-    v-if="editing"
-    v-event:click.outside="editing = false"
+    *if="editing"
+    @click.outside="editing = false"
     class="bg-white dark:bg-gray-800 rounded p-3 border-2 shadow-xl w-64 absolute z-10 mt-2 left-0 -ml-2"
   >
     <p class="text-sm text-gray-700 dark:text-gray-200">Filter by tag:</p>
@@ -25,15 +25,15 @@
     <div class="flex flex-wrap items-center mb-1 mt-2">
       <% tags.forEach((tag) => { %>
         <a
-          v-component
-          v-data:tag="<%= tag %>"
-          v-pass:filter-tags
-          v-compute:is-active="filterTags.includes(tag)"
-          v-method:activate="filterTags.push(tag)"
-          v-method:deactivate="filterTags.splice(filterTags.indexOf(tag), 1)"
-          v-event:click="isActive ? deactivate : activate"
-          v-class:bg-indigo-300="isActive"
-          v-class:bg-indigo-100="!isActive"
+          *component
+          #tag="'<%= tag %>'"
+          #filter-tags="$parent.filterTags"
+          #is-active="filterTags.includes(tag)"
+          $activate="filterTags.push(tag)"
+          $deactivate="filterTags.splice(filterTags.indexOf(tag), 1)"
+          @click="isActive ? deactivate : activate"
+          :class.bg-indigo-300="isActive"
+          :class.bg-indigo-100="!isActive"
           class="text-indigo-800 dark:text-indigo-50 dark:bg-indigo-800 text-sm font-medium rounded px-2 py-1 mr-1 mt-1 cursor-pointer"
         ><%= tag %></a>
       <% }) %>

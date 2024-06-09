@@ -9,15 +9,15 @@
 %>
 
 <div
-  v-component
-  v-data:object="<%= JSON.stringify(object) %>"
-  v-data:selected-key="null"
-  v-compute:selection="object[selectedKey]"
+  *component
+  #object="<%= JSON.stringify(object) %>"
+  #selected-key
+  #selection="object[selectedKey]"
 >
   <p class="italic">Current selection:</p>
   <div class="flex items-center">
     <p
-      v-attr:text="selectedKey"
+      :text="selectedKey"
       class="w-20"
     ></p>
     :
@@ -25,21 +25,21 @@
   </div>
   <div class="mt-4 space-y-2">
     <div
-      v-for="(key, value) of object"
+      *for="(key, value) of object"
       :key="key"
-      v-pass:selected-key
+      #selected-key="$parent.selectedKey"
       class="flex items-center"
     >
       <input
-        v-attr:id="'list-' + key"
-        v-attr:value="key"
-        v-sync="selectedKey"
+        :id="'list-' + key"
+        :value="key"
+        *sync="selectedKey"
         type="radio"
         name="list-selection"
       />
       <label
-        v-attr:for="'list-' + key"
-        v-attr:text="key"
+        :for="'list-' + key"
+        :text="key"
         class="pl-2"
       ></p>
     </div>

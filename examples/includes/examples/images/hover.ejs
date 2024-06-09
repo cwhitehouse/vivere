@@ -1,18 +1,18 @@
 <div
+  *component
+  *data:hovering="false"
+  *data:src="https://s3.amazonaws.com/kippy.online/kullect.png"
+  *data:alt-src="https://s3.amazonaws.com/kippy.online/kullect.gif"
   class="mx-auto"
-  v-component
-  #hovering="false"
-  #src="https://s3.amazonaws.com/kippy.online/kullect.png"
-  #alt-src="https://s3.amazonaws.com/kippy.online/kullect.gif"
 >
   <img
-    class="h-64 w-64 object-cover"
     :src="hovering && !!altSrc ? altSrc : src"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
+    class="h-64 w-64 object-cover"
   />
   <p class="text-center mt-4">
-    <span v-if="hovering">Hovering!</span>
-    <span v-if="!hovering && !!altSrc">Try hovering...</span>
+    <span *if="hovering">Hovering!</span>
+    <span *else>Try hovering...</span>
   </p>
 </div>

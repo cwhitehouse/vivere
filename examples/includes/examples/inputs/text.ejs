@@ -1,26 +1,26 @@
 <div
-  v-component="InputsText"
-  v-data:text="null"
+  *inputs-text*
+  #text
   class="flex items-center space-x-4"
 >
   <div class="flex-1">
     <input
       type='text'
-      v-sync="text"
-      v-event:keydown.esc="$refs.text.blur()"
-      v-ref="text"
+      *sync="text"
+      *ref="text"
+      @keydown.esc="$refs.text.blur()"
       class="w-full"
       placeholder="Try typing some text..."
     />
   </div>
   <div class="flex-1">
     <p
-      v-attr:text="text"
+      :text="text"
       class="w-full"
     ></p>
   </div>
   <button
-    v-event:click="text = 'Reset text...'"
+    @click="text = 'Reset text...'"
     class="button"
   >Reset</button>
 </div>

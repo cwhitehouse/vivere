@@ -19,12 +19,12 @@ export default class extends VivereComponent {
 
   create() {
     if (this.hasLabel)
-      this.$emit('create', this.label);
+      this.$parent.create(this.label);
     this.close();
   }
 
   close() {
-    this.$emit('cancel');
+    this.cancel();
     this.label = null;
   }
 };

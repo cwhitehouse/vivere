@@ -1,25 +1,25 @@
 <div
-  v-component
-  v-data:text="null"
+  *component
+  #text="null"
   class="flex items-center space-x-4"
 >
   <div class="flex-1">
     <p
-      v-sync="text"
-      v-event:keydown.esc="$refs.text.blur"
-      v-ref="text"
+      *ref="text"
+      *sync="text"
+      @keydown.esc="$refs.text.blur"
       placeholder="Try typing some text..."
       contenteditable=""
     ></p>
   </div>
   <div class="flex-1">
     <p
-      v-attr:text="text"
+      :text="text"
       class="w-full"
     ></p>
   </div>
   <button
-    v-event:click="text = 'Reset contenteditable...'"
+    @click="text = 'Reset contenteditable...'"
     class="button"
   >Reset</button>
 </div>

@@ -4,10 +4,6 @@ export default class Section extends VivereComponent {
   value?: string = null;
   activeSection?: string;
 
-  $passed = {
-    activeSection: {},
-  };
-
   get isActive(): boolean {
     const { activeSection, value } = this;
     return value === activeSection;

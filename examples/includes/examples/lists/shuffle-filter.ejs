@@ -1,23 +1,23 @@
 <div
-  v-component="ListsShuffleFilter"
-  v-data:items='[{"id":1,"name":"Item # 1"},{"id":2,"name":"Item # 2"},{"id":3,"name":"Item # 3"},{"id":4,"name":"Item # 4"},{"id":5,"name":"Item # 5"}]'
+  *lists-shuffle-filter*
+  #items='[{"id":1,"name":"Item # 1"},{"id":2,"name":"Item # 2"},{"id":3,"name":"Item # 3"},{"id":4,"name":"Item # 4"},{"id":5,"name":"Item # 5"}]'
 >
   <div class="flex items-center space-x-4">
     <button
-      v-event:click="shuffleItems"
+      @click="shuffleItems"
       class="button"
     >Shuffle Items</button>
     <button
-      v-event:click="toggleFilter"
-      v-attr:text="buttonLabel"
+      @click="toggleFilter"
+      :text="buttonLabel"
       class="button"
     ></button>
   </div>
   <ul class="mt-6">
     <li>Pre-list item</li>
     <li
-      v-for="item of filteredItems"
-      v-attr:text="item?.name"
+      *for="item of filteredItems"
+      :text="item.name"
     />
     <li>Post-list item</li>
   </ul>

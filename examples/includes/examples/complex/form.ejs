@@ -1,24 +1,24 @@
 <div
-  v-component
-  v-data:saving="false"
-  v-data:text="null"
+  *component
+  #saving="false"
+  #text="null"
 >
 <p>Form submission will be interruped and the form disabled...</p>
 <form
-  v-ref="form"
-  v-event:submit.prevent="saving = true"
+  *ref="form"
+  @submit.prevent="saving = true"
   class="flex items-center space-x-2 mt-4"
 >
   <input
-    v-sync="text"
-    v-attr:disabled="saving"
+    *sync="text"
+    :disabled="saving"
     type="text"
     placeholder="Required!"
     class="flex-1"
   />
   <button
-    v-attr:disabled="!text?.length || saving"
-    v-event:click.prevent="text?.length ?? saving = true"
+    :disabled="!text?.length || saving"
+    @click.prevent="text?.length ?? saving = true"
     class="button w-32"
   >
     <span
@@ -28,8 +28,8 @@
     ></span>
   </button>
   <button
-    v-attr:disabled="!saving"
-    v-event:click.prevent="saving = false"
+    :disabled="!saving"
+    @click.prevent="saving = false"
     class="button w-32"
   >Cancel</button>
 </form>

@@ -19,15 +19,15 @@
 %>
 
 <div
-  v-component
+  *component
   #data="<%= JSON.stringify(data) %>"
   #show-list="true"
   #show-even="true"
   #truncate-data="false"
-  #color="text-black"
-  🖥️:display-data="truncateData ? data.slice(10, 20) : data"
-  🖥️:color-class="[this.color]"
-  ✨:toggle-color="color === 'text-blue-600' ? color = 'text-black' : color = 'text-blue-600'"
+  #color="'text-black'"
+  #display-data="truncateData ? data.slice(10, 20) : data"
+  #color-class="[this.color]"
+  $toggle-color="color === 'text-blue-600' ? color = 'text-black' : color = 'text-blue-600'"
 >
   <div class="flex items-center space-x-2 mt-4">
     <button
@@ -48,42 +48,42 @@
     >Toggle Color</button>
   </div>
   <ol
-    v-if="showList"
+    *if="showList"
     class="list-decimal list-inside mt-6"
   >
     <li
-      v-for="(entry, idx) of displayData"
-      🎁:show-even
-      🎁:color-class
-      🖥️:is-even="testIsEven(idx)"
-      🖥️:metadata="showEven ? entry.metadata : null"
-      ✨:test-is-even="$args[0] % 2 == 0"
+      *for="(entry, idx) of displayData"
+      #show-even="$parent.showEven"
+      #color-class="$parent.colorClass"
+      #is-even="testIsEven(idx)"
+      #metadata="showEven ? entry.metadata : null"
+      $test-is-even="$arg % 2 == 0"
     >
       <span
-        v-if="(showEven && isEven) || (!showEven && !isEven)"
+        *if="(showEven && isEven) || (!showEven && !isEven)"
         :text="entry.string"
-        🎨:="colorClass"
+        :class="colorClass"
       ></span>
       <div
-        v-if="metadata"
+        *if="metadata"
         class="flex items-center justify-around"
       >
         <span>Color:</span>
         <span
           :text="metadata.color"
-          🎨:text-red-600="isEven"
+          :class.text-red-600="isEven"
         ></span>
       </div>
       <p
-        v-else-if="entry.metadata.size >= 50"
+        *else-if="entry.metadata.size >= 50"
         class="pl-8"
       >No metadata present (but the size is big)</p>
       <p
-        v-else
+        *else
         class="pl-8"
       >No metadata present (but the size is small)</p>
       <div
-        v-if="metadata"
+        *if="metadata"
         class="flex items-center justify-around"
       >
         <span>Size:</span>

@@ -1,7 +1,7 @@
 <button
+  *component
+  #on="false"
+  :text="on ? 'On' : 'Off'"
+  @click="on = !on"
   class="button"
-  v-component
-  v-data:on="false"
-  v-attr:text="on ? 'On' : 'Off'"
-  v-event:click="on = !on"
 ></button>

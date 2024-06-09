@@ -1,8 +1,8 @@
 <ul
-  v-component
-  v-data:items='[{"id":1,"name":"Item # 1"},{"id":2,"name":"Item # 2"},{"id":3,"name":"Item # 3"},{"id":4,"name":"Item # 4"},{"id":5,"name":"Item # 5"}]'
+  *component
+  #items='[{"id":1,"name":"Item # 1"},{"id":2,"name":"Item # 2"},{"id":3,"name":"Item # 3"},{"id":4,"name":"Item # 4"},{"id":5,"name":"Item # 5"}]'
 >
-  <li v-for="item of items">
-    <span v-attr:text="item.name"></span>
+  <li *for="item of items">
+    <span :text="item.name"></span>
   </li>
 </ul>

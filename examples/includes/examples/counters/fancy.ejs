@@ -1,19 +1,24 @@
 <div
-  v-component="fancy-counter"
+  *component
+  #count="0"
+  #count-high="count >= 5"
+  #message="countHigh ? '> THE COUNT IS NOW HIGH <' : '> THE COUNT IS NOW LOW <'"
+  #can-decrement="count > 0"
+  @on-count-high-changed="$log(message)"
   class="flex items-center"
 >
   <button
-    @click="$log('Decrementing the count...'); decrementCount()"
+    @click="$log('Decrementing the count...'); canDecrement ?? count -= 1;"
     :disabled="!canDecrement"
     class="button"
   >-</button>
   <p
     :text="count"
-    v-class:text-red-600.font-medium="countHigh"
+    :class.text-red-600.font-medium="countHigh"
     class="flex-1 text-center"
   ></p>
   <button
-    @click="incrementCount; $log('Incrementing the count...')"
+    @click="count += 1; $log('Incrementing the count...')"
     class="button"
   >+</button>
 </div>

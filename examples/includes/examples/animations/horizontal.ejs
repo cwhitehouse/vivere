@@ -1,27 +1,27 @@
 <div
-  v-component
-  v-data:show="false"
+  *component
+  #show="false"
 >
   <div class="flex flex-col items-stretch justify-between space-y-4">
     <ul class="flex items-start">
-      <li v-if.anim-x="!show" class="button mr-2">Pineapple</li>
+      <li *if.anim-x="!show" class="button mr-2">Pineapple</li>
       <li class="button mr-2">Bananas</li>
       <li class="button mr-2">Kiwis</li>
-      <li v-if.anim-x="show" class="button">Oranges</li>
+      <li *if.anim-x="show" class="button">Oranges</li>
     </ul>
 
     <ul class="flex justify-end items-end">
-      <li v-if.anim-x="!show" class="button mr-2">Plums</li>
+      <li *if.anim-x="!show" class="button mr-2">Plums</li>
       <li class="button mr-2">Peaches</li>
-      <li v-if.anim-x="show" class="button mr-2">Strawberries</li>
-      <li v-if.anim-x="!show" class="button mr-2">Melons</li>
+      <li *if.anim-x="show" class="button mr-2">Strawberries</li>
+      <li *if.anim-x="!show" class="button mr-2">Melons</li>
       <li class="button">Kiwis</li>
-      <li v-if.anim-x="!show" class="button ml-2">Mangoes</li>
+      <li *if.anim-x="!show" class="button ml-2">Mangoes</li>
     </ul>
   </div>
 
   <button
-    v-event:click="show = !show"
+    @click="show = !show"
     class="button w-full mt-4"
   >Toggle</button>
 </div>

@@ -21,7 +21,7 @@
 %>
 
 <div
-  v-component
+  *component
   #data="<%= JSON.stringify(data) %>"
   #selected-data="[]"
   #query="null"
@@ -29,20 +29,20 @@
   #selection-idx="0"
   @on-max-selection-idx-changed="selectionIdx > maxSelectionIdx ?? selectionIdx = maxSelectionIdx"
   @on-total-results-changed="hasQuery ?? $log(`Query: ${query} — Total results: ${totalResults}`)"
-  🖥️:has-query="query && query?.trim().length > 0"
-  🖥️:has-results="results != null"
-  🖥️:is-results-empty="hasResults && results.length <= 0"
-  🖥️:searching="focused && hasQuery && !hasResults"
-  🖥️:results="hasQuery ?? data.filter((d) => d.string.includes(query))"
-  🖥️:display-results="results?.slice(0, 4)"
-  🖥️:max-selection-idx="Math.max(0, hasResults ? displayResults.length - 1 : 0)"
-  🖥️:selection="hasResults ?? displayResults[selectionIdx]"
-  🖥️:selected-ids="selectedData.map((s) => s.id)"
-  🖥️:total-results="hasResults ? results.length : 0"
-  ✨:select="selection != null && !selectedData.includes(selection) ?? confirmSelection"
-  ✨:confirm-selection="selectedData.push(displayResults[selectionIdx]); query = null; selectionIdx = 0"
-  ✨:remove-selected="selectedData = selectedData.filter((s) => s.id !== $args[0])"
-  ✨:reset="query = null; focused = false; selectionIdx = 0;"
+  #has-query="query && query?.trim().length > 0"
+  #has-results="results != null"
+  #is-results-empty="hasResults && results.length <= 0"
+  #searching="focused && hasQuery && !hasResults"
+  #results="hasQuery ?? data.filter((d) => d.string.includes(query))"
+  #display-results="results?.slice(0, 4)"
+  #max-selection-idx="Math.max(0, hasResults ? displayResults.length - 1 : 0)"
+  #selection="hasResults ?? displayResults[selectionIdx]"
+  #selected-ids="selectedData.map((s) => s.id)"
+  #total-results="hasResults ? results.length : 0"
+  $select="selection != null && !selectedData.includes(selection) ?? confirmSelection"
+  $confirm-selection="selectedData.push(displayResults[selectionIdx]); query = null; selectionIdx = 0"
+  $remove-selected="selectedData = selectedData.filter((s) => s.id !== $args[0])"
+  $reset="query = null; focused = false; selectionIdx = 0;"
   class="relative"
 >
   <input
@@ -61,9 +61,8 @@
 
   <ul class="mt-6 space-y-2 list-disc">
     <li
-      v-for="datum of selectedData"
+      *for="datum of selectedData"
       :key="id"
-      🤝:remove="removeSelected"
       class="flex items-center justify-between list-disc"
     >
       <p>
@@ -71,36 +70,35 @@
         <span :text="string: ${datum.string}"></span>
       </p>
       <button
-        @click="$emit('remove', datum.id)"
+        @click="$parent.removeSelected(datum.id)"
         class="button compact"
       >X</button>
     </li>
   </ul>
 
   <div
-    v-if="focused"
+    *if="focused"
     class="absolute bg-white top-0 left-0 right-0 mt-11 rounded z-10 border-2 shadow-xl text-sm"
   >
     <p
-      v-if="!hasResults || isResultsEmpty"
+      *if="!hasResults || isResultsEmpty"
       :text="isResultsEmpty ? 'No results found' : (searching ? 'Searching records...' : 'Start typing to search...')"
       class="text-gray-600 italic p-3"
     ></p>
 
-    <div v-else>
+    <div *else>
       <p
-        v-for="(result, idx) of displayResults"
+        *for="(result, idx) of displayResults"
         :key="id"
-        🎁:selection-idx
-        🎁:selected-ids
-        🤝:select
-        🖥️:is-selection="selectionIdx === idx"
-        🖥️:is-selected="selectedIds.includes(result.id)"
+        #selection-idx="$parent.selectionIdx"
+        #selected-ids="$parent.selectedIds"
+        #is-selection="selectionIdx === idx"
+        #is-selected="selectedIds.includes(result.id)"
         @mouseover="selectionIdx = idx"
-        @mousedown="$emit('select')"
+        @mousedown="$parent.select"
         :text="result.string"
-        🎨:bg-indigo-50="isSelection"
-        🎨:font-semibold="isSelected"
+        :class.bg-indigo-50="isSelection"
+        :class.font-semibold="isSelected"
         class="px-3 py-2 cursor-pointer"
       ></p>
     </div>

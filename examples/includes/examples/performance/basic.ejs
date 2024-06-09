@@ -22,11 +22,11 @@
 %>
 
 <div
-  v-component="PerformanceBasic"
-  v-data:data="<%= JSON.stringify(data) %>"
+  *performance-basic*
+  #data="<%= JSON.stringify(data) %>"
 >
   <select
-    v-sync="limitText"
+    *sync="limitText"
     class="w-96 px-1.5"
   >
     <option value="24">24 Items</option>
@@ -39,43 +39,34 @@
   </select>
   <div class="flex items-center space-x-2 mt-4">
     <input
-      v-sync="filter"
+      *sync="filter"
       type="text"
       placeholder="Filter elements..."
       class="w-48"
     />
     <button
+      :class="colorClass"
+      @click="toggleColor"
       class="button"
-      v-event:click="toggleColor"
-      v-class="colorClass"
     >Toggle Colors</button>
   </div>
   <ol class="list-decimal list-inside mt-6">
-    <li
-      v-for="entry of filteredList"
-      v-pass:color-class
-    >
+    <li *for="entry of filteredList">
       <span
-        v-attr:text="entry.string"
-        v-class="colorClass"
+        :text="entry.string"
+        :class="*performanceBasic.colorClass"
       ></span>
       <ul class="list-disc list-inside ml-12">
-        <li
-          v-for="eentry of entry.data"
-          v-pass:color-class
-        >
+        <li *for="eentry of entry.data">
           <span
-            v-attr:text="eentry.string"
-            v-class="colorClass"
+            :text="eentry.string"
+            :class="*performanceBasic.colorClass"
           ></span>
           <ol class="list-decimal list-inside ml-12">
-            <li
-              v-for="eeentry of eentry.data"
-              v-pass:color-class
-            >
+            <li *for="eeentry of eentry.data">
               <span
-                v-attr:text="eeentry.string"
-                v-class="colorClass"
+                :text="eeentry.string"
+                :class="*performanceBasic.colorClass"
               ></span>
             </li>
           </ol>
