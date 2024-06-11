@@ -4,7 +4,6 @@ import ForDirective from '../directives/display/for';
 import ComponentDirective from '../directives/component/component';
 import DataDirective from '../directives/component/data';
 import FunctionDirective from '../directives/component/function';
-import StoreDirective from '../directives/component/store';
 import AttrDirective from '../directives/display/attr';
 import IfDirective from '../directives/display/conditional/if';
 import SyncDirective from '../directives/display/sync';
@@ -35,7 +34,6 @@ const directives: (typeof Directive)[] = [
   DataDirective,
   FunctionDirective,
   RefDirective,
-  StoreDirective,
   // v-if (and v-else-if and v-else) need to be the first display directive since we
   // can defer futher rendering and hydrating until the element comes into view
   IfDirective,
@@ -54,7 +52,7 @@ const Walk = {
       Walk.element(element, component, renderController);
 
       // Connect any new components
-      ComponentRegistry.components.forEach((c) => { c.$connect(); });
+      ComponentRegistry.components.forEach((c) => { c.$$connect(); });
     });
   },
 

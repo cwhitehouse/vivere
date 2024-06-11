@@ -24,11 +24,23 @@ export default class AntecedentConditionalDirective extends ConditionalDirective
     if (this.antecedent == null || this.antecedent instanceof ElseDirective)
       throw new DirectiveError(`${this.id()} directives require a preceeding v-if or v-else-if directive`, this);
 
-    // Listen to any changes on the precedent directives value
-    this.antecedent.listeners.register(this, this.renderCallback.bind(this));
+    // Listen to any changes on the preceeding directives value
+    this.registerListeners();
 
     // Continue parsing
     super.parse();
+  }
+
+  registerListeners(): void {
+    let { antecedent } = this;
+    do {
+      antecedent.listeners.register(this, this.renderCallback.bind(this));
+
+      if (antecedent instanceof AntecedentConditionalDirective)
+        antecedent = antecedent.antecedent;
+      else
+        antecedent = null;
+    } while (antecedent != null);
   }
 
   get antecedentValue(): boolean {

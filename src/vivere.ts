@@ -66,7 +66,7 @@ const $setup = (element: HTMLElement): void => {
     Walk.element(element);
 
     // Finalize connecting our components
-    ComponentRegistry.components.forEach((c) => { c.$connect(); });
+    ComponentRegistry.components.forEach((c) => { c.$$connect(); });
   });
 };
 
@@ -82,7 +82,7 @@ const $setupDocument = (): void => {
 // Dehydrate Vivere
 
 const dehydrate = (): void => {
-  ComponentRegistry.components.forEach((c) => c.$dehydrate.call(c, true));
+  ComponentRegistry.components.forEach((c) => c.$$dehydrate.call(c, true));
 };
 
 // SETUP VIVERE AUTOMATICALLY

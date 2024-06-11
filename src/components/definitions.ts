@@ -24,10 +24,5 @@ export default {
   },
 
   // Get definitions
-  getDefinition: (name: string): typeof VivereComponent => {
-    if (name == null || name.length <= 0)
-      return VivereComponent;
-
-    return $definitions.get(name);
-  },
+  getDefinition: (name: string): typeof VivereComponent => $definitions.get(name),
 };

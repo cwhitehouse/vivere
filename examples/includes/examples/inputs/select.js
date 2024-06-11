@@ -1,12 +1,7 @@
 import { VivereComponent } from "../../../../src/vivere";
 
 export default class extends VivereComponent {
-  $stored = {
-    value: {
-      type: 'session',
-      default: 'london',
-    },
-  };
+  value;
 
   reset() {
     this.value = 'rome';

@@ -3,6 +3,7 @@
 <div
   *complex-toggle-list*
   #properties="<%= JSON.stringify(opts.slice(1,3)) %>"
+  @complex-toggle--update="$log($arg.detail)"
 >
   <p>Selected properties: <span :text="propertiesString"></span></p>
   <div class="grid grid-cols-4 gap-2 mt-4">
@@ -12,7 +13,7 @@
         #value="'<%= opt %>'"
         #properties="*complexToggleList.properties"
         :class="buttonClass"
-        @click="toggleSelection"
+        @click="toggleSelection; $dispatch('update', value)"
         class="button flex items-center justify-center"
       ><span class="text-2xl"><%= opt %></span></a>
     <% } %>

@@ -1,5 +1,5 @@
 <div
-  *component
+  *complex-tags*
   #editing="false"
   #filter-tags="[]"
   #filtering="filterTags?.length"
@@ -25,7 +25,7 @@
     <div class="flex flex-wrap items-center mb-1 mt-2">
       <% tags.forEach((tag) => { %>
         <a
-          *component
+          *complex-tag*
           #tag="'<%= tag %>'"
           #filter-tags="$parent.filterTags"
           #is-active="filterTags.includes(tag)"

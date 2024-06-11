@@ -10,6 +10,7 @@ import ComponentRegistry from './registry';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
 import Evaluator from '../lib/evaluator';
+import { Func } from '../definitions';
 
 declare global {
   interface Element {
@@ -34,11 +35,11 @@ export default class VivereComponent extends ReactiveHost {
   $directives: Set<Directive> = new Set();
   $refs: { [key: string]: (Element | VivereComponent) } = {};
 
-  $listeners: { [key: string]: ((...args: unknown[]) => unknown)[] } = {};
+  #listeners: { [key: string]: Func[] } = {};
 
-  $isConnected = false;
-  $isDehydrated = false;
-  $isDestroyed = false;
+  #isConnected = false;
+  #isDehydrated = false;
+  #isDestroyed = false;
 
   beforeConnected?(): void;
   connected?(): void;
@@ -76,6 +77,13 @@ export default class VivereComponent extends ReactiveHost {
   // HELPER METHODS
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  /**
+   * Finds the closest ancestor component that has a given name. Useful for passing data
+   * and events between components. Won't find any sibling or child components.
+   * @param name The name of the component we're looking for
+   * @returns The first component in the parent chain with that name, or null if there were
+   * no matching components
+   */
   $find(name: string): VivereComponent | null {
     const { $parent } = this;
     if ($parent == null) return null;
@@ -86,6 +94,10 @@ export default class VivereComponent extends ReactiveHost {
     return $parent.$find(name);
   }
 
+  /**
+   * Convenience method for logging (useful from event directives)
+   * @param message The mssage to be logged
+   */
   $log(message: string): void {
     // eslint-disable-next-line no-console
     console.log(message);
@@ -95,7 +107,7 @@ export default class VivereComponent extends ReactiveHost {
   // REACTIVE DATA
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  $setupReactivity(): void {
+  #setupReactivity(): void {
     // Set up reactivity for all properties
     Properties.parse(this, (key, descriptor) => {
       // Ignore reserved keys, like constructor
@@ -169,18 +181,57 @@ export default class VivereComponent extends ReactiveHost {
     }
   }
 
+  #precomputeValues(): void {
+    // Pre-compute all our computed properties with listeners (this
+    // is to ensure they are watching any values we care about, even if
+    // they aren't ever called directly)
+    Object.entries(this.$reactives).forEach(([key, reactive]) => {
+      if (reactive.getter != null) {
+        // A listener needs to know about updated, but it's existence
+        // never otherwise forces the comptued value to compute, therefore
+        // we need to kickstart reactivity for the value
+        const listenerName = this.#listenerForKey(key);
+        if (this.#hasListeners(listenerName))
+          reactive.computeValue();
+      }
+    });
+  }
+
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // EVENT PASSING
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  $emit(event: string, arg: unknown): void {
-    // TODO: Re-implement as event emitter
+  /**
+   * Helper method for emitting events that can be handled
+   * by other controllers
+   * @param event The name of the event (will be automatically prefixed with the component name)
+   * @param args Any additional args we want to pass along with the event
+   */
+  $dispatch(event: string, detail: unknown): void {
+    const { $element, $name } = this;
+
+    let eventName: string;
+    if ($name?.length) {
+      const kebabName = Utility.kebabCase($name);
+      eventName = `${kebabName}--${event}`;
+    } else
+      eventName = event;
+
+    $element.dispatchEvent(new CustomEvent(eventName, {
+      bubbles: true,
+      detail,
+    }));
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // DOM MANIPULATION
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  /**
+   * Helper method for attaching new HTML into the DOM and having it automatically be parsed by Vivere
+   * @param html A string representing hte html we want to add to the DOM
+   * @param ref The name of a ref that we want to attach the HTML to
+   */
   $attach(html: string, ref: string): void {
     ErrorHandler.handle(() => {
       const $ref = this.$refs[ref];
@@ -208,6 +259,13 @@ export default class VivereComponent extends ReactiveHost {
     });
   }
 
+  /**
+   * Helper method for attaching a new HTML element ot the DOM and having it automatically parsed by Vivere
+   * @param element An HTMLElement we want to add to the DOM
+   * @param parent The parent HTMLElement we want to attach our element to
+   * @param before And optional `Node` to control where in the parents children the element apepars
+   * @param renderController An optional `RenderController` to control rendering of the new element
+   */
   $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node, renderController?: RenderController): void {
     if (before != null)
       parent.insertBefore(element, before);
@@ -225,44 +283,88 @@ export default class VivereComponent extends ReactiveHost {
   // RENDERING
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  /**
+   * Requests an asynchronous render for a specific Directive
+   * @param directive The Directive we want to render
+   */
   $queueRender(directive: Directive): void {
     Renderer.$queueRender(directive);
   }
 
-  $nextRender(func: () => void): void {
-    Renderer.$nextRender(func);
-  }
-
+  /**
+   * Forces all of this components Directives to re-render
+   * @param shallow Controls whether we should force this component's children to re-render as well
+   */
   $forceRender(shallow = false): void {
     this.$directives.forEach((d) => Renderer.$queueRender(d));
     if (!shallow) this.$children.forEach((child) => child.$forceRender());
+  }
+
+  /**
+   * Helper method for running code the next time a render completes, useful
+   * if we need to access say an element that's behind a `v-if` directive
+   * @param func The function to be invoked once the render has completed
+   */
+  $nextRender(func: () => void): void {
+    Renderer.$nextRender(func);
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // LIFE CYCLE
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  $addCallbackListener(callback: string, listener: (...args: unknown[]) => unknown): void {
-    this.$listeners[callback] ||= [];
-    this.$listeners[callback].push(listener);
+  // Convenience methods for callback listeners
+
+  $connected(listener: Func): void {
+    this.$addCallbackListener('connected', listener);
   }
 
-  $removeCallbackListener(callback: string, listener: (...args: unknown[]) => unknown): void {
-    this.$listeners[callback] = this.$listeners[callback]?.filter((l) => l !== listener);
+  $rendered(listener: Func): void {
+    this.$addCallbackListener('rendered', listener);
+  }
+
+  $beforeDestroyed(listener: Func): void {
+    this.$addCallbackListener('beforeDestroyed', listener);
+  }
+
+  $beforeDehydrated(listener: Func): void {
+    this.$addCallbackListener('beforeDehydrated', listener);
+  }
+
+  $destroyed(listener: Func): void {
+    this.$addCallbackListener('destroyed', listener);
+  }
+
+  $dehydrated(listener: Func): void {
+    this.$addCallbackListener('dehydrated', listener);
+  }
+
+  // Managing callback listeners
+
+  $addCallbackListener(callback: string, listener: Func): void {
+    this.#listeners[callback] ||= [];
+    this.#listeners[callback].push(listener);
+  }
+
+  $removeCallbackListener(callback: string, listener: Func): void {
+    this.#listeners[callback] = this.#listeners[callback]?.filter((l) => l !== listener);
   }
 
   #hasListeners(callback: string): boolean {
     return this[callback] != null
-      || this.$listeners[callback]?.length > 0;
+      || this.#listeners[callback]?.length > 0;
   }
 
   #reportCallback(callback: string): void {
-    this.$listeners[callback]?.forEach((listener) => {
+    this[callback]?.call(this);
+    this.#listeners[callback]?.forEach((listener) => {
       listener();
     });
   }
 
-  $setup(): void {
+  // SETUP
+
+  $$setup(): void {
     const { beforeConnected } = this;
 
     // Callback hooks
@@ -270,65 +372,51 @@ export default class VivereComponent extends ReactiveHost {
     this.#reportCallback('beforeConnected');
 
     // Turn on all of our reactive properties
-    this.$setupReactivity();
+    this.#setupReactivity();
   }
 
-  $connect(): void {
-    const { $isConnected, connected, rendered } = this;
+  // CONNECTION
 
+  $$connect(): void {
     // If this has already been connected, then we don't need to
     // run through all of these commands (because we already have)
-    if ($isConnected)
+    if (this.#isConnected)
       return;
 
-    // Pre-compute all our computed properties with listeners (this
-    // is to ensure they are watching any values we care about, even if
-    // they aren't ever called directly)
-    Object.entries(this.$reactives).forEach(([key, reactive]) => {
-      if (reactive.getter != null) {
-        // A listener needs to know about updated, but it's existence
-        // never otherwise forces the comptued value to compute, therefore
-        // we need to kickstart reactivity for the value
-        const listenerName = this.#listenerForKey(key);
-        if (this.#hasListeners(listenerName))
-          reactive.computeValue();
-      }
-    });
+    this.#precomputeValues();
 
     // Force initial render
     this.$forceRender.call(this, true);
 
     // Update state tracking
-    this.$isConnected = true;
-    this.$isDehydrated = false;
+    this.#isConnected = true;
+    this.#isDehydrated = false;
 
-    // Callback hook
-    connected?.call(this);
+    // Callback hooks
     this.#reportCallback('connected');
-
     this.$nextRender(() => {
-      rendered?.call(this);
       this.#reportCallback('rendered');
     });
   }
 
-  $destroy(): void {
-    const { $children, $directives, $isDestroyed, $element, $parent, beforeDestroyed, destroyed } = this;
+  // DESTRUCTION
+
+  $$destroy(): void {
+    const { $children, $directives, $element, $parent } = this;
 
     // If this has already been destroyed (likely because a parent was destroyed), then we
     // don't need to run through all of these commands (because we already have)
-    if ($isDestroyed)
+    if (this.#isDestroyed)
       return;
 
     // Callback hook
-    beforeDestroyed?.call(this);
     this.#reportCallback('beforeDestroyed');
 
     // Destroy directives
     $directives.forEach((d) => d.destroy());
 
     // Destroy all children (recusive)
-    $children.forEach((c) => c.$destroy());
+    $children.forEach((c) => c.$$destroy());
 
     if ($parent != null) {
       // Remove from parent's children
@@ -344,17 +432,14 @@ export default class VivereComponent extends ReactiveHost {
     $element.parentNode.removeChild(this.$element);
 
     // Update state tracking
-    this.$isDestroyed = true;
-    this.$isConnected = false;
+    this.#isDestroyed = true;
+    this.#isConnected = false;
 
     // Callback hook
-    destroyed?.call(this);
     this.#reportCallback('destroyed');
   }
 
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // DEHYDRATION
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   #dehydrateData(): void {
     this.#dataKeys.forEach((key) => {
@@ -365,14 +450,15 @@ export default class VivereComponent extends ReactiveHost {
     });
   }
 
-  $dehydrate(shallow = false): void {
+  $$dehydrate(shallow = false): void {
     const { $children, $directives, $parent } = this;
-    const { beforeDehydrated, beforeDestroyed, dehydrated, destroyed } = this;
+
+    // If this has already dehydrated, ignore
+    if (this.#isDehydrated)
+      return;
 
     // Callback hook
-    beforeDehydrated?.call(this);
     this.#reportCallback('beforeDehydrated');
-    beforeDestroyed?.call(this);
     this.#reportCallback('beforeDestroyed');
 
     // Dehydrate this component
@@ -381,7 +467,7 @@ export default class VivereComponent extends ReactiveHost {
 
     if (!shallow)
       // Dehydrate children
-      $children.forEach((c) => c.$dehydrate());
+      $children.forEach((c) => c.$$dehydrate());
 
     // Remove from parent's children
     if ($parent != null) {
@@ -394,13 +480,11 @@ export default class VivereComponent extends ReactiveHost {
     ComponentRegistry.untrack(this);
 
     // Update state tracking
-    this.$isDehydrated = true;
-    this.$isConnected = false;
+    this.#isDehydrated = true;
+    this.#isConnected = false;
 
     // Callback hooks
-    dehydrated?.call(this);
     this.#reportCallback('dehydrated');
-    destroyed?.call(this);
     this.#reportCallback('destroyed');
   }
 }
