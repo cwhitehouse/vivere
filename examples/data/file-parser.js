@@ -111,11 +111,17 @@ module.exports = {
     if (fileContent.match(/\s\*sync/))
       directives.push('v-sync');
 
+    if (fileContent.match(/\s\*ref/))
+      directives.push('v-ref');
+
     if (fileContent.match(/\s:[A-z-]+/))
       directives.push('v-attr');
 
     if (fileContent.match(/\s@[A-z-]+/))
       directives.push('v-on');
+
+    if (fileContent.match(/\s\*for/))
+      directives.push('v-for');
 
     if (fileContent.match(/\s\*if/))
       directives.push('v-if');
