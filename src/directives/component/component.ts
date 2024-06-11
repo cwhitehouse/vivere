@@ -4,7 +4,7 @@ import VivereError from '../../errors/error';
 import ComponentRegistry from '../../components/registry';
 import ComponentDefinitions from '../../components/definitions';
 import Walk from '../../lib/walk';
-import { VivereComponent } from '../../vivere';
+import { Component } from '../../vivere';
 
 export default class ComponentDirective extends Directive {
   static id = 'component';
@@ -28,7 +28,7 @@ export default class ComponentDirective extends Directive {
     if (!componentName?.length)
       throw new VivereError('Tried to instantiate a component without a name');
 
-    const Definition = ComponentDefinitions.getDefinition(componentName) || VivereComponent;
+    const Definition = ComponentDefinitions.getDefinition(componentName) || Component;
     this.component = new Definition(componentName, element, parent, renderController);
     this.component.$directives.add(this);
 

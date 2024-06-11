@@ -3,7 +3,7 @@ import Registry from './registry';
 import ReactiveArray from './array';
 import ReactiveObject from './object';
 import Coordinator from './coordinator';
-import VivereComponent from '../components/vivere-component';
+import Component from '../components/component';
 
 export default class Reactive {
   listeners: Registry<unknown, (oldValue: unknown) => void> = new Registry();
@@ -146,7 +146,7 @@ export default class Reactive {
 
   $report(oldValue: unknown): void {
     this.listeners.forEach((entity, hook) => {
-      if (entity instanceof VivereComponent)
+      if (entity instanceof Component)
         Coordinator.trackComponent(entity, hook, oldValue);
       else
         hook(oldValue);

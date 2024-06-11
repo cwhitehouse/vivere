@@ -9,7 +9,7 @@ import IfDirective from '../directives/display/conditional/if';
 import SyncDirective from '../directives/display/sync';
 import OnDirective from '../directives/on';
 import RefDirective from '../directives/ref';
-import VivereComponent from '../components/vivere-component';
+import Component from '../components/component';
 import ComponentRegistry from '../components/registry';
 import { RenderController, isRenderController } from '../rendering/render-controller';
 import ElseDirective from '../directives/display/conditional/else';
@@ -46,7 +46,7 @@ const directives: (typeof Directive)[] = [
 ];
 
 const Walk = {
-  tree(element: Element, component?: VivereComponent, renderController?: RenderController): void {
+  tree(element: Element, component?: Component, renderController?: RenderController): void {
     Timer.time('Tree parsed', () => {
       // Walk the tree to initialize components
       Walk.element(element, component, renderController);
@@ -56,7 +56,7 @@ const Walk = {
     });
   },
 
-  element(element: Element, component?: VivereComponent, renderController?: RenderController): void {
+  element(element: Element, component?: Component, renderController?: RenderController): void {
     const { attributes } = element;
     const { options } = Vivere;
     const { prefix } = options;
@@ -88,13 +88,20 @@ const Walk = {
       }
 
       // Check for every directive we have registered
-      directives.forEach((Dir) => {
+      console.log(`Walk#element : name = ${name}`);
+      for (let i = 0; i < directives.length; i += 1) {
+        const Dir = directives[i];
         const id = `${Vivere.options.prefix}${Dir.id}`;
         const shortcut = Dir.shortcut || `*${Dir.id}`;
 
-        if (name.startsWith(id) || name.startsWith(shortcut))
+        console.log(`  -> id: ${id}, shortcut: ${shortcut}`);
+
+        if (name.startsWith(id) || name.startsWith(shortcut)) {
+          console.log('  -> MATCH FOUND <-');
           parsedDirectives.push({ Dir, name, value });
-      });
+          break;
+        }
+      }
     });
 
     if (parsedDirectives.length) {
@@ -130,7 +137,7 @@ const Walk = {
       Walk.children(element, $component, $renderController);
   },
 
-  children(element: Element, component: VivereComponent, renderController?: RenderController): void {
+  children(element: Element, component: Component, renderController?: RenderController): void {
     Object.values(element.children).forEach((child) => {
       // Continue checking the element's children
       Walk.element(child, component, renderController);

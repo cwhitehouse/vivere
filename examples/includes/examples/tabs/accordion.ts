@@ -1,7 +1,7 @@
-import { VivereComponent } from '../../../../src/vivere';
+import { Component } from '../../../../src/vivere';
 import Section from './section';
 
-export default class Accordion extends VivereComponent {
+export default class Accordion extends Component {
   activeSection?: string = null;
 
   $stored = {

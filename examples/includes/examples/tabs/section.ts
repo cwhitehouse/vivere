@@ -1,6 +1,6 @@
-import { VivereComponent } from '../../../../src/vivere';
+import { Component } from '../../../../src/vivere';
 
-export default class Section extends VivereComponent {
+export default class Section extends Component {
   value?: string = null;
   activeSection?: string;
 

@@ -1,17 +1,17 @@
-import VivereComponent from './vivere-component';
+import Component from './component';
 
-const $components = new Set<VivereComponent>();
+const $components = new Set<Component>();
 
 export default {
-  get components(): Set<VivereComponent> {
+  get components(): Set<Component> {
     return $components;
   },
 
-  track(component: VivereComponent): void {
+  track(component: Component): void {
     $components.add(component);
   },
 
-  untrack(component: VivereComponent): void {
+  untrack(component: Component): void {
     $components.delete(component);
   },
 };

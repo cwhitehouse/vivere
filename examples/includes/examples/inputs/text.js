@@ -1,6 +1,6 @@
-import { VivereComponent } from "../../../../src/vivere";
+import { Component } from "../../../../src/vivere";
 
-export default class InputsText extends VivereComponent {
+export default class InputsText extends Component {
   beforeConnected() {
     console.log('InputsText#beforeConnected');
   }

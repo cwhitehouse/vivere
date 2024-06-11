@@ -7,11 +7,11 @@ import jsepArrow from '@jsep-plugin/arrow';
 import type { ArrowExpression } from '@jsep-plugin/arrow';
 import jsepTemplate from '@jsep-plugin/template';
 import type { TemplateLiteral } from '@jsep-plugin/template';
-import VivereComponent from '../components/vivere-component';
+import Component from '../components/component';
 import EvaluatorError from '../errors/evaluator-error';
 
 interface EvaluatorOptions {
-  component: VivereComponent;
+  component: Component;
   local: { [key: string]: unknown },
 }
 
@@ -376,7 +376,7 @@ evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOption
   }
 };
 
-const parse = (component: VivereComponent, expression: string, executing = false, $args: unknown[] = []): unknown => {
+const parse = (component: Component, expression: string, executing = false, $args: unknown[] = []): unknown => {
   try {
     let $expression = expression;
     if (templateLiteralRegex.test($expression))
@@ -405,7 +405,7 @@ export default {
     return jsep(expression);
   },
 
-  assign(component: VivereComponent, expression: string, value: unknown): void {
+  assign(component: Component, expression: string, value: unknown): void {
     // Shallow parse the expression (left side of the assignment)
     const result = parse(component, expression, true);
 
@@ -438,7 +438,7 @@ export default {
     return expression;
   },
 
-  execute(component: VivereComponent, expression: string, ...args: unknown[]): unknown {
+  execute(component: Component, expression: string, ...args: unknown[]): unknown {
     // Shallow parse the expression
     const response = parse(component, expression, true, args);
 
@@ -469,7 +469,7 @@ export default {
     return response;
   },
 
-  compute(component: VivereComponent, expression: string): unknown {
+  compute(component: Component, expression: string): unknown {
     const response = parse(component, expression, true);
 
     // We shouldn't allow assignments when parsing computed

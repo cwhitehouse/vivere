@@ -4,7 +4,7 @@ import DisplayDirective from './display';
 import Evaluator from '../../lib/evaluator';
 import Directive from '../directive';
 import Utility from '../../lib/utility';
-import { Vivere, VivereComponent } from '../../vivere';
+import { Vivere, Component } from '../../vivere';
 import ToggableRenderController from '../../rendering/togglable-render-controller';
 import OnDirective from '../on';
 import Walk from '../../lib/walk';
@@ -27,9 +27,9 @@ export default class ForDirective extends DisplayDirective {
 
   keyAttribute?: string;
 
-  keyedElements: { [key:string]: VivereComponent } = {};
+  keyedElements: { [key:string]: Component } = {};
 
-  unkeyedElements: VivereComponent[] = [];
+  unkeyedElements: Component[] = [];
 
   // Parsing
 
@@ -97,7 +97,7 @@ export default class ForDirective extends DisplayDirective {
       throw new DirectiveError('Invalid v-for expression, must resemble `(key, value) of object`', this);
 
     // Keep track of which components that we're rendering
-    const renderedElements: { key: (string | null), el: VivereComponent }[] = [];
+    const renderedElements: { key: (string | null), el: Component }[] = [];
 
     // We need to keep track of where to add new items
     let insertBefore: Node = placeholder;
@@ -126,7 +126,7 @@ export default class ForDirective extends DisplayDirective {
 
         // See if we have a cached element with a matching key in our cache,
         // and remove it from the cache to be used
-        let cachedElement: VivereComponent | null;
+        let cachedElement: Component | null;
         if (key != null) {
           cachedElement = keyedElements[key];
           delete keyedElements[key];

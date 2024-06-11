@@ -1,4 +1,4 @@
-import { VivereComponent } from "../../../../src/vivere";
+import { Component } from "../../../../src/vivere";
 
 const State = {
   SHOW: 'show',
@@ -6,7 +6,7 @@ const State = {
   EDIT: 'edit',
 };
 
-export default class extends VivereComponent {
+export default class extends Component {
   toDo = null;
   state = State.SHOW;
   label = null;

@@ -1,5 +1,5 @@
 import DirectiveError from '../errors/directive-error';
-import VivereComponent from '../components/vivere-component';
+import Component from '../components/component';
 import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
 import { Vivere } from '../vivere';
@@ -19,7 +19,7 @@ export default class Directive {
 
   static DATA_SUSPEND_PARSING = 'suspendVivereParsing';
 
-  component?: VivereComponent;
+  component?: Component;
 
   renderController?: RenderController;
 
@@ -35,7 +35,7 @@ export default class Directive {
 
   // Constructor
 
-  constructor(element: Element, name: string, expression: string, component?: VivereComponent, renderController?: RenderController) {
+  constructor(element: Element, name: string, expression: string, component?: Component, renderController?: RenderController) {
     if (element instanceof HTMLElement && element.dataset[Directive.DATA_SUSPEND_PARSING] === 'true')
       return;
 

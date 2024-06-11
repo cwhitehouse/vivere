@@ -14,7 +14,7 @@ import { Func } from '../definitions';
 
 declare global {
   interface Element {
-    $component: VivereComponent;
+    $component: Component;
   }
 }
 
@@ -22,18 +22,18 @@ const reservedKeywords = [
   'constructor',
 ];
 
-export default class VivereComponent extends ReactiveHost {
+export default class Component extends ReactiveHost {
   #dataKeys: Set<string> = new Set();
 
   $name: string;
 
   $element: Element;
-  $parent?: VivereComponent;
-  $children: [VivereComponent?] = [];
+  $parent?: Component;
+  $children: [Component?] = [];
 
   $renderController?: RenderController;
   $directives: Set<Directive> = new Set();
-  $refs: { [key: string]: (Element | VivereComponent) } = {};
+  $refs: { [key: string]: (Element | Component) } = {};
 
   #listeners: { [key: string]: Func[] } = {};
 
@@ -56,7 +56,7 @@ export default class VivereComponent extends ReactiveHost {
   // CONSTRUCTOR
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  constructor(name: string, element: Element, parent?: VivereComponent, renderController?: RenderController) {
+  constructor(name: string, element: Element, parent?: Component, renderController?: RenderController) {
     super();
 
     // Internals
@@ -84,7 +84,7 @@ export default class VivereComponent extends ReactiveHost {
    * @returns The first component in the parent chain with that name, or null if there were
    * no matching components
    */
-  $find(name: string): VivereComponent | null {
+  $find(name: string): Component | null {
     const { $parent } = this;
     if ($parent == null) return null;
 

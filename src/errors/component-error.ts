@@ -1,9 +1,9 @@
 import VivereError from './error';
 import Printer from '../lib/printer';
-import VivereComponent from '../components/vivere-component';
+import Component from '../components/component';
 
 export default class ComponentError extends VivereError {
-  constructor(message: string, component: VivereComponent, error?: Error) {
+  constructor(message: string, component: Component, error?: Error) {
     let errorMessage = `${message}\n\n  ${Printer.print(component)}\n\n`;
 
     if (error != null)

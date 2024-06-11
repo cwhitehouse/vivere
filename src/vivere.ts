@@ -1,6 +1,6 @@
 import Walk from './lib/walk';
 import Renderer from './rendering/renderer';
-import VivereComponent from './components/vivere-component';
+import Component from './components/component';
 import ComponentRegistry from './components/registry';
 import ComponentDefinitions from './components/definitions';
 import Timer from './lib/timer';
@@ -38,7 +38,7 @@ const Vivere = {
 
   // Track components and definitions
 
-  register(name: string, definition: (typeof VivereComponent)): void {
+  register(name: string, definition: (typeof Component)): void {
     ComponentDefinitions.register(name, definition);
   },
 
@@ -107,4 +107,4 @@ document.addEventListener('turbo:before-render', (event: Record<string, any>) =>
   Renderer.$forceRender(false);
 });
 
-export { Vivere, VivereComponent };
+export { Vivere, Component };

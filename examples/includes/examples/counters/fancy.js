@@ -1,6 +1,6 @@
-import { VivereComponent } from "../../../../src/vivere";
+import { Component } from "../../../../src/vivere";
 
-export default class extends VivereComponent {
+export default class extends Component {
   count = 0;
 
   $stored = {
