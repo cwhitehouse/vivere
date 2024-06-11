@@ -19,7 +19,7 @@ export default class extends Component {
     if (tag === filterTag) newFilter = null;
     else newFilter = tag;
 
-    this.$emit('updateFilter', newFilter);
+    this.$dispatch('updateFilter', newFilter);
     this.$element.blur();
   }
 };

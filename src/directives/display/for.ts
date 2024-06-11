@@ -145,7 +145,7 @@ export default class ForDirective extends DisplayDirective {
           // If the list item doesn't already have a `v-component` directive, add one to
           // make each list item behave as a component
           if (!el.hasAttribute('*component') && !el.hasAttribute('v-component'))
-            el.setAttribute(`${prefix}component`, '');
+            el.setAttribute(`${prefix}component`, `${component.$name}--${itemExpression}`);
 
           if (isList) {
             // Pass the invidual list item

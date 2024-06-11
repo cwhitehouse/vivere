@@ -15,6 +15,6 @@ export default class Section extends Component {
   }
 
   select(): void {
-    this.$emit('select', this.value);
+    this.$dispatch('select', this.value);
   }
 }

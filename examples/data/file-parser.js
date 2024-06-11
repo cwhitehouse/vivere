@@ -102,91 +102,99 @@ module.exports = {
     }
 
     // Parse directive shotcuts
-    const attributeMatches = fileContent
-      .matchAll(/\s:[A-z-]+/g);
-    for (let match of attributeMatches)
-      directives.push('v-attr');
-
-    const dataMatches = fileContent
-      .matchAll(/\s#[A-z-]+/g);
-    for (let match of dataMatches)
+    if (fileContent.match(/\s\#[A-z-]+/))
       directives.push('v-data');
 
-    const eventMatches = fileContent
-      .matchAll(/\s@[A-z-]+/g);
-    for (let match of eventMatches)
-      directives.push('v-event');
+    if (fileContent.match(/\s\$[A-z-]+/))
+      directives.push('v-func');
 
-    const computeMatches = fileContent
-      .matchAll(/\s🖥️:[A-z-]+/g);
-    for (let match of computeMatches)
-      directives.push('v-compute');
+    if (fileContent.match(/\s\*sync/))
+      directives.push('v-sync');
 
-    const methodMatches = fileContent
-      .matchAll(/\s✨:[A-z-]+/g);
-    for (let match of methodMatches)
-      directives.push('v-method');
+    if (fileContent.match(/\s:[A-z-]+/))
+      directives.push('v-attr');
+
+    if (fileContent.match(/\s@[A-z-]+/))
+      directives.push('v-on');
+
+    if (fileContent.match(/\s\*if/))
+      directives.push('v-if');
+
+    if (fileContent.match(/\s\*else-if/))
+      directives.push('v-else-if');
+
+    if (fileContent.match(/\s\*else/))
+      directives.push('v-else');
+
+    const syncMatches = fileContent
+      .matchAll(/\s\*sync+/g);
+    if (syncMatches?.length)
+      directives.push('v-sync');
 
     // Parse Javascript usage
-    const componentMatches = fileContent
-      .matchAll(/v-component=["']([A-z-]+)["']/g);
-    for (let match of componentMatches) {
-      const componentCode = match[1];
-      const componentName = strings.pascalCase(componentCode);
-      const componentDetails = components[componentName];
-      const filePath = componentDetails.filePath;
+    [/v-component=["']([A-z-]+)["']/g, /\*component=["']([A-z-]+)["']/g, /\*([A-z-]+)\*/g].forEach((regex) => {
+      const componentMatches = fileContent.matchAll(regex);
 
-      if (componentDetails != null) {
-        scripts.push(filePath);
+      for (let match of componentMatches) {
+        const componentCode = match[1];
+        const componentName = strings.pascalCase(componentCode);
+        const componentDetails = components[componentName];
 
-        for (let attribute of componentDetails.attributes)
-          directives.push(attribute);
+        console.log(componentName);
+
+        if (componentDetails != null) {
+          const filePath = componentDetails.filePath;
+          scripts.push(filePath);
+
+          for (let attribute of componentDetails.attributes)
+            directives.push(attribute);
+
+          const scriptContent = fs.readFileSync(filePath, {
+            encoding:'utf8',
+            flag:'r'
+          });
+
+          if (scriptContent.match(/(\s|^)\$stored {/))
+            properties.push('stored');
+
+          if (scriptContent.match(/(\s|^)\$passed {/))
+            properties.push('passed');
+
+          if (scriptContent.match(/(\s|^)get [A-z]+\(\) {/))
+            properties.push('computed');
+
+          if (scriptContent.match(/(\s|^)on[A-z]+Changed\(/))
+            properties.push('watch');
+
+          if (scriptContent.match(/(\s|^)beforeConnected\(\) {/))
+            properties.push('beforeConnected');
+
+          if (scriptContent.match(/(\s|^)connected\(\) {/))
+            properties.push('connected');
+
+          if (scriptContent.match(/(\s|^)beforeDestroyed\(\) {/))
+            properties.push('beforeDestroyed');
+
+          if (scriptContent.match(/(\s|^)destroyed\(\) {/))
+            properties.push('destroyed');
+
+          if (scriptContent.match(/(\s|^)beforeDehydrated\(\) {/))
+            properties.push('beforeDehydrated');
+
+          if (scriptContent.match(/(\s|^)dehydrated\(\) {/))
+            properties.push('dehydrated');
+
+          if (scriptContent.match(/\$attach\(/))
+            properties.push('$attach');
+
+          if (scriptContent.match(/\$refs/))
+            properties.push('$refs');
+
+          if (scriptContent.match(/\$dispatch\(/))
+            properties.push('$dispatch');
+        }
       }
-
-      const scriptContent = fs.readFileSync(filePath, {
-        encoding:'utf8',
-        flag:'r'
-      });
-
-      if (scriptContent.match(/(\s|^)\$stored {/))
-        properties.push('stored');
-
-      if (scriptContent.match(/(\s|^)\$passed {/))
-        properties.push('passed');
-
-      if (scriptContent.match(/(\s|^)get [A-z]+\(\) {/))
-        properties.push('computed');
-
-      if (scriptContent.match(/(\s|^)on[A-z]+Changed\(/))
-        properties.push('watch');
-
-      if (scriptContent.match(/(\s|^)beforeConnected\(\) {/))
-        properties.push('beforeConnected');
-
-      if (scriptContent.match(/(\s|^)connected\(\) {/))
-        properties.push('connected');
-
-      if (scriptContent.match(/(\s|^)beforeDestroyed\(\) {/))
-        properties.push('beforeDestroyed');
-
-      if (scriptContent.match(/(\s|^)destroyed\(\) {/))
-        properties.push('destroyed');
-
-      if (scriptContent.match(/(\s|^)beforeDehydrated\(\) {/))
-        properties.push('beforeDehydrated');
-
-      if (scriptContent.match(/(\s|^)dehydrated\(\) {/))
-        properties.push('dehydrated');
-
-      if (scriptContent.match(/\$attach\(/))
-        properties.push('$attach');
-
-      if (scriptContent.match(/\$refs/))
-        properties.push('$refs');
-
-      if (scriptContent.match(/\$emit\(/))
-        properties.push('$emit');
-    }
+    });
 
     return {
       directives: directives

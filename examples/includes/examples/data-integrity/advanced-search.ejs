@@ -48,8 +48,8 @@
   <input
     type="text"
     placeholder="Search records..."
-    v-ref="input"
-    v-sync="query"
+    *ref="input"
+    *sync="query"
     @focus="focused = true"
     @blur.delay="reset"
     @keydown.up.prevent="selectionIdx > 0 ?? selectionIdx -= 1"

@@ -226,7 +226,7 @@ const exampleGroups = [
   {
     id: 'data-integrity',
     name: 'Data Integrity',
-    description: 'Ensure passing and conditional rendering respect different types of data',
+    description: 'Ensure conditional rendering respect different types of data',
     examples: [
       {
         id: 'render-controllers',
