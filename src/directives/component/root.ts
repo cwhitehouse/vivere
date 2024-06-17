@@ -10,8 +10,11 @@ export default class RootDirective extends Directive {
 
   parse(): void {
     this.camelKey = Utility.camelCase(this.key);
+    this.preprocess();
     this.process();
   }
+
+  preprocess(): void {}
 
   process(): void {
     throw new DirectiveError('Directive mut implement process', this);

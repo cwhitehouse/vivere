@@ -20,8 +20,6 @@ import ComplexToggleList from './includes/examples/complex/toggle-list';
 
 import InputsText from './includes/examples/inputs/text';
 
-import FancyCounter from './includes/examples/counters/fancy';
-
 import ListsFilter from './includes/examples/lists/filter';
 import ListsShuffle from './includes/examples/lists/shuffle';
 import ListsShuffleFilter from './includes/examples/lists/shuffle-filter';
@@ -54,8 +52,6 @@ Vivere.register('ComplexToggle', ComplexToggle);
 Vivere.register('ComplexToggleList', ComplexToggleList);
 
 Vivere.register('InputsText', InputsText);
-
-Vivere.register('FancyCounter', FancyCounter);
 
 Vivere.register('ListsFilter', ListsFilter);
 Vivere.register('ListsShuffle', ListsShuffle);

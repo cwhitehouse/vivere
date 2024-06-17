@@ -1,6 +1,6 @@
 <div
   *basic-counter*
-  #count="0"
+  #count.store="0"
   class="flex items-center"
 >
   <button
@@ -10,7 +10,7 @@
   <p
     :text="count"
     class="flex-1 text-center"
-  >0</p>
+  ></p>
   <button
     @click="count += 1"
     class="button"

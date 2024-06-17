@@ -2,6 +2,8 @@ import jsep from 'jsep';
 import type { ObjectExpression } from '@jsep-plugin/object';
 import Evaluator from '../../lib/evaluator';
 import RootDirective from './root';
+import { StorageParams, useStorage } from '../../reactivity/storage';
+import DirectiveError from '../../errors/directive-error';
 
 enum DataType {
   Value,
@@ -17,7 +19,28 @@ export default class DataDirective extends RootDirective {
 
   static shouldRehydrate = false;
 
+  storageParams?: StorageParams;
+
   // Parsing
+
+  preprocess(): void {
+    const { camelKey, modifiers } = this;
+
+    if (modifiers?.length) {
+      // eslint-disable-next-line prefer-const
+      let [storageKey, storageType] = modifiers;
+
+      if (storageKey === 'store') {
+        if (storageType == null) storageType = 'local';
+
+        if (storageType !== 'local' && storageType !== 'session')
+          throw new DirectiveError(`Unknown storage type: ${storageType}`, this);
+
+        this.storageParams = { key: camelKey, type: storageType };
+      } else
+        throw new DirectiveError(`Unexpected modifier: ${storageKey}`, this);
+    }
+  }
 
   categorize(tree: jsep.Expression): DataType {
     const { type } = tree;
@@ -56,7 +79,7 @@ export default class DataDirective extends RootDirective {
   }
 
   process(): void {
-    const { component, camelKey, expression } = this;
+    const { component, camelKey, expression, storageParams } = this;
 
     if (!expression?.length) {
       component.$set(camelKey, null);
@@ -80,5 +103,11 @@ export default class DataDirective extends RootDirective {
         // Other expressions are interpreted as computed properties
         component.$set(camelKey, null, () => Evaluator.compute(component, expression), null);
     }
+
+    if (storageParams != null)
+      if (type === DataType.Value)
+        useStorage(component, storageParams);
+      else
+        throw new DirectiveError('You cannot store passed or computed properties', this);
   }
 }
