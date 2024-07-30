@@ -75,9 +75,6 @@ export default class SyncDirective extends DisplayDirective {
       } else {
         oldValue = element.value;
         element.value = value?.toString() || null;
-        console.log('updating element value to...');
-        console.log(value);
-        console.log(element.value);
       }
 
       if (oldValue?.toString() !== value?.toString()) {
