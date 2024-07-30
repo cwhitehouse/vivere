@@ -6,6 +6,7 @@ export default class extends Component {
   rendered() {
     const { $element } = this;
     $element.style.resize = 'none';
+    this.resize();
   }
 
   resize() {

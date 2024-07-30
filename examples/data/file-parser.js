@@ -146,8 +146,6 @@ module.exports = {
         const componentName = strings.pascalCase(componentCode);
         const componentDetails = components[componentName];
 
-        console.log(componentName);
-
         if (componentDetails != null) {
           const filePath = componentDetails.filePath;
           scripts.push(filePath);

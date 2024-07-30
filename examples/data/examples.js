@@ -175,18 +175,23 @@ const exampleGroups = [
         width: 1,
       },
       {
-        id: 'editing',
-        name: 'Editing Objects',
-        width: 1,
-      },
-      {
         id: 'list-selection',
         name: 'List Selection',
         width: 1,
       },
       {
+        id: 'select-for-sync',
+        name: 'Select-For-Sync',
+        width: 1,
+      },
+      {
         id: 'auto-textarea',
         name: 'Auto Resizing Textarea',
+        width: 1,
+      },
+      {
+        id: 'editing',
+        name: 'Editing Objects',
         width: 1,
       },
       {

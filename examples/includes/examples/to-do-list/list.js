@@ -82,7 +82,7 @@ export default class extends Component {
   }
 
   create(label) {
-    console.log(label);
+    this.$log(label);
     id += 1;
     this.toDos.push({ id, label, tags: [] });
   }

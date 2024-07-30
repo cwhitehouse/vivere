@@ -105,7 +105,7 @@ export default class DataDirective extends RootDirective {
     }
 
     if (storageParams != null)
-      if (type === DataType.Value)
+      if (type === DataType.Value || type === DataType.Object)
         useStorage(component, storageParams);
       else
         throw new DirectiveError('You cannot store passed or computed properties', this);

@@ -1,23 +1,23 @@
 <div
-  *complex-nested-container-a*
+  *component="ComplexNestedContainerA"
   class="flex flex-col items-center justify-center"
 >
   <p :text="communique || 'Choose a phrase to display...'"></p>
   <div
-    *complex-nexted-container-b*
+    *component="ComplexNestedContainerB"
     #has-message="message != null"
     #message="$parent.communique"
     class="flex items-center space-x-4 mt-4"
   >
     <button
-      *complex-nested-hello*
+      *component
       #phrase="'hello'"
       #message="$parent.message"
       @click="message = phrase"
       class="button"
     >Hello</button>
     <button
-      *complex-nested-goodbye*
+      *component
       #phrase="'goodbye'"
       #message="$parent.message"
       @click="message = phrase"

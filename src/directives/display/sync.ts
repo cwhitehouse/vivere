@@ -1,6 +1,7 @@
 import DisplayDirective from './display';
 import Evaluator from '../../lib/evaluator';
 import DirectiveError from '../../errors/directive-error';
+import ErrorHandler from '../../lib/error-handler';
 
 export default class SyncDirective extends DisplayDirective {
   static id = 'sync';
@@ -32,6 +33,16 @@ export default class SyncDirective extends DisplayDirective {
     // Listen for input changes
     this.element.addEventListener(this.event, this.binding);
 
+    // For a select element, we want to listen for any changes
+    // to the <options> and update accordingly
+    const isSelect = element instanceof HTMLSelectElement;
+    if (isSelect) {
+      const observer = new MutationObserver(() => {
+        this.evaluateValue(this.parseExpression());
+      });
+      observer.observe(element, { childList: true });
+    }
+
     const initialValue = this.parseExpression();
     if (initialValue)
       // If we have an initial value, assign that value
@@ -44,37 +55,42 @@ export default class SyncDirective extends DisplayDirective {
   // Evaluation
 
   evaluateValue(value: unknown): void {
-    const { element } = this;
-    let oldValue: unknown;
+    ErrorHandler.handle(() => {
+      const { element } = this;
+      let oldValue: unknown;
 
-    // Push our new value to the element
-    if (element instanceof HTMLInputElement && element.type === 'checkbox') {
-      oldValue = element.checked;
-      element.checked = !!value;
-    } else if (element instanceof HTMLInputElement && element.type === 'radio') {
-      // Element value is always a string
-      oldValue = element.checked;
-      element.checked = element.value === value?.toString();
-    } else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
-      oldValue = element.innerText;
-      const valueString = value?.toString() || null;
-      if (element.innerText !== valueString)
-        element.innerText = valueString;
-    } else {
-      oldValue = element.value;
-      element.value = value?.toString() || null;
-    }
+      // Push our new value to the element
+      if (element instanceof HTMLInputElement && element.type === 'checkbox') {
+        oldValue = element.checked;
+        element.checked = !!value;
+      } else if (element instanceof HTMLInputElement && element.type === 'radio') {
+        // Element value is always a string
+        oldValue = element.checked;
+        element.checked = element.value === value?.toString();
+      } else if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement) {
+        oldValue = element.innerText;
+        const valueString = value?.toString() || null;
+        if (element.innerText !== valueString)
+          element.innerText = valueString;
+      } else {
+        oldValue = element.value;
+        element.value = value?.toString() || null;
+        console.log('updating element value to...');
+        console.log(value);
+        console.log(element.value);
+      }
 
-    if (oldValue?.toString() !== value?.toString()) {
-      // If our value has changed (probably becase of assigning
-      // to a component property), we should dispatch an input
-      // event, so any other listeners are triggered
-      const event = new Event('input', {
-        bubbles: true,
-        cancelable: true,
-      });
-      element.dispatchEvent(event);
-    }
+      if (oldValue?.toString() !== value?.toString()) {
+        // If our value has changed (probably becase of assigning
+        // to a component property), we should dispatch an input
+        // event, so any other listeners are triggered
+        const event = new Event('input', {
+          bubbles: true,
+          cancelable: true,
+        });
+        element.dispatchEvent(event);
+      }
+    });
   }
 
   // Destruction
@@ -108,6 +124,9 @@ export default class SyncDirective extends DisplayDirective {
         inputValue = element.value;
       else
         return true;
+
+    if (element instanceof HTMLSelectElement && inputValue === '')
+      return true;
 
     Evaluator.assign(this.component, this.expression, inputValue);
 

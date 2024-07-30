@@ -1,0 +1,35 @@
+<%
+  const options = [
+    { name: 'banana', color: 'yellow' },
+    { name: 'apple', color: 'red' },
+    { name: 'orange', color: 'orange' },
+    { name: 'lemon', color: 'yellow' },
+    { name: 'lime', color: 'green' },
+  ];
+%>
+
+<div
+  *component
+  #options="<%= JSON.stringify(options) %>"
+  #selected-idx="2"
+  #selection="options[selectedIdx]"
+>
+  <div class="flex items-center mt-2">
+    <p class="italic">Current selection:</p>
+    <p class="w-12 ml-8" :text="selectedIdx"></p>
+    <p>:</p>
+    <p class="ml-4 w-20" :text="selection.name"></p>
+    <p>:</p>
+    <p class="ml-4" :text="selection.color"></p>
+  </div>
+  <select
+    v-sync="selectedIdx"
+    class="w-full mt-4"
+  >
+    <option
+      *for="(option, idx) of options"
+      :value="idx"
+      :text="option.name"
+    ></option>
+  </select>
+</div>

@@ -4,6 +4,6 @@ export default class extends Component {
   communique = null;
 
   onCommuniqueChanged() {
-    console.log('Nested Container A detected a change to communique...');
+    this.$log('Nested Container A detected a change to communique...');
   }
 }

@@ -2,6 +2,7 @@ import Directive from './directive';
 import Evaluator from '../lib/evaluator';
 import Utility from '../lib/utility';
 import DirectiveError from '../errors/directive-error';
+import ErrorHandler from '../lib/error-handler';
 
 const listenerRegex = /on[A-Z][A-z]+Changed/;
 
@@ -28,30 +29,26 @@ export default class OnDirective extends Directive {
     this.binding = this.execute.bind(this);
 
     const camelKey = Utility.camelCase(key);
-    if (['beforeConnected', 'connected', 'rendered', 'beforeDehydrated', 'beforeDestroyed'].includes(camelKey))
+    const isLifecycleCallback = ['beforeConnected', 'connected', 'rendered', 'beforeDehydrated', 'beforeDestroyed'].includes(camelKey);
+    const isPropertyChangedCallback = listenerRegex.test(camelKey);
+    if (isLifecycleCallback || isPropertyChangedCallback)
       // We can listen for callbacks on the component with special logic here
       // that ignores modifiers, etc.
       component.$addCallbackListener(camelKey, this.binding);
-    else if (listenerRegex.test(camelKey))
-      component.$addCallbackListener(camelKey, this.binding);
-    else {
-      // Otherwise we treat it as a normal event that will come from
-      // the element
+    else if (key === 'click' && modifiers?.includes('outside')) {
+      // Click outside requires special handling
       this.clickOutsideBinding = this.handleClickOutside.bind(this);
+      document.addEventListener('click', this.clickOutsideBinding);
+    } else {
+      // Otherwise we're a normal event
+      let target: Element | Document | Window = element;
 
-      if (key === 'click' && modifiers?.includes('outside'))
-        // Click outside requires special handling
-        document.addEventListener('click', this.clickOutsideBinding);
-      else {
-        let target: Element | Document | Window = element;
+      if (modifiers?.includes('document'))
+        target = document;
+      if (modifiers?.includes('window'))
+        target = window;
 
-        if (modifiers?.includes('document'))
-          target = document;
-        if (modifiers?.includes('window'))
-          target = window;
-
-        target.addEventListener(key, this.binding);
-      }
+      target.addEventListener(key, this.binding);
     }
   }
 
@@ -117,8 +114,14 @@ export default class OnDirective extends Directive {
   }
 
   executeEvent(e: Event): void {
-    const { component, expression } = this;
-    Evaluator.execute(component, expression, e);
+    ErrorHandler.handle(() => {
+      const { component, expression } = this;
+      try {
+        Evaluator.execute(component, expression, e);
+      } catch (error) {
+        throw new DirectiveError(`Failed to call ${expression} on component`, this, error);
+      }
+    });
   }
 
   // Key matching

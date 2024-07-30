@@ -160,7 +160,7 @@ export default class Component extends ReactiveHost {
   #react(key: string, oldValue: unknown): void {
     // If we ave a watcher for the value changing, we need
     // to check to see if the value actually changed
-    const methodName = this.$$listenerForKey(key);
+    const methodName = this.#listenerForKey(key);
     if (this.#hasListeners(methodName)) {
       const newValue = this[key];
 
@@ -169,11 +169,9 @@ export default class Component extends ReactiveHost {
         return;
 
       // Check if our property actually changed
-      if (newValue !== oldValue) {
+      if (newValue !== oldValue)
         // Invoke any listeners
-        this[methodName]?.(newValue, oldValue);
         this.#reportCallback(methodName);
-      }
     }
   }
 
@@ -186,7 +184,7 @@ export default class Component extends ReactiveHost {
         // A listener needs to know about updated, but it's existence
         // never otherwise forces the comptued value to compute, therefore
         // we need to kickstart reactivity for the value
-        const listenerName = this.$$listenerForKey(key);
+        const listenerName = this.#listenerForKey(key);
         if (this.#hasListeners(listenerName))
           reactive.computeValue();
       }
@@ -335,6 +333,11 @@ export default class Component extends ReactiveHost {
     this.$addCallbackListener('dehydrated', listener);
   }
 
+  // Convenience method for watching a property
+  $watch(key: string, listener: Func): void {
+    this.$addCallbackListener(this.#listenerForKey(key), listener);
+  }
+
   // Managing callback listeners
 
   $addCallbackListener(callback: string, listener: Func): void {
@@ -346,7 +349,7 @@ export default class Component extends ReactiveHost {
     this.#listeners[callback] = this.#listeners[callback]?.filter((l) => l !== listener);
   }
 
-  $$listenerForKey(key: string): string {
+  #listenerForKey(key: string): string {
     return `on${Utility.pascalCase(key)}Changed`;
   }
 

@@ -1,6 +1,5 @@
 import Directive from '../directive';
 import Utility from '../../lib/utility';
-import VivereError from '../../errors/error';
 import ComponentRegistry from '../../components/registry';
 import ComponentDefinitions from '../../components/definitions';
 import Walk from '../../lib/walk';
@@ -25,9 +24,6 @@ export default class ComponentDirective extends Directive {
 
     // Instantiate the new component
     const componentName = Utility.pascalCase(expression || key);
-    if (!componentName?.length)
-      throw new VivereError('Tried to instantiate a component without a name');
-
     const Definition = ComponentDefinitions.getDefinition(componentName) || Component;
     this.component = new Definition(componentName, element, parent, renderController);
     this.component.$directives.add(this);

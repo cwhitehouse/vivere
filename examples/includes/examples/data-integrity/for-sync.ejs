@@ -7,7 +7,7 @@
 %>
 
 <div
-  *for-sync*
+  *component
   #data="<%= JSON.stringify(data) %>"
   #suggestions="<%= JSON.stringify(['Texture', 'Category', 'Section']) %>"
   #data-keys="data.map(d => d.key)"

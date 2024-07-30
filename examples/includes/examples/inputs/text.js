@@ -2,31 +2,31 @@ import { Component } from "../../../../src/vivere";
 
 export default class InputsText extends Component {
   beforeConnected() {
-    console.log('InputsText#beforeConnected');
+    this.$log('InputsText#beforeConnected');
   }
 
   connected() {
-    console.log('InputsText#connected');
+    this.$log('InputsText#connected');
   }
 
   rendered() {
-    console.log('InputsText#rendered');
+    this.$log('InputsText#rendered');
     this.$refs.text.focus();
   }
 
   beforeDestroyed() {
-    console.log('InputsText#beforeDestroyed');
+    this.$log('InputsText#beforeDestroyed');
   }
 
   beforeDehydrated() {
-    console.log('InputsText#beforeDehydrated');
+    this.$log('InputsText#beforeDehydrated');
   }
 
   dehydrated() {
-    console.log('InputsText#dehydrated');
+    this.$log('InputsText#dehydrated');
   }
 
   destroyed() {
-    console.log('InputsText#destroyed');
+    this.$log('InputsText#destroyed');
   }
 }

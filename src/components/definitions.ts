@@ -24,5 +24,8 @@ export default {
   },
 
   // Get definitions
-  getDefinition: (name: string): typeof Component => $definitions.get(name),
+  getDefinition: (name: string): typeof Component | null => {
+    if (!name?.length) return null;
+    return $definitions.get(name);
+  },
 };

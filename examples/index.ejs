@@ -29,7 +29,7 @@ allTags:
 %>
 
 <div
-  *index*
+  *component="Index"
   #active-tag
   $toggle-active-tag="activeTag === $arg ? activeTag = null : activeTag = $arg"
   class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8"
@@ -54,7 +54,7 @@ allTags:
           }
         %>
         <button
-          *filter-tag*
+          *component="FilterTag"
           #tag="'<%= tag %>'"
           #active-tag="*index.activeTag"
           #is-selected="activeTag === tag"
@@ -76,7 +76,7 @@ allTags:
         .sort(list.directives);
     %>
     <div
-      *example-group*
+      *component="ExampleGroup"
       *if="shouldShow"
       #active-tag="*index.activeTag"
       #filter-text="*index.filterText"

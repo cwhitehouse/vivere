@@ -5,6 +5,6 @@ export default class extends Component {
   modal = false;
 
   connected() {
-    console.log('VIf Component connected!');
+    this.$('VIf Component connected!');
   }
 }

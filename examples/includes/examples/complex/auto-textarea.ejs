@@ -1,9 +1,9 @@
 <div
-  *complex-auto-textarea-wrapper*
+  *component
   #name
 >
   <textarea
-    *complex-auto-textarea*
+    *component="ComplexAutoTextarea"
     #name="$parent.name"
     *sync="name"
     @input="resize"

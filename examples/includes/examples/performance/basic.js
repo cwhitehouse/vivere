@@ -54,7 +54,7 @@ export default class extends Component {
   }
 
   onLimitTextChanged() {
-    console.log(`Vivere | Testing ${this.limit} items...`);
+    this.$log(`Vivere | Testing ${this.limit} items...`);
   }
 
   doesEntryMatch(entry, filter) {

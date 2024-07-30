@@ -80,24 +80,13 @@ const Walk = {
       // common HTML attributes
       if (['class', 'id'].includes(name)) return;
 
-      // Find magic component references
-      if (name.match(/\*[\w-]+\*/)) {
-        const $value = name.substring(1, name.length - 1);
-        parsedDirectives.push({ Dir: ComponentDirective, name, value: $value });
-        return;
-      }
-
       // Check for every directive we have registered
-      console.log(`Walk#element : name = ${name}`);
       for (let i = 0; i < directives.length; i += 1) {
         const Dir = directives[i];
         const id = `${Vivere.options.prefix}${Dir.id}`;
         const shortcut = Dir.shortcut || `*${Dir.id}`;
 
-        console.log(`  -> id: ${id}, shortcut: ${shortcut}`);
-
         if (name.startsWith(id) || name.startsWith(shortcut)) {
-          console.log('  -> MATCH FOUND <-');
           parsedDirectives.push({ Dir, name, value });
           break;
         }

@@ -44,13 +44,12 @@ const save = (params: StorageParams, value: unknown): void => {
 
 const useStorage = (component: Component, params: StorageParams): void => {
   const { key } = params;
-  const callback = component.$$listenerForKey(key);
 
   const storedValue = retrieve(params);
   if (storedValue !== undefined)
     component.$set(key, storedValue);
 
-  component.$addCallbackListener(callback, () => {
+  component.$watch(key, () => {
     // Save the new value
     save(params, component[key]);
   });

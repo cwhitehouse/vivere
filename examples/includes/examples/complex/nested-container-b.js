@@ -4,6 +4,6 @@ export default class extends Component {
   message;
 
   onMessageChanged() {
-    console.log('Nested Container B detected a change to message...');
+    this.$log('Nested Container B detected a change to message...');
   }
 }
