@@ -18,28 +18,34 @@ const render: (shouldTick: boolean) => void = (shouldTick = true) => {
   Timer.time('Directives rendered :', () => {
     // New directives can be added to the set mid rendering, e.g. when
     // a v-for directive evaluates, so we need to be careful about our rendering order
-    [$directives, $delayedDirectives].forEach((directives) => {
-      while (directives.size) {
-        // We want to be able to defer rendering of certain $directives, so convert what
-        // we have into an array so they can be processed in order or deferred for later
-        const directivesArray = Array.from(directives);
+    //
+    // Ensure we don't finish rendering while any directives are still
+    // queued up to be rendered
+    while ($directives.size || $delayedDirectives.size)
+      // Try to render all standard directives before delayed directives
+      [$directives, $delayedDirectives].forEach((directives) => {
+        // Until this set is empty, keep iterating
+        while (directives.size) {
+          // We want to be able to defer rendering of certain $directives, so convert what
+          // we have into an array so they can be processed in order or deferred for later
+          const directivesArray = Array.from(directives);
 
-        // Start rendering directives, but we must ensure render controllers
-        // are rendered first, so we will defer any directive rendering until
-        // their render controller ancestor has finished rendering
-        while (directivesArray.length) {
-          const [directive] = directivesArray.splice(0, 1);
+          // Start rendering directives, but we must ensure render controllers
+          // are rendered first, so we will defer any directive rendering until
+          // their render controller ancestor has finished rendering
+          while (directivesArray.length) {
+            const [directive] = directivesArray.splice(0, 1);
 
-          // Only try to render if there's not relevant render controller ancestor, or
-          // if that ancestor has already been rendered
-          const { renderController } = directive;
-          if (renderController == null || !renderController.$dirty) {
-            directive.evaluate();
-            directives.delete(directive);
+            // Only try to render if there's not relevant render controller ancestor, or
+            // if that ancestor has already been rendered
+            const { renderController } = directive;
+            if (renderController == null || !renderController.$dirty) {
+              directive.evaluate();
+              directives.delete(directive);
+            }
           }
         }
-      }
-    });
+      });
 
     // Reset system so we're not waiting on anything
     $dirty = false;
