@@ -33,20 +33,10 @@ export default class SyncDirective extends DisplayDirective {
     // Listen for input changes
     this.element.addEventListener(this.event, this.binding);
 
-    // For a select element, we want to listen for any changes
-    // to the <options> and update accordingly
-    const isSelect = element instanceof HTMLSelectElement;
-    if (isSelect) {
-      const observer = new MutationObserver(() => {
-        this.evaluateValue(this.parseExpression());
-      });
-      observer.observe(element, { childList: true });
-    }
-
     const initialValue = this.parseExpression();
     if (initialValue)
       // If we have an initial value, assign that value
-      this.evaluateValue(initialValue);
+      this.evaluateValue(initialValue, false);
     else
       // Otherwise set the data from the element
       this.sync();
@@ -54,7 +44,7 @@ export default class SyncDirective extends DisplayDirective {
 
   // Evaluation
 
-  evaluateValue(value: unknown): void {
+  evaluateValue(value: unknown, shouldDispatch = true): void {
     ErrorHandler.handle(() => {
       const { element } = this;
       let oldValue: unknown;
@@ -77,7 +67,7 @@ export default class SyncDirective extends DisplayDirective {
         element.value = value?.toString() || null;
       }
 
-      if (oldValue?.toString() !== value?.toString()) {
+      if (shouldDispatch && oldValue?.toString() !== value?.toString()) {
         // If our value has changed (probably becase of assigning
         // to a component property), we should dispatch an input
         // event, so any other listeners are triggered
@@ -121,9 +111,6 @@ export default class SyncDirective extends DisplayDirective {
         inputValue = element.value;
       else
         return true;
-
-    if (element instanceof HTMLSelectElement && inputValue === '')
-      return true;
 
     Evaluator.assign(this.component, this.expression, inputValue);
 

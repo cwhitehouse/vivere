@@ -3,12 +3,21 @@ import Evaluator from '../../lib/evaluator';
 import Watcher from '../../reactivity/watcher';
 import DirectiveError from '../../errors/directive-error';
 import ErrorHandler from '../../lib/error-handler';
+import { Component } from '../../vivere';
+import { RenderController } from '../../rendering/render-controller';
 
 export default class DisplayDirective extends Directive {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lastValue: any;
 
   $dirty = true;
+
+  constructor(element: Element, name: string, expression: string, component?: Component, renderController?: RenderController) {
+    super(element, name, expression, component, renderController);
+
+    if (this.component != null)
+      this.component.$directives.add(this);
+  }
 
   renderCallback(): void {
     this.dirty();

@@ -1,7 +1,6 @@
 import Utility from '../lib/utility';
 import Reactive from '../reactivity/reactive';
 import Walk from '../lib/walk';
-import Directive from '../directives/directive';
 import Renderer from '../rendering/renderer';
 import ComponentError from '../errors/component-error';
 import ReactiveHost from '../reactivity/reactive-host';
@@ -11,6 +10,7 @@ import { RenderController } from '../rendering/render-controller';
 import ErrorHandler from '../lib/error-handler';
 import Evaluator from '../lib/evaluator';
 import { Func } from '../definitions';
+import DisplayDirective from '../directives/display/display';
 
 declare global {
   interface Element {
@@ -32,7 +32,7 @@ export default class Component extends ReactiveHost {
   $children: [Component?] = [];
 
   $renderController?: RenderController;
-  $directives: Set<Directive> = new Set();
+  $directives: Set<DisplayDirective> = new Set();
   $refs: { [key: string]: (Element | Component) } = {};
 
   #listeners: { [key: string]: Func[] } = {};
@@ -270,7 +270,7 @@ export default class Component extends ReactiveHost {
     // the components RenderController as we walk the tree
     Walk.tree(element, this, renderController || this.$renderController);
 
-    this.$forceRender();
+    this.$forceRender(false);
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -281,7 +281,7 @@ export default class Component extends ReactiveHost {
    * Requests an asynchronous render for a specific Directive
    * @param directive The Directive we want to render
    */
-  $queueRender(directive: Directive): void {
+  $queueRender(directive: DisplayDirective): void {
     Renderer.$queueRender(directive);
   }
 
@@ -289,9 +289,9 @@ export default class Component extends ReactiveHost {
    * Forces all of this components Directives to re-render
    * @param shallow Controls whether we should force this component's children to re-render as well
    */
-  $forceRender(shallow = false): void {
-    this.$directives.forEach((d) => Renderer.$queueRender(d));
-    if (!shallow) this.$children.forEach((child) => child.$forceRender());
+  $forceRender(self = true, children = true): void {
+    if (self) this.$directives.forEach((d) => this.$queueRender(d));
+    if (children) this.$children.forEach((child) => child.$forceRender());
   }
 
   /**
@@ -389,7 +389,7 @@ export default class Component extends ReactiveHost {
     this.#precomputeValues();
 
     // Force initial render
-    this.$forceRender.call(this, true);
+    this.$forceRender.call(this, true, false);
 
     // Update state tracking
     this.#isConnected = true;
