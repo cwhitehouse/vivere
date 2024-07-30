@@ -3,7 +3,6 @@ import DOM, { NodeHost } from '../../lib/dom';
 import Walk from '../../lib/walk';
 import Animator from '../../lib/animator';
 import { RenderController } from '../../rendering/render-controller';
-import Directive from '../directive';
 import Registry from '../../reactivity/registry';
 
 export default class ConditionalDirective extends DisplayDirective implements NodeHost, RenderController {
@@ -21,7 +20,7 @@ export default class ConditionalDirective extends DisplayDirective implements No
 
   listeners: Registry<unknown, () => void> = new Registry();
 
-  awaitingRender: Set<Directive> = new Set();
+  awaitingRender: Set<DisplayDirective> = new Set();
 
   // Parsing
 

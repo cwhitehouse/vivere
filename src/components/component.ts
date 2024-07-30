@@ -11,6 +11,7 @@ import ErrorHandler from '../lib/error-handler';
 import Evaluator from '../lib/evaluator';
 import { Func } from '../definitions';
 import DisplayDirective from '../directives/display/display';
+import Directive from '../directives/directive';
 
 declare global {
   interface Element {
@@ -32,7 +33,7 @@ export default class Component extends ReactiveHost {
   $children: [Component?] = [];
 
   $renderController?: RenderController;
-  $directives: Set<DisplayDirective> = new Set();
+  $directives: Set<Directive> = new Set();
   $refs: { [key: string]: (Element | Component) } = {};
 
   #listeners: { [key: string]: Func[] } = {};
@@ -277,6 +278,10 @@ export default class Component extends ReactiveHost {
   // RENDERING
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  get $displayDirectives(): DisplayDirective[] {
+    return Array.from(this.$directives).filter((d) => d instanceof DisplayDirective);
+  }
+
   /**
    * Requests an asynchronous render for a specific Directive
    * @param directive The Directive we want to render
@@ -290,7 +295,7 @@ export default class Component extends ReactiveHost {
    * @param shallow Controls whether we should force this component's children to re-render as well
    */
   $forceRender(self = true, children = true): void {
-    if (self) this.$directives.forEach((d) => this.$queueRender(d));
+    if (self) this.$displayDirectives.forEach((d) => this.$queueRender(d));
     if (children) this.$children.forEach((child) => child.$forceRender());
   }
 

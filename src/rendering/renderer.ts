@@ -1,9 +1,12 @@
+import ConditionalDirective from '../directives/display/conditional';
 import DisplayDirective from '../directives/display/display';
+import ForDirective from '../directives/display/for';
 import SyncDirective from '../directives/display/sync';
 import Timer from '../lib/timer';
 
 let $dirty = false;
 
+const $primaryDirectives: Set<DisplayDirective> = new Set();
 const $directives: Set<DisplayDirective> = new Set();
 const $delayedDirectives: Set<DisplayDirective> = new Set();
 
@@ -21,9 +24,9 @@ const render: (shouldTick: boolean) => void = (shouldTick = true) => {
     //
     // Ensure we don't finish rendering while any directives are still
     // queued up to be rendered
-    while ($directives.size || $delayedDirectives.size)
-      // Try to render all standard directives before delayed directives
-      [$directives, $delayedDirectives].forEach((directives) => {
+    while ($primaryDirectives.size || $directives.size || $delayedDirectives.size)
+      // Try to render in the best order possible
+      [$primaryDirectives, $directives, $delayedDirectives].forEach((directives) => {
         // Until this set is empty, keep iterating
         while (directives.size) {
           // We want to be able to defer rendering of certain $directives, so convert what
@@ -72,7 +75,12 @@ const Renderer = {
   $queueRender(directive: DisplayDirective): void {
     // Add directives to set of directives that
     // will require an update next render
-    if (directive instanceof SyncDirective)
+    if (
+      directive instanceof ForDirective
+      || directive instanceof ConditionalDirective
+    )
+      $primaryDirectives.add(directive);
+    else if (directive instanceof SyncDirective)
       $delayedDirectives.add(directive);
     else
       $directives.add(directive);

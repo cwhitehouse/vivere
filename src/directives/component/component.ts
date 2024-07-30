@@ -26,6 +26,7 @@ export default class ComponentDirective extends Directive {
     const componentName = Utility.pascalCase(expression || key);
     const Definition = ComponentDefinitions.getDefinition(componentName) || Component;
     this.component = new Definition(componentName, element, parent, renderController);
+    this.component.$directives.add(this);
 
     // Handle hydration unless we're defering loading
     if (key === 'defer') {

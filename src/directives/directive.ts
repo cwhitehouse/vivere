@@ -68,8 +68,10 @@ export default class Directive {
       if (this.forComponent() && !this.onComponent()) throw new DirectiveError(`${name} only applies to component roots`, this);
       if (this.requiresComponent() && this.component == null) throw new DirectiveError(`${name} requires a component`, this);
 
-      // Finish parsing directive
+      // Register directive on the component (if necessary)
+      if (this.component != null) this.component.$directives.add(this);
 
+      // Finish parsing directive
       this.parse();
     });
 

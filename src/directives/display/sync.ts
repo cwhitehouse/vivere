@@ -12,6 +12,8 @@ export default class SyncDirective extends DisplayDirective {
 
   binding: (event: Event) => boolean;
 
+  observer?: MutationObserver;
+
   // Parsing
 
   parse(): void {
@@ -29,6 +31,14 @@ export default class SyncDirective extends DisplayDirective {
     const isRadio = element instanceof HTMLInputElement && element.type === 'radio';
     this.event = isRadio ? 'change' : 'input';
     this.binding = this.sync.bind(this);
+
+    // Listen for changes to a select's options
+    if (element instanceof HTMLSelectElement) {
+      this.observer = new MutationObserver(() => {
+        this.evaluateValue(this.parseExpression(), false);
+      });
+      this.observer.observe(element, { childList: true });
+    }
 
     // Listen for input changes
     this.element.addEventListener(this.event, this.binding);
@@ -85,6 +95,7 @@ export default class SyncDirective extends DisplayDirective {
 
   destroy(): void {
     this.element.removeEventListener(this.event, this.binding);
+    this.observer?.disconnect();
   }
 
   // Syncing

@@ -6,13 +6,23 @@
     { name: 'lemon', color: 'yellow' },
     { name: 'lime', color: 'green' },
   ];
+
+  const moreOptions = [
+    { name: 'raspberry', color: 'red' },
+    { name: 'kiwi', color: 'brown' },
+    { name: 'avocado', color: 'green' }
+  ]
 %>
 
 <div
   *component
   #options="<%= JSON.stringify(options) %>"
+  #more-options="<%= JSON.stringify(moreOptions) %>"
+  #expand-options="false"
   #selected-idx="2"
-  #selection="options[selectedIdx]"
+  #all-options="options.concat(moreOptions)"
+  #selection="allOptions[selectedIdx]"
+  #display-options="expandOptions ? allOptions : options"
 >
   <div class="flex items-center mt-2">
     <p class="italic">Current selection:</p>
@@ -26,10 +36,16 @@
     v-sync="selectedIdx"
     class="w-full mt-4"
   >
+    <option disabled value>Select an option...</option>
     <option
-      *for="(option, idx) of options"
+      *for="(option, idx) of displayOptions"
       :value="idx"
       :text="option.name"
     ></option>
   </select>
+  <button
+    :text="expandOptions ? 'Less Options' : 'More Options'"
+    @click="expandOptions = !expandOptions"
+    class="button mt-4"
+  ></button>
 </div>

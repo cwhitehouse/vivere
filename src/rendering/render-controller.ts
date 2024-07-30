@@ -1,11 +1,11 @@
-import Directive from '../directives/directive';
+import DisplayDirective from '../directives/display/display';
 
 interface RenderController {
   $dirty: boolean;
 
   renderController?: RenderController;
 
-  awaitingRender: Set<Directive>;
+  awaitingRender: Set<DisplayDirective>;
 
   shouldRender(): boolean;
 }

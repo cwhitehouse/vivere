@@ -1,4 +1,4 @@
-import Directive from '../directives/directive';
+import DisplayDirective from '../directives/display/display';
 import { RenderController } from './render-controller';
 
 export default class ToggableRenderController implements RenderController {
@@ -7,7 +7,7 @@ export default class ToggableRenderController implements RenderController {
 
   renderController?: RenderController;
 
-  awaitingRender: Set<Directive> = new Set();
+  awaitingRender: Set<DisplayDirective> = new Set();
 
   constructor(shouldRender: boolean, renderController: RenderController) {
     this.renderController = renderController;
