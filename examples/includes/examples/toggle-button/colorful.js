@@ -13,7 +13,7 @@ export default class extends Component {
   get buttonClass() {
     const { on } = this;
 
-    if (on) return ['bg-cyan-100', 'text-cyan-800'];
-    else return ['bg-pink-100', 'text-pink-800'];
+    if (on) return ['bg-cyan-100'];
+    else return ['bg-pink-100'];
   }
 }

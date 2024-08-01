@@ -5,6 +5,8 @@ import ComponentRegistry from './components/registry';
 import ComponentDefinitions from './components/definitions';
 import Timer from './lib/timer';
 import Evaluator from './lib/evaluator';
+import { useStorage } from './reactivity/storage';
+import { useQueryEncoding } from './reactivity/query_encoding';
 
 // Configuration Options
 
@@ -107,4 +109,4 @@ document.addEventListener('turbo:before-render', (event: Record<string, any>) =>
   Renderer.$forceRender(false);
 });
 
-export { Vivere, Component };
+export { Vivere, Component, useStorage, useQueryEncoding };

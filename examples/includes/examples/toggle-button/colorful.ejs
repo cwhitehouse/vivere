@@ -1,6 +1,7 @@
 <button
   *component="ToggleButtonColorful"
   :class="buttonClass"
+  :style.color="on ? 'blue' : 'red'"
   :text="buttonText"
   @click="on = !on"
   @before-connected="$log('LifecycleCallbacks # beforeConnected')"
