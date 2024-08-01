@@ -24,7 +24,7 @@ const retrieve = (params: QueryEncodingParams): unknown => {
 const save = (params: QueryEncodingParams, value: unknown): void => {
   const encodingKey = getEncodingKey(params);
 
-  const queryParams = new URLSearchParams();
+  const queryParams = new URLSearchParams(window.location.search);
   queryParams.delete(encodingKey);
   queryParams.append(encodingKey, JSON.stringify(value));
 
