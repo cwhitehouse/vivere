@@ -95,6 +95,13 @@ export default class Component extends ReactiveHost {
     return $parent.$find(name);
   }
 
+  $navigate(url: string, includeQueryString = false): void {
+    if (includeQueryString)
+      window.location.href = `${url}${window.location.search}`;
+    else
+      window.location.href = url;
+  }
+
   /**
    * Convenience method for logging (useful from event directives)
    * @param message The mssage to be logged
@@ -279,7 +286,7 @@ export default class Component extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   get $displayDirectives(): DisplayDirective[] {
-    return Array.from(this.$directives).filter((d) => d instanceof DisplayDirective);
+    return Array.from(this.$directives).filter((d): d is DisplayDirective => d instanceof DisplayDirective);
   }
 
   /**
