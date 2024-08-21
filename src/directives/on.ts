@@ -22,8 +22,8 @@ export default class OnDirective extends Directive {
   parse(): void {
     const { component, element, expression, key, modifiers } = this;
 
-    if (expression == null && !(modifiers?.includes('prevent') || modifiers?.includes('cancel')))
-      throw new DirectiveError('Events must `prevent` or `cancel` to be valid without an expression', this, null);
+    if (expression == null && !(modifiers?.includes('prevent') || modifiers?.includes('cancel') || modifiers?.includes('stop')))
+      throw new DirectiveError('Events must `prevent`, `cancel` or `stop` to be valid without an expression', this, null);
 
     // Bind this for our callback
     this.binding = this.execute.bind(this);
@@ -87,7 +87,7 @@ export default class OnDirective extends Directive {
   }
 
   execute(e: Event): boolean {
-    const { expression, modifiers } = this;
+    const { component, expression, modifiers } = this;
 
     // Keydown Directives can be scoped via modifiers
     if (e instanceof KeyboardEvent && modifiers != null && modifiers.length > 0) {
@@ -96,16 +96,24 @@ export default class OnDirective extends Directive {
       if (!matchesModifier) return undefined;
     }
 
+    if (modifiers?.includes('this') && e.target !== this.element)
+      return undefined;
+
     if (expression?.length)
       if (modifiers?.includes('delay'))
         setTimeout(() => this.executeEvent(e), 0);
+      else if (modifiers?.includes('render'))
+        component.$nextRender(() => this.executeEvent(e));
       else
         this.executeEvent(e);
-    else if (!modifiers?.includes('cancel') && !modifiers?.includes('prevent'))
+    else if (!modifiers?.includes('cancel') && !modifiers?.includes('prevent') && !modifiers?.includes('stop'))
       throw new DirectiveError('Event directives require an expression, unless using the cancel or prevent flag', this);
 
     if (modifiers?.includes('prevent'))
       e.preventDefault();
+
+    if (modifiers?.includes('stop'))
+      e.stopPropagation();
 
     if (modifiers != null && modifiers.includes('cancel'))
       return false;
