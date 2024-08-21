@@ -10,5 +10,6 @@ _examples
 node_modules
 yarn-error.log
 
-# Mac FS
+# File Nonsense
 *.DS_STORE
+.vscode/**/*
