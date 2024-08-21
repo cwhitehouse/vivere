@@ -6,7 +6,7 @@ import ErrorHandler from '../../lib/error-handler';
 export default class SyncDirective extends DisplayDirective {
   static id = 'sync';
 
-  element: (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLParagraphElement | HTMLSpanElement);
+  element: (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLParagraphElement | HTMLSpanElement | HTMLDialogElement);
 
   event: string;
 
@@ -21,16 +21,20 @@ export default class SyncDirective extends DisplayDirective {
     const { element } = this;
     const { nodeName } = element;
 
-    const validNode = ['INPUT', 'SELECT', 'TEXTAREA'].includes(nodeName)
+    const validNode = ['INPUT', 'SELECT', 'TEXTAREA', 'DIALOG'].includes(nodeName)
       || (['SPAN', 'P'].includes(nodeName) && element.contentEditable);
 
     if (!validNode)
-      throw new DirectiveError(`Sync directives only work on input elements or contenteditable nodes, not ${nodeName}`, this);
+      throw new DirectiveError(`Sync directives only work on input elements, contenteditable nodes, and dialogs not ${nodeName}`, this);
 
     // Bind the sync function
-    const isRadio = element instanceof HTMLInputElement && element.type === 'radio';
-    this.event = isRadio ? 'change' : 'input';
     this.binding = this.sync.bind(this);
+
+    // Get the proper event listeners
+    const isRadio = element instanceof HTMLInputElement && element.type === 'radio';
+
+    if (isRadio) this.event = 'change';
+    else this.event = 'input';
 
     // Listen for changes to a select's options
     if (element instanceof HTMLSelectElement) {
@@ -40,8 +44,13 @@ export default class SyncDirective extends DisplayDirective {
       this.observer.observe(element, { childList: true });
     }
 
-    // Listen for input changes
-    this.element.addEventListener(this.event, this.binding);
+    // Listen for opening of a dialog
+    if (element instanceof HTMLDialogElement) {
+      this.observer = new MutationObserver(() => { this.sync(); });
+      this.observer.observe(element, { attributes: true, attributeFilter: ['open'] });
+    } else
+      // Listen for input changes
+      this.element.addEventListener(this.event, this.binding);
 
     const initialValue = this.parseExpression();
     if (initialValue)
@@ -72,7 +81,13 @@ export default class SyncDirective extends DisplayDirective {
         const valueString = value?.toString() || null;
         if (element.innerText !== valueString)
           element.innerText = valueString;
-      } else {
+      } else if (element instanceof HTMLDialogElement)
+        if (value)
+          if (this.modifiers.includes('modal')) element.showModal();
+          else element.show();
+        else
+          element.close();
+      else {
         oldValue = element.value;
         element.value = value?.toString() || null;
       }
@@ -108,6 +123,9 @@ export default class SyncDirective extends DisplayDirective {
 
     if (element instanceof HTMLParagraphElement || element instanceof HTMLSpanElement)
       return element.textContent;
+
+    if (element instanceof HTMLDialogElement)
+      return element.open;
 
     return element.value;
   }
