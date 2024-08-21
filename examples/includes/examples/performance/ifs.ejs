@@ -18,31 +18,25 @@
       #entry="<%= JSON.stringify(entry) %>"
       class="p-2 border-2 rounded"
     >
-      <div
-        *if="modal"
-        v-hide
-        class="fixed flex items-center justify-center left-0 right-0 top-0 bottom-0 z-10"
+      <dialog
+        *ref="dialog"
+        *sync.modal="modal"
+        @click.this="$refs.dialog.close"
+        class="w-full max-w-md border-2 rounded bg-white shadow-xl p-0"
       >
-        <div
-          @click.cancel="modal = false"
-          class="absolute h-full w-full bg-white opacity-90"
-        ></div>
-        <div
-          @click.prevent
-          class="w-full max-w-md p-6 border-2 rounded bg-white relative z-10"
-        >
+        <div class="p-6">
           <div class="flex items-center justify-between">
             <p class="text-sm">
               #<span lass="text-md"><%= entry.id %></span>
             </p>
             <button
-              @click="modal = false"
               class="button"
+              @click="modal = false"
             >Close</button>
           </div>
           <p class="text-2xl mt-2"><%= entry.string %></p>
         </div>
-      </div>
+      </dialog>
       <div class="flex items-center justify-between">
         <p class="text-xs">
           #<span class="text-sm"><%= entry.id %></span>
