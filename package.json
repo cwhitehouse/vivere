@@ -11,7 +11,10 @@
     "email": "kippy@skippy.works",
     "url": "https://skippy.works"
   },
-  "repository": "github:cwhitehouse/vivere",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cwhitehouse/vivere.git"
+  },
   "files": [
     "dist/*.js",
     "dist/*.js.map",
