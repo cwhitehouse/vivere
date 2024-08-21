@@ -1,7 +1,6 @@
 import Reactive from './reactive';
 
 export default class ReactiveObject {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   static makeValueReactive(listeners: Set<Reactive>, object: object, key: string | number | symbol, value: unknown): void {
     let reactive: Reactive = null;
     if (value instanceof Reactive)
@@ -20,7 +19,6 @@ export default class ReactiveObject {
       });
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
   static setReactiveValue(listeners: Set<Reactive>, target: object, p: string | symbol, value: unknown): boolean {
     const currentValue = target[p];
 
@@ -35,7 +33,6 @@ export default class ReactiveObject {
     return true;
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
   constructor(object: object) {
     // Keep track of $$listeners we need to report to
     const listeners: Set<Reactive> = new Set();

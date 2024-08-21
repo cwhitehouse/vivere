@@ -111,7 +111,7 @@ export default class Reactive {
     this.value = this.reactiveValue(value);
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reactiveValue(value: any): unknown {
     if (value == null)
       return null;

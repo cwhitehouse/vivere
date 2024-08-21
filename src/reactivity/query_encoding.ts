@@ -28,7 +28,6 @@ const save = (params: QueryEncodingParams, value: unknown): void => {
   queryParams.delete(encodingKey);
   queryParams.append(encodingKey, JSON.stringify(value));
 
-  // eslint-disable-next-line no-restricted-globals
   history.replaceState(null, '', `?${queryParams.toString()}`);
 };
 

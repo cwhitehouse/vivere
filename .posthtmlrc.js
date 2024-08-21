@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   plugins: {
     "posthtml-include": {
       root: './examples',

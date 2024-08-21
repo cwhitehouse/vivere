@@ -1,4 +1,4 @@
-const fileParser = require('./file-parser');
+import fileParser from './file-parser';
 
 const exampleGroups = [
   {
@@ -263,4 +263,4 @@ exampleGroups.forEach(eg => {
   });
 });
 
-module.exports = exampleGroups;
+export default exampleGroups;

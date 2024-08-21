@@ -107,7 +107,6 @@ export default class Component extends ReactiveHost {
    * @param message The mssage to be logged
    */
   $log(message: string): void {
-    // eslint-disable-next-line no-console
     console.log(message);
   }
 
@@ -157,7 +156,6 @@ export default class Component extends ReactiveHost {
   }
 
   $proxy(key: string, expression: string): void {
-    // eslint-disable-next-line arrow-body-style
     this.$set(key, null, () => {
       return Evaluator.parse(this, expression);
     }, (value: unknown) => {

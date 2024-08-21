@@ -10,7 +10,7 @@ interface RenderController {
   shouldRender(): boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isRenderController = (arg: any): arg is RenderController => 'shouldRender' in arg;
 
 export { RenderController, isRenderController };

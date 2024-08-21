@@ -2,7 +2,8 @@ import resolve from "@rollup/plugin-node-resolve"
 import typescript from "@rollup/plugin-typescript"
 import dts from "rollup-plugin-dts"
 
-import { version } from "./package.json"
+import pckg from "./package.json" with { type: "json" };
+const version = pckg.version;
 const year = new Date().getFullYear()
 const banner = `/*\nvivere ${version}\nCopyright © ${year} Tiniest Fox, LLC\n */`
 

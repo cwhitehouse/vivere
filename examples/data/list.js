@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   uniqueness(value, index, array) {
     return array.indexOf(value) === index;
   },

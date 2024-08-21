@@ -13,7 +13,6 @@ export default {
       method = 'log';
 
     if (Vivere.options.profiling)
-      // eslint-disable-next-line no-console
       console[method](`Vivere | ${message}: ${time.toFixed(2)}ms`);
   },
 };

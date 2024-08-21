@@ -1,11 +1,5 @@
-const cacheBuster = require('@mightyplow/eleventy-plugin-cache-buster');
-
-module.exports = function(eleventyConfig) {
+export default function(eleventyConfig) {
   eleventyConfig.setUseGitIgnore(false);
-
-  eleventyConfig.addPlugin(cacheBuster({
-    outputDirectory: '_examples',
-  }));
 
   eleventyConfig.setBrowserSyncConfig({
     // scripts in body conflict with Turbolinks

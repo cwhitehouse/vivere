@@ -1,6 +1,6 @@
-/* eslint-disable max-classes-per-file */
 import jsep, { ArrayExpression, Identifier } from 'jsep';
 import jsepAssignment from '@jsep-plugin/assignment';
+import type { AssignmentExpression } from '@jsep-plugin/assignment';
 import jsepObject from '@jsep-plugin/object';
 import type { ObjectExpression } from '@jsep-plugin/object';
 import jsepArrow from '@jsep-plugin/arrow';
@@ -94,16 +94,11 @@ const binaryOperators = [
 const templateLiteralRegex = /^[^`]*\${[^}]+}[^`]*$/;
 
 // Helper method for running eval code (BE CAREFUL!)
-// eslint-disable-next-line arrow-body-style
 const evaluateScript = (script: string, scope: unknown = {}): unknown => {
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
   return Function(`"use strict"; ${script}`).bind(scope)();
 };
 
-// Define our generic evaluation method so it can be used in our specific methods
-let evaluateTree: (caller: unknown, tree: jsep.Expression, options: EvaluatorOptions, shallow?: boolean) => unknown;
-
-const evaluateAssignmentExpression = (caller: unknown, tree: jsepAssignment.AssignmentExpression, options: EvaluatorOptions): unknown => {
+const evaluateAssignmentExpression = (caller: unknown, tree: AssignmentExpression, options: EvaluatorOptions): unknown => {
   const { left, operator, right, type } = tree;
 
   // Shallow parse the tree so we can properly execut the assignment
@@ -217,7 +212,7 @@ const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, 
 
   if (assignmentOperators.includes(operator))
     // The assignment evaluator can miss this when the `??` operator is involved
-    return evaluateAssignmentExpression(caller, tree as unknown as jsepAssignment.AssignmentExpression, options);
+    return evaluateAssignmentExpression(caller, tree as unknown as AssignmentExpression, options);
 
   if (binaryOperators.includes(operator)) {
     const leftJSON = JSON.stringify(leftValue);
@@ -290,7 +285,6 @@ const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, 
   return evaluateTree($object, property, options, shallow);
 };
 
-// eslint-disable-next-line arrow-body-style
 const evaluateThisExpression = (caller: unknown, tree: jsep.ThisExpression, options: EvaluatorOptions): unknown => {
   return options.component;
 };
@@ -339,12 +333,12 @@ const evaluateTemplateLiteral = (caller: unknown, tree: TemplateLiteral, options
 
 const evaluateLiteral = (tree: jsep.Expression): unknown => tree.value;
 
-evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOptions, shallow = false): unknown => {
+const evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOptions, shallow = false): unknown => {
   const { type } = tree;
 
   switch (type) {
     case 'AssignmentExpression':
-      return evaluateAssignmentExpression(caller, tree as jsepAssignment.AssignmentExpression, options);
+      return evaluateAssignmentExpression(caller, tree as AssignmentExpression, options);
     case 'CallExpression':
       return evaluateCallExpression(caller, tree as jsep.CallExpression, options, shallow);
     case 'ArrowFunctionExpression':

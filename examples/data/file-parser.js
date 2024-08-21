@@ -1,8 +1,6 @@
-const { at } = require('core-js/fn/string');
-const fs = require('fs');
-const { uniqueness } = require('./list');
-const list = require('./list');
-const strings = require('./strings');
+import fs  from 'fs';
+import { uniqueness } from './list';
+import list from './strings';
 
 const components = {};
 const jsMain = fs.readFileSync('examples/main.ts', {
@@ -57,8 +55,7 @@ for (let match of importMatches) {
     }
   }
 }
-
-module.exports = {
+export default {
   parseDirectives(fileName) {
     const directives = [];
     const scripts = [];

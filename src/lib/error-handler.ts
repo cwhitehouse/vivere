@@ -11,7 +11,6 @@ export default {
       if (!suppressErrors)
         throw error;
       else if (logErrors)
-        // eslint-disable-next-line no-console
         console.warn(error.message);
     }
   },
