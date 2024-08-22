@@ -1,4 +1,4 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 export default class extends Component {
   name = null;
@@ -14,4 +14,4 @@ export default class extends Component {
   resetName() {
     this.name = this.$defaultName;
   }
-};
+}

@@ -5,7 +5,10 @@ import Animator from '../../lib/animator';
 import { RenderController } from '../../rendering/render-controller';
 import Registry from '../../reactivity/registry';
 
-export default class ConditionalDirective extends DisplayDirective implements NodeHost, RenderController {
+export default class ConditionalDirective
+  extends DisplayDirective
+  implements NodeHost, RenderController
+{
   container: Node;
 
   current: Node;
@@ -42,10 +45,14 @@ export default class ConditionalDirective extends DisplayDirective implements No
     const shouldAnimate = shouldAnimateVertical || shouldAnimateHorizontal;
     if (shouldAnimate)
       // Set up our animator if need be
-      this.animator = new Animator(element as HTMLElement, shouldAnimateVertical, (showing: boolean) => {
-        // Remove the element from DOM if needed
-        if (!showing) DOM.conditionallyRender(this, false);
-      });
+      this.animator = new Animator(
+        element as HTMLElement,
+        shouldAnimateVertical,
+        (showing: boolean) => {
+          // Remove the element from DOM if needed
+          if (!showing) DOM.conditionallyRender(this, false);
+        },
+      );
   }
 
   // Evaluation
@@ -55,8 +62,7 @@ export default class ConditionalDirective extends DisplayDirective implements No
     const showing = !!value;
 
     // Don't bother evaluating if our value hasn't changed
-    if (this.lastValue === showing)
-      return;
+    if (this.lastValue === showing) return;
 
     // Don't continue parsing the component tree until
     // this is being evaluated
@@ -79,17 +85,14 @@ export default class ConditionalDirective extends DisplayDirective implements No
         // be animated
         DOM.conditionallyRender(this, true);
 
-      if (!running)
-        animator.start(showing);
-      else
-        animator.reverse();
-    } else
-      DOM.conditionallyRender(this, showing);
+      if (!running) animator.start(showing);
+      else animator.reverse();
+    } else DOM.conditionallyRender(this, showing);
 
     if (value)
       // Ensure we re-render any directives that didn't render
       // because they were waiting on this
-      this.awaitingRender.forEach((d) => {
+      this.awaitingRender.forEach(d => {
         d.component?.$queueRender(d);
         this.awaitingRender.delete(d);
       });

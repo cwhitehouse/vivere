@@ -49,8 +49,7 @@ export default class DisplayDirective extends Directive {
           shouldRender = shouldRender && ancestorShouldEvaluate;
           renderController = renderController.renderController;
         } while (shouldRender && renderController != null);
-      } else
-        shouldRender = true;
+      } else shouldRender = true;
 
       if (shouldRender) {
         const value = this.parseExpression();

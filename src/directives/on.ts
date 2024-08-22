@@ -22,14 +22,31 @@ export default class OnDirective extends Directive {
   parse(): void {
     const { component, element, expression, key, modifiers } = this;
 
-    if (expression == null && !(modifiers?.includes('prevent') || modifiers?.includes('cancel') || modifiers?.includes('stop')))
-      throw new DirectiveError('Events must `prevent`, `cancel` or `stop` to be valid without an expression', this, null);
+    if (
+      expression == null &&
+      !(
+        modifiers?.includes('prevent') ||
+        modifiers?.includes('cancel') ||
+        modifiers?.includes('stop')
+      )
+    )
+      throw new DirectiveError(
+        'Events must `prevent`, `cancel` or `stop` to be valid without an expression',
+        this,
+        null,
+      );
 
     // Bind this for our callback
     this.binding = this.execute.bind(this);
 
     const camelKey = Utility.camelCase(key);
-    const isLifecycleCallback = ['beforeConnected', 'connected', 'rendered', 'beforeDehydrated', 'beforeDestroyed'].includes(camelKey);
+    const isLifecycleCallback = [
+      'beforeConnected',
+      'connected',
+      'rendered',
+      'beforeDehydrated',
+      'beforeDestroyed',
+    ].includes(camelKey);
     const isPropertyChangedCallback = listenerRegex.test(camelKey);
     if (isLifecycleCallback || isPropertyChangedCallback)
       // We can listen for callbacks on the component with special logic here
@@ -43,10 +60,8 @@ export default class OnDirective extends Directive {
       // Otherwise we're a normal event
       let target: Element | Document | Window = element;
 
-      if (modifiers?.includes('document'))
-        target = document;
-      if (modifiers?.includes('window'))
-        target = window;
+      if (modifiers?.includes('document')) target = document;
+      if (modifiers?.includes('window')) target = window;
 
       target.addEventListener(key, this.binding);
     }
@@ -74,8 +89,7 @@ export default class OnDirective extends Directive {
       let clickTarget = e.target;
 
       do {
-        if (clickTarget === this.element)
-          return;
+        if (clickTarget === this.element) return;
 
         clickTarget = clickTarget.parentElement;
       } while (clickTarget != null);
@@ -90,9 +104,15 @@ export default class OnDirective extends Directive {
     const { component, expression, modifiers } = this;
 
     // Keydown Directives can be scoped via modifiers
-    if (e instanceof KeyboardEvent && modifiers != null && modifiers.length > 0) {
+    if (
+      e instanceof KeyboardEvent &&
+      modifiers != null &&
+      modifiers.length > 0
+    ) {
       const { key, keyCode } = e;
-      const matchesModifier = modifiers.some((mod) => this.matchesKeycode(key, keyCode, mod));
+      const matchesModifier = modifiers.some(mod =>
+        this.matchesKeycode(key, keyCode, mod),
+      );
       if (!matchesModifier) return undefined;
     }
 
@@ -104,19 +124,22 @@ export default class OnDirective extends Directive {
         setTimeout(() => this.executeEvent(e), 0);
       else if (modifiers?.includes('render'))
         component.$nextRender(() => this.executeEvent(e));
-      else
-        this.executeEvent(e);
-    else if (!modifiers?.includes('cancel') && !modifiers?.includes('prevent') && !modifiers?.includes('stop'))
-      throw new DirectiveError('Event directives require an expression, unless using the cancel or prevent flag', this);
+      else this.executeEvent(e);
+    else if (
+      !modifiers?.includes('cancel') &&
+      !modifiers?.includes('prevent') &&
+      !modifiers?.includes('stop')
+    )
+      throw new DirectiveError(
+        'Event directives require an expression, unless using the cancel or prevent flag',
+        this,
+      );
 
-    if (modifiers?.includes('prevent'))
-      e.preventDefault();
+    if (modifiers?.includes('prevent')) e.preventDefault();
 
-    if (modifiers?.includes('stop'))
-      e.stopPropagation();
+    if (modifiers?.includes('stop')) e.stopPropagation();
 
-    if (modifiers != null && modifiers.includes('cancel'))
-      return false;
+    if (modifiers != null && modifiers.includes('cancel')) return false;
 
     return undefined;
   }
@@ -127,43 +150,44 @@ export default class OnDirective extends Directive {
       try {
         Evaluator.execute(component, expression, e);
       } catch (error) {
-        throw new DirectiveError(`Failed to call ${expression} on component`, this, error);
+        throw new DirectiveError(
+          `Failed to call ${expression} on component`,
+          this,
+          error,
+        );
       }
     });
   }
 
   // Key matching
 
-  matchesKeycode(key: string | null, keyCode: number | null, keyEvent: string): boolean {
+  matchesKeycode(
+    key: string | null,
+    keyCode: number | null,
+    keyEvent: string,
+  ): boolean {
     const $key = Utility.kebabCase(key);
 
     switch (keyEvent) {
       case 'enter':
       case 'ent':
-        return $key === 'enter'
-          || keyCode === 13;
+        return $key === 'enter' || keyCode === 13;
       case 'escape':
       case 'esc':
-        return $key === 'escape'
-          || keyCode === 27;
+        return $key === 'escape' || keyCode === 27;
       case 'up':
-        return $key === 'arrow-up'
-          || keyCode === 38;
+        return $key === 'arrow-up' || keyCode === 38;
       case 'down':
-        return $key === 'arrow-down'
-          || keyCode === 40;
+        return $key === 'arrow-down' || keyCode === 40;
       case 'left':
-        return $key === 'arrow-left'
-          || keyCode === 37;
+        return $key === 'arrow-left' || keyCode === 37;
       case 'right':
-        return $key === 'arrow-right'
-          || keyCode === 39;
+        return $key === 'arrow-right' || keyCode === 39;
       default:
     }
 
     const keyEventCode = Number.parseInt(keyEvent, 10);
-    if (Number.isNaN(keyEventCode))
-      return keyEvent === $key;
+    if (Number.isNaN(keyEventCode)) return keyEvent === $key;
 
     return keyEventCode === keyCode;
   }

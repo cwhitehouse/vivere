@@ -17,7 +17,7 @@ export default class ToggableRenderController implements RenderController {
   setShouldRender(shouldRender: boolean): void {
     this.$shouldRender = shouldRender;
     if (this.$shouldRender)
-      this.awaitingRender.forEach((d) => {
+      this.awaitingRender.forEach(d => {
         d.component?.$queueRender(d);
         this.awaitingRender.delete(d);
       });

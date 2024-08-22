@@ -17,12 +17,17 @@ export default class AntecedentConditionalDirective extends ConditionalDirective
 
     const { previousElementSibling } = element;
 
-    const antecedent = previousElementSibling?.$directives?.find((d) => d instanceof ConditionalDirective);
+    const antecedent = previousElementSibling?.$directives?.find(
+      d => d instanceof ConditionalDirective,
+    );
     if (antecedent instanceof ConditionalDirective)
       this.antecedent = antecedent;
 
     if (this.antecedent == null || this.antecedent instanceof ElseDirective)
-      throw new DirectiveError(`${this.id()} directives require a preceeding v-if or v-else-if directive`, this);
+      throw new DirectiveError(
+        `${this.id()} directives require a preceeding v-if or v-else-if directive`,
+        this,
+      );
 
     // Listen to any changes on the preceeding directives value
     this.registerListeners();
@@ -38,8 +43,7 @@ export default class AntecedentConditionalDirective extends ConditionalDirective
 
       if (antecedent instanceof AntecedentConditionalDirective)
         antecedent = antecedent.antecedent;
-      else
-        antecedent = null;
+      else antecedent = null;
     } while (antecedent != null);
   }
 
@@ -52,8 +56,7 @@ export default class AntecedentConditionalDirective extends ConditionalDirective
 
       if (antecedent instanceof AntecedentConditionalDirective)
         antecedent = antecedent.antecedent;
-      else
-        antecedent = null;
+      else antecedent = null;
     }
 
     return value;

@@ -18,7 +18,9 @@ export default {
     }
 
     if (!isValid)
-      throw new VivereError(`Tried to register component ${name} that does not extend Component`);
+      throw new VivereError(
+        `Tried to register component ${name} that does not extend Component`,
+      );
 
     $definitions.register(name, definition);
   },

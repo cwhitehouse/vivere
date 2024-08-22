@@ -9,7 +9,8 @@ import ToggableRenderController from '../../rendering/togglable-render-controlle
 import OnDirective from '../on';
 import Walk from '../../lib/walk';
 
-const directiveRegex = /(?:([A-z_$0-9]+)|\(([A-z_$0-9]+), ([A-z_$0-9]+)\)) of ([A-z_$0-9[\]().?]+)/;
+const directiveRegex =
+  /(?:([A-z_$0-9]+)|\(([A-z_$0-9]+), ([A-z_$0-9]+)\)) of ([A-z_$0-9[\]().?]+)/;
 
 interface ForDirectiveValue {
   list: unknown[];
@@ -27,7 +28,7 @@ export default class ForDirective extends DisplayDirective {
 
   keyAttribute?: string;
 
-  keyedElements: { [key:string]: Component } = {};
+  keyedElements: { [key: string]: Component } = {};
 
   unkeyedElements: Component[] = [];
 
@@ -67,7 +68,8 @@ export default class ForDirective extends DisplayDirective {
     let value: any;
     Watcher.watch(this, renderCallback.bind(this), () => {
       try {
-        const [, iExp, $iExp, indexExpression, listExpression] = directiveRegex.exec(expression);
+        const [, iExp, $iExp, indexExpression, listExpression] =
+          directiveRegex.exec(expression);
         const itemExpression = iExp || $iExp;
 
         value = {
@@ -77,7 +79,11 @@ export default class ForDirective extends DisplayDirective {
           indexExpression,
         };
       } catch (e) {
-        throw new DirectiveError('Invalid v-for expression, must resemble `item of list`', this, e);
+        throw new DirectiveError(
+          'Invalid v-for expression, must resemble `item of list`',
+          this,
+          e,
+        );
       }
     });
 
@@ -85,19 +91,33 @@ export default class ForDirective extends DisplayDirective {
   }
 
   evaluateValue(value: ForDirectiveValue): void {
-    const { component, element, keyAttribute, keyedElements, unkeyedElements, parent, placeholder } = this;
+    const {
+      component,
+      element,
+      keyAttribute,
+      keyedElements,
+      unkeyedElements,
+      parent,
+      placeholder,
+    } = this;
     const { itemExpression, indexExpression, list, listExpression } = value;
 
     const isList = Array.isArray(list);
-    const isObject = list && !isList && (typeof list === 'object');
+    const isObject = list && !isList && typeof list === 'object';
     if (list && !isList && !isObject)
-      throw new DirectiveError('v-for directive expected an array, and object, or null to be returned', this);
+      throw new DirectiveError(
+        'v-for directive expected an array, and object, or null to be returned',
+        this,
+      );
 
     if (isObject && !indexExpression?.length)
-      throw new DirectiveError('Invalid v-for expression, must resemble `(key, value) of object`', this);
+      throw new DirectiveError(
+        'Invalid v-for expression, must resemble `(key, value) of object`',
+        this,
+      );
 
     // Keep track of which components that we're rendering
-    const renderedElements: { key: (string | null), el: Component }[] = [];
+    const renderedElements: { key: string | null; el: Component }[] = [];
 
     // We need to keep track of where to add new items
     let insertBefore: Node = placeholder;
@@ -119,10 +139,8 @@ export default class ForDirective extends DisplayDirective {
         // Generate a key for tracking this element
         let key: string;
         if (isList) {
-          if (keyAttribute != null)
-            key = item[keyAttribute];
-        } else
-          key = $key;
+          if (keyAttribute != null) key = item[keyAttribute];
+        } else key = $key;
 
         // See if we have a cached element with a matching key in our cache,
         // and remove it from the cache to be used
@@ -130,8 +148,7 @@ export default class ForDirective extends DisplayDirective {
         if (key != null) {
           cachedElement = keyedElements[key];
           delete keyedElements[key];
-        } else
-          cachedElement = unkeyedElements.pop();
+        } else cachedElement = unkeyedElements.pop();
 
         if (cachedElement == null) {
           // If we don't have a cached element, we'll need to create a new element
@@ -144,21 +161,39 @@ export default class ForDirective extends DisplayDirective {
 
           // If the list item doesn't already have a `v-component` directive, add one to
           // make each list item behave as a component
-          if (!el.hasAttribute('*component') && !el.hasAttribute(`${prefix}component`))
-            el.setAttribute(`${prefix}component`, `${component.$name}--${itemExpression}`);
+          if (
+            !el.hasAttribute('*component') &&
+            !el.hasAttribute(`${prefix}component`)
+          )
+            el.setAttribute(
+              `${prefix}component`,
+              `${component.$name}--${itemExpression}`,
+            );
 
           if (isList) {
             // Pass the invidual list item
             //   e.g. v-pass:to-do="toDos[2]"
-            el.setAttribute(`${prefix}data:${Utility.kebabCase(itemExpression)}`, `$parent.${listExpression}[${i}]`);
+            el.setAttribute(
+              `${prefix}data:${Utility.kebabCase(itemExpression)}`,
+              `$parent.${listExpression}[${i}]`,
+            );
             if (indexExpression?.length)
               // If we have an index expression, we want to set that as well e.g. v-data:idx="2"
-              el.setAttribute(`${prefix}data:${Utility.kebabCase(indexExpression)}`, `${i}`);
+              el.setAttribute(
+                `${prefix}data:${Utility.kebabCase(indexExpression)}`,
+                `${i}`,
+              );
           } else {
             // Pass the invidual object item (for objects, item and index are swapped)
             //   e.g. v-pass:to-do="toDos['banana']"
-            el.setAttribute(`${prefix}data:${Utility.kebabCase(indexExpression)}`, `$parent.${listExpression}['${key}']`);
-            el.setAttribute(`${prefix}data:${Utility.kebabCase(itemExpression)}`, `${key}`);
+            el.setAttribute(
+              `${prefix}data:${Utility.kebabCase(indexExpression)}`,
+              `$parent.${listExpression}['${key}']`,
+            );
+            el.setAttribute(
+              `${prefix}data:${Utility.kebabCase(itemExpression)}`,
+              `${key}`,
+            );
           }
 
           // Remove the suspend parsing data directive
@@ -166,7 +201,10 @@ export default class ForDirective extends DisplayDirective {
 
           // RenderController management — we need a manual RenderController so we can
           // control list item rendering
-          const renderController = new ToggableRenderController(true, this.renderController);
+          const renderController = new ToggableRenderController(
+            true,
+            this.renderController,
+          );
 
           // Add the cloned node back to the list and track
           // where the next node is supposed to be inserted
@@ -180,7 +218,10 @@ export default class ForDirective extends DisplayDirective {
           if (isList) {
             // We need to update the index of the passed data
             // so we display the right list item
-            cachedElement.$proxy(itemExpression, `$parent.${listExpression}[${i}]`);
+            cachedElement.$proxy(
+              itemExpression,
+              `$parent.${listExpression}[${i}]`,
+            );
 
             if (indexExpression?.length)
               // Update the index if we have an index expression
@@ -188,7 +229,10 @@ export default class ForDirective extends DisplayDirective {
           } else {
             // We need to update the key of the passed data
             // so we display the right object item
-            cachedElement.$proxy(indexExpression, `$parent.${listExpression}[${key}]`);
+            cachedElement.$proxy(
+              indexExpression,
+              `$parent.${listExpression}[${key}]`,
+            );
             // Also pass the key along if we have it
             cachedElement.$set(itemExpression, key);
           }
@@ -198,20 +242,31 @@ export default class ForDirective extends DisplayDirective {
           const { $element } = cachedElement;
 
           // Reactivate any dehydrated directives (v-event specifically)
-          Walk.element($element, cachedElement, cachedElement.$renderController);
+          Walk.element(
+            $element,
+            cachedElement,
+            cachedElement.$renderController,
+          );
 
           // Index of the element we're adding to the array
-          const currentIdx = Array.prototype.indexOf.call(parent.children, $element);
+          const currentIdx = Array.prototype.indexOf.call(
+            parent.children,
+            $element,
+          );
 
           // The array we'll be inserting into (or -1) if it's the end of the list
-          const insertIdx = Array.prototype.indexOf.call(parent.children, insertBefore);
+          const insertIdx = Array.prototype.indexOf.call(
+            parent.children,
+            insertBefore,
+          );
 
           // This element is not in DOM
           const requiresInsert = currentIdx === -1;
 
           // This element is in the correct position and doesn't need to move
-          const inPosition = currentIdx === (insertIdx - 1) // The current index is where we want to end up
-            || (insertIdx === -1 && (currentIdx === parent.children.length - 1)); // We are at the end of the list where we belong
+          const inPosition =
+            currentIdx === insertIdx - 1 || // The current index is where we want to end up
+            (insertIdx === -1 && currentIdx === parent.children.length - 1); // We are at the end of the list where we belong
 
           // If we're at the position we're trying to insert (and if it's the end of the list we're at the end)
           if (requiresInsert || !inPosition)
@@ -220,7 +275,9 @@ export default class ForDirective extends DisplayDirective {
 
           // Flip our TogglableRenderController to true, ensuring any directives on
           // the list item properly render
-          if (cachedElement.$renderController instanceof ToggableRenderController)
+          if (
+            cachedElement.$renderController instanceof ToggableRenderController
+          )
             cachedElement.$renderController.setShouldRender(true);
         }
 
@@ -234,27 +291,22 @@ export default class ForDirective extends DisplayDirective {
 
     // Ensure all our rendered components are cached
     // for the next time the list udpates
-    renderedElements.reverse().forEach((re) => {
+    renderedElements.reverse().forEach(re => {
       const { key, el } = re;
-      if (key != null)
-        keyedElements[key] = el;
-      else
-        unkeyedElements.push(el);
+      if (key != null) keyedElements[key] = el;
+      else unkeyedElements.push(el);
     });
   }
 
   itemKey(item: unknown): string | null {
-    if (item == null)
-      return null;
+    if (item == null) return null;
 
-    if (Array.isArray(item))
-      return JSON.stringify(item);
+    if (Array.isArray(item)) return JSON.stringify(item);
 
     const props = ['id', 'key', 'name'];
     for (let i = 0; i < props.length; i += 1) {
       const prop = props[i];
-      if (item[prop] != null)
-        return item[prop].toString();
+      if (item[prop] != null) return item[prop].toString();
     }
 
     return null;
@@ -263,10 +315,13 @@ export default class ForDirective extends DisplayDirective {
   removeCachedElements(): void {
     const { keyedElements, unkeyedElements } = this;
 
-    Object.values(keyedElements).forEach((ke) => {
+    Object.values(keyedElements).forEach(ke => {
       Array.from(ke.$directives)
-        .filter((d) => d instanceof OnDirective)
-        .forEach((d) => { d.dehydrate(); d.destroy(); });
+        .filter(d => d instanceof OnDirective)
+        .forEach(d => {
+          d.dehydrate();
+          d.destroy();
+        });
 
       ke.$element.remove();
 
@@ -275,10 +330,13 @@ export default class ForDirective extends DisplayDirective {
       if (ke.$renderController instanceof ToggableRenderController)
         ke.$renderController.setShouldRender(false);
     });
-    unkeyedElements.forEach((ue) => {
+    unkeyedElements.forEach(ue => {
       Array.from(ue.$directives)
-        .filter((d) => d instanceof OnDirective)
-        .forEach((d) => { d.dehydrate(); d.destroy(); });
+        .filter(d => d instanceof OnDirective)
+        .forEach(d => {
+          d.dehydrate();
+          d.destroy();
+        });
 
       ue.$element.remove();
 
@@ -311,10 +369,11 @@ export default class ForDirective extends DisplayDirective {
   dirty(): void {
     // Tell of our child elements that they must wait on the list to finish
     // rendering before they can
-    [...this.unkeyedElements, ...Object.values(this.keyedElements)].forEach((vc) => {
-      if (vc.$renderController != null)
-        vc.$renderController.$dirty = true;
-    });
+    [...this.unkeyedElements, ...Object.values(this.keyedElements)].forEach(
+      vc => {
+        if (vc.$renderController != null) vc.$renderController.$dirty = true;
+      },
+    );
 
     super.dirty();
   }
@@ -322,10 +381,11 @@ export default class ForDirective extends DisplayDirective {
   clean(): void {
     // Tell of our child elements that the list has been updated and they can proceed
     // with rendering (if they should)
-    [...this.unkeyedElements, ...Object.values(this.keyedElements)].forEach((vc) => {
-      if (vc.$renderController != null)
-        vc.$renderController.$dirty = false;
-    });
+    [...this.unkeyedElements, ...Object.values(this.keyedElements)].forEach(
+      vc => {
+        if (vc.$renderController != null) vc.$renderController.$dirty = false;
+      },
+    );
 
     super.clean();
   }

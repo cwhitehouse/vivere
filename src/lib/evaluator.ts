@@ -12,7 +12,7 @@ import EvaluatorError from '../errors/evaluator-error';
 
 interface EvaluatorOptions {
   component: Component;
-  local: { [key: string]: unknown },
+  local: { [key: string]: unknown };
 }
 
 // We need a plugin to properly parse assignment operations
@@ -76,19 +76,44 @@ class ShallowCallResult {
 
 // Operators used in assignment expressions
 const assignmentOperators = [
-  '=', '*=', '**=',
-  '/=', '%=',
-  '+=', '-=',
-  '<<=', '>>=', '>>>=',
-  '&=', '^=', '|=',
+  '=',
+  '*=',
+  '**=',
+  '/=',
+  '%=',
+  '+=',
+  '-=',
+  '<<=',
+  '>>=',
+  '>>>=',
+  '&=',
+  '^=',
+  '|=',
 ];
 
 // Operators used in binary expressions
 const binaryOperators = [
-  '||', '&&', '|', '^', '&',
-  '==', '!=', '===', '!==',
-  '<', '>', '<=', '>=', '<<', '>>', '>>>',
-  '+', '-', '*', '/', '%',
+  '||',
+  '&&',
+  '|',
+  '^',
+  '&',
+  '==',
+  '!=',
+  '===',
+  '!==',
+  '<',
+  '>',
+  '<=',
+  '>=',
+  '<<',
+  '>>',
+  '>>>',
+  '+',
+  '-',
+  '*',
+  '/',
+  '%',
 ];
 
 const templateLiteralRegex = /^[^`]*\${[^}]+}[^`]*$/;
@@ -98,7 +123,11 @@ const evaluateScript = (script: string, scope: unknown = {}): unknown => {
   return Function(`"use strict"; ${script}`).bind(scope)();
 };
 
-const evaluateAssignmentExpression = (caller: unknown, tree: AssignmentExpression, options: EvaluatorOptions): unknown => {
+const evaluateAssignmentExpression = (
+  caller: unknown,
+  tree: AssignmentExpression,
+  options: EvaluatorOptions,
+): unknown => {
   const { left, operator, right, type } = tree;
 
   // Shallow parse the tree so we can properly execut the assignment
@@ -110,16 +139,32 @@ const evaluateAssignmentExpression = (caller: unknown, tree: AssignmentExpressio
     if (assignmentOperators.includes(operator)) {
       const propJSON = JSON.stringify(leftValue.prop);
       const valueJSON = JSON.stringify(rightValue);
-      evaluateScript(`this[${propJSON}] ${operator} ${valueJSON}`, leftValue.object);
+      evaluateScript(
+        `this[${propJSON}] ${operator} ${valueJSON}`,
+        leftValue.object,
+      );
     } else
-      throw new EvaluatorError(`Unhandled assignment expression: ${operator}`, caller, type);
+      throw new EvaluatorError(
+        `Unhandled assignment expression: ${operator}`,
+        caller,
+        type,
+      );
   } else
-    throw new EvaluatorError('Tried to assign to deeply parsed value', caller, type);
+    throw new EvaluatorError(
+      'Tried to assign to deeply parsed value',
+      caller,
+      type,
+    );
 
   return ParseResult.AssignmentExpressionExecuted;
 };
 
-const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
+const evaluateCallExpression = (
+  caller: unknown,
+  tree: jsep.CallExpression,
+  options: EvaluatorOptions,
+  shallow: boolean,
+): unknown => {
   const { callee, type } = tree;
   const args = tree.arguments;
 
@@ -130,17 +175,25 @@ const evaluateCallExpression = (caller: unknown, tree: jsep.CallExpression, opti
 
     if (optional && object == null) return object;
 
-    const argsValues = args.map((arg) => evaluateTree(caller, arg, options));
+    const argsValues = args.map(arg => evaluateTree(caller, arg, options));
     const returnValue = object[prop](...argsValues);
 
     if (shallow) return new ShallowCallResult(returnValue);
     return returnValue;
   }
 
-  throw new EvaluatorError('Tried to invoke method on deeply parsed value', caller, type);
+  throw new EvaluatorError(
+    'Tried to invoke method on deeply parsed value',
+    caller,
+    type,
+  );
 };
 
-const evaluateArrowExpression = (caller: unknown, tree: ArrowExpression, options: EvaluatorOptions): unknown => {
+const evaluateArrowExpression = (
+  caller: unknown,
+  tree: ArrowExpression,
+  options: EvaluatorOptions,
+): unknown => {
   const { body, params, type } = tree;
   const { local } = options;
 
@@ -152,7 +205,11 @@ const evaluateArrowExpression = (caller: unknown, tree: ArrowExpression, options
       // that is available to us
       if (param != null) {
         if (param.type !== 'Identifier')
-          throw new EvaluatorError('Arrow expression params should always be identifiers', caller, type);
+          throw new EvaluatorError(
+            'Arrow expression params should always be identifiers',
+            caller,
+            type,
+          );
 
         local[(param as Identifier).name] = arg;
       }
@@ -162,22 +219,36 @@ const evaluateArrowExpression = (caller: unknown, tree: ArrowExpression, options
   };
 };
 
-const evaluateCompound = (caller: unknown, tree: jsep.Compound, options: EvaluatorOptions, shallow: boolean): unknown => {
+const evaluateCompound = (
+  caller: unknown,
+  tree: jsep.Compound,
+  options: EvaluatorOptions,
+  shallow: boolean,
+): unknown => {
   const { body } = tree;
-  return body.map((exp) => evaluateTree(caller, exp, options, shallow));
+  return body.map(exp => evaluateTree(caller, exp, options, shallow));
 };
 
-const evaluateConditionalExpression = (caller: unknown, tree: jsep.ConditionalExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
+const evaluateConditionalExpression = (
+  caller: unknown,
+  tree: jsep.ConditionalExpression,
+  options: EvaluatorOptions,
+  shallow: boolean,
+): unknown => {
   const { alternate, consequent, test } = tree;
 
   const testValue = evaluateTree(caller, test, options);
 
-  if (testValue)
-    return evaluateTree(caller, consequent, options, shallow);
+  if (testValue) return evaluateTree(caller, consequent, options, shallow);
   return evaluateTree(caller, alternate, options, shallow);
 };
 
-const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
+const evaluateBinaryExpression = (
+  caller: unknown,
+  tree: jsep.BinaryExpression,
+  options: EvaluatorOptions,
+  shallow: boolean,
+): unknown => {
   const { left, operator, right, type } = tree;
 
   // Start by evaluating the left value
@@ -191,28 +262,29 @@ const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, 
     else if (shallow)
       // If false and shallow, return an empty expression
       return ParseResult.EmptyExpression;
-    else
-      // If false and deep, this is effectively null
-      return null;
+    // If false and deep, this is effectively null
+    else return null;
 
   // The '\\' operator should not evaluate the right side
   // if the leftValue is true
   if (operator === '||')
-    return leftValue
-      || evaluateTree(caller, right, options);
+    return leftValue || evaluateTree(caller, right, options);
 
   // The '&&' operator should not evaluate the right side
   // if the leftValue is false
   if (operator === '&&')
-    return leftValue
-      && evaluateTree(caller, right, options);
+    return leftValue && evaluateTree(caller, right, options);
 
   // Otherwise, let's parse our right value and see what we're working with!
   const rightValue = evaluateTree(caller, right, options);
 
   if (assignmentOperators.includes(operator))
     // The assignment evaluator can miss this when the `??` operator is involved
-    return evaluateAssignmentExpression(caller, tree as unknown as AssignmentExpression, options);
+    return evaluateAssignmentExpression(
+      caller,
+      tree as unknown as AssignmentExpression,
+      options,
+    );
 
   if (binaryOperators.includes(operator)) {
     const leftJSON = JSON.stringify(leftValue);
@@ -220,10 +292,18 @@ const evaluateBinaryExpression = (caller: unknown, tree: jsep.BinaryExpression, 
     return evaluateScript(`return ${leftJSON} ${operator} ${rightJSON}`);
   }
 
-  throw new EvaluatorError(`Unhandled binary operator: ${operator}`, caller, type);
+  throw new EvaluatorError(
+    `Unhandled binary operator: ${operator}`,
+    caller,
+    type,
+  );
 };
 
-const evaluateUnaryExpression = (caller: unknown, tree: jsep.UnaryExpression, options: EvaluatorOptions): unknown => {
+const evaluateUnaryExpression = (
+  caller: unknown,
+  tree: jsep.UnaryExpression,
+  options: EvaluatorOptions,
+): unknown => {
   const { argument, operator, type } = tree;
 
   const argumentValue = evaluateTree(caller, argument, options);
@@ -232,21 +312,27 @@ const evaluateUnaryExpression = (caller: unknown, tree: jsep.UnaryExpression, op
     case '!':
       return !argumentValue;
     default:
-      throw new EvaluatorError(`Unhandled unary operator: ${operator}`, caller, type);
+      throw new EvaluatorError(
+        `Unhandled unary operator: ${operator}`,
+        caller,
+        type,
+      );
   }
 };
 
-const evaluateObjectExpression = (caller: unknown, tree: ObjectExpression, options: EvaluatorOptions): unknown => {
+const evaluateObjectExpression = (
+  caller: unknown,
+  tree: ObjectExpression,
+  options: EvaluatorOptions,
+): unknown => {
   const { properties } = tree;
   const object = {};
 
-  properties.forEach((p) => {
+  properties.forEach(p => {
     let key: string;
     // Identifiers as object keys are just special string literals
-    if (p.key.type === 'Identifier')
-      key = p.key.name as string;
-    else
-      key = evaluateTree(caller, p.key, options, false) as string;
+    if (p.key.type === 'Identifier') key = p.key.name as string;
+    else key = evaluateTree(caller, p.key, options, false) as string;
 
     const value = evaluateTree(caller, p.value, options, false);
 
@@ -256,13 +342,22 @@ const evaluateObjectExpression = (caller: unknown, tree: ObjectExpression, optio
   return object;
 };
 
-const evaluateArrayExpression = (caller: unknown, tree: ArrayExpression, options: EvaluatorOptions): unknown => {
+const evaluateArrayExpression = (
+  caller: unknown,
+  tree: ArrayExpression,
+  options: EvaluatorOptions,
+): unknown => {
   const { elements } = tree;
 
-  return elements.map((element) => evaluateTree(caller, element, options));
+  return elements.map(element => evaluateTree(caller, element, options));
 };
 
-const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, options: EvaluatorOptions, shallow: boolean): unknown => {
+const evaluateMemberExpression = (
+  caller: unknown,
+  tree: jsep.MemberExpression,
+  options: EvaluatorOptions,
+  shallow: boolean,
+): unknown => {
   const { computed, object, optional, property } = tree;
 
   // Shadlow parse the caller to catch a few special cases
@@ -276,34 +371,44 @@ const evaluateMemberExpression = (caller: unknown, tree: jsep.MemberExpression, 
   }
 
   if (computed) {
-    const propKey = evaluateTree(options.component, property, options)?.toString();
-    if (shallow)
-      return new ShallowParseResult($object, propKey);
+    const propKey = evaluateTree(
+      options.component,
+      property,
+      options,
+    )?.toString();
+    if (shallow) return new ShallowParseResult($object, propKey);
     return $object[propKey];
   }
 
   return evaluateTree($object, property, options, shallow);
 };
 
-const evaluateThisExpression = (caller: unknown, tree: jsep.ThisExpression, options: EvaluatorOptions): unknown => {
+const evaluateThisExpression = (
+  caller: unknown,
+  tree: jsep.ThisExpression,
+  options: EvaluatorOptions,
+): unknown => {
   return options.component;
 };
 
-const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: EvaluatorOptions, shallow: boolean): unknown => {
+const evaluateIdentifier = (
+  caller: unknown,
+  tree: jsep.Identifier,
+  options: EvaluatorOptions,
+  shallow: boolean,
+): unknown => {
   const { name } = tree;
   const { component, local } = options;
 
   // When shallow parsing, an Identifier is our end state that we need
   // to bundle up and return for a function call or assignment expression
-  if (shallow)
-    return new ShallowParseResult(caller, name);
+  if (shallow) return new ShallowParseResult(caller, name);
 
   // Otherwise...
 
   // If it's a local variable, we should
   // unwrap it
-  if (Object.keys(local).includes(name))
-    return local[name];
+  if (Object.keys(local).includes(name)) return local[name];
 
   // Special case for our component shorthand
   if (name.startsWith(componentIdentifier)) {
@@ -314,7 +419,11 @@ const evaluateIdentifier = (caller: unknown, tree: jsep.Identifier, options: Eva
   return caller[name];
 };
 
-const evaluateTemplateLiteral = (caller: unknown, tree: TemplateLiteral, options: EvaluatorOptions): unknown => {
+const evaluateTemplateLiteral = (
+  caller: unknown,
+  tree: TemplateLiteral,
+  options: EvaluatorOptions,
+): unknown => {
   const { quasis, expressions } = tree;
 
   let string = '';
@@ -333,34 +442,84 @@ const evaluateTemplateLiteral = (caller: unknown, tree: TemplateLiteral, options
 
 const evaluateLiteral = (tree: jsep.Expression): unknown => tree.value;
 
-const evaluateTree = (caller: unknown, tree: jsep.Expression, options: EvaluatorOptions, shallow = false): unknown => {
+const evaluateTree = (
+  caller: unknown,
+  tree: jsep.Expression,
+  options: EvaluatorOptions,
+  shallow = false,
+): unknown => {
   const { type } = tree;
 
   switch (type) {
     case 'AssignmentExpression':
-      return evaluateAssignmentExpression(caller, tree as AssignmentExpression, options);
+      return evaluateAssignmentExpression(
+        caller,
+        tree as AssignmentExpression,
+        options,
+      );
     case 'CallExpression':
-      return evaluateCallExpression(caller, tree as jsep.CallExpression, options, shallow);
+      return evaluateCallExpression(
+        caller,
+        tree as jsep.CallExpression,
+        options,
+        shallow,
+      );
     case 'ArrowFunctionExpression':
       return evaluateArrowExpression(caller, tree as ArrowExpression, options);
     case 'Compound':
       return evaluateCompound(caller, tree as jsep.Compound, options, shallow);
     case 'ConditionalExpression':
-      return evaluateConditionalExpression(caller, tree as jsep.ConditionalExpression, options, shallow);
+      return evaluateConditionalExpression(
+        caller,
+        tree as jsep.ConditionalExpression,
+        options,
+        shallow,
+      );
     case 'BinaryExpression':
-      return evaluateBinaryExpression(caller, tree as jsep.BinaryExpression, options, shallow);
+      return evaluateBinaryExpression(
+        caller,
+        tree as jsep.BinaryExpression,
+        options,
+        shallow,
+      );
     case 'UnaryExpression':
-      return evaluateUnaryExpression(caller, tree as jsep.UnaryExpression, options);
+      return evaluateUnaryExpression(
+        caller,
+        tree as jsep.UnaryExpression,
+        options,
+      );
     case 'MemberExpression':
-      return evaluateMemberExpression(caller, tree as jsep.MemberExpression, options, shallow);
+      return evaluateMemberExpression(
+        caller,
+        tree as jsep.MemberExpression,
+        options,
+        shallow,
+      );
     case 'ObjectExpression':
-      return evaluateObjectExpression(caller, tree as ObjectExpression, options);
+      return evaluateObjectExpression(
+        caller,
+        tree as ObjectExpression,
+        options,
+      );
     case 'ArrayExpression':
-      return evaluateArrayExpression(caller, tree as jsep.ArrayExpression, options);
+      return evaluateArrayExpression(
+        caller,
+        tree as jsep.ArrayExpression,
+        options,
+      );
     case 'ThisExpression':
-      return evaluateThisExpression(caller, tree as jsep.ThisExpression, options);
+      return evaluateThisExpression(
+        caller,
+        tree as jsep.ThisExpression,
+        options,
+      );
     case 'Identifier':
-      return evaluateIdentifier(caller, tree as jsep.Identifier, options, shallow);
+      return evaluateIdentifier(
+        caller,
+        tree as jsep.Identifier,
+        options,
+        shallow,
+      );
     case 'TemplateLiteral':
       return evaluateTemplateLiteral(caller, tree as TemplateLiteral, options);
     case 'Literal':
@@ -370,7 +529,12 @@ const evaluateTree = (caller: unknown, tree: jsep.Expression, options: Evaluator
   }
 };
 
-const parse = (component: Component, expression: string, executing = false, $args: unknown[] = []): unknown => {
+const parse = (
+  component: Component,
+  expression: string,
+  executing = false,
+  $args: unknown[] = [],
+): unknown => {
   try {
     let $expression = expression;
     if (templateLiteralRegex.test($expression))
@@ -390,7 +554,12 @@ const parse = (component: Component, expression: string, executing = false, $arg
     };
     return evaluateTree(component, tree, options, executing);
   } catch (error) {
-    throw new EvaluatorError('Failed to parse expression', component, expression, error);
+    throw new EvaluatorError(
+      'Failed to parse expression',
+      component,
+      expression,
+      error,
+    );
   }
 };
 
@@ -407,7 +576,11 @@ export default {
       const { object: caller, prop: property } = result;
       caller[property] = value;
     } else
-      throw new EvaluatorError('Cannot assign to deeply parsed expression', component, expression);
+      throw new EvaluatorError(
+        'Cannot assign to deeply parsed expression',
+        component,
+        expression,
+      );
   },
 
   parse,
@@ -432,7 +605,11 @@ export default {
     return expression;
   },
 
-  execute(component: Component, expression: string, ...args: unknown[]): unknown {
+  execute(
+    component: Component,
+    expression: string,
+    ...args: unknown[]
+  ): unknown {
     // Shallow parse the expression
     const response = parse(component, expression, true, args);
 
@@ -452,7 +629,7 @@ export default {
     }
 
     if (Array.isArray(response))
-      response.forEach((resp) => {
+      response.forEach(resp => {
         if (resp instanceof ShallowParseResult) {
           const { object: caller, prop: property } = resp;
           caller[property](args);
@@ -467,7 +644,12 @@ export default {
     const response = parse(component, expression, true);
 
     // We shouldn't allow assignments when parsing computed
-    if (response === ParseResult.AssignmentExpressionExecuted) throw new EvaluatorError('Do not assign when computing a property', component, expression);
+    if (response === ParseResult.AssignmentExpressionExecuted)
+      throw new EvaluatorError(
+        'Do not assign when computing a property',
+        component,
+        expression,
+      );
 
     // If it looked like nothing (e.g. the second half of a `??` operator), we're done
     if (response === ParseResult.EmptyExpression) return null;

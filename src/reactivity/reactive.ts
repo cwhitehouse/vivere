@@ -21,8 +21,7 @@ export default class Reactive {
     this.host = host;
 
     this.getter = getter;
-    if (this.getter == null)
-      this.set(value, true);
+    if (this.getter == null) this.set(value, true);
   }
 
   // Dirty value
@@ -41,7 +40,9 @@ export default class Reactive {
   }
 
   computeValue(): void {
-    const callback = (): void => { this.dirty(); };
+    const callback = (): void => {
+      this.dirty();
+    };
     Watcher.watch(this, callback, () => {
       const newValue = this.getter.call(this.host);
       this.set(newValue, false, true);
@@ -52,8 +53,7 @@ export default class Reactive {
   // Accessing the value, and tracking updates
 
   getValue(): unknown {
-    if (this.getter != null && !this.computed)
-      this.computeValue();
+    if (this.getter != null && !this.computed) this.computeValue();
 
     return this.value;
   }
@@ -65,8 +65,7 @@ export default class Reactive {
       this.registerHook(context, callback);
     }
 
-    if (!this.computed && this.getter != null)
-      this.computeValue();
+    if (!this.computed && this.getter != null) this.computeValue();
 
     return this.getValue();
   }
@@ -77,34 +76,27 @@ export default class Reactive {
     const oldValue = this.value;
 
     // Deal with undefined/null confusion
-    if (value == null && oldValue == null)
-      return;
+    if (value == null && oldValue == null) return;
 
     const oldValueJSON = JSON.stringify(oldValue);
     const newValueJSON = JSON.stringify(value);
 
     // Don't bother reporting if nothing substantive has changed
-    if (oldValueJSON === newValueJSON)
-      return;
+    if (oldValueJSON === newValueJSON) return;
 
     Coordinator.chainReactionStarted();
 
-    if (makeReactive)
-      this.updateValue(value);
-    else
-      this.value = value;
+    if (makeReactive) this.updateValue(value);
+    else this.value = value;
 
     // If the new value implements $$registerListener (i.e. it is
     // a ReactiveArray), we need to make sure we're listening to changes
     // since multiple Reactives can have a ReactiveArray value (e.g. via
     // a $passed or computed property)
-    if (this.value?.$$registerListener)
-      this.value.$$registerListener(this);
+    if (this.value?.$$registerListener) this.value.$$registerListener(this);
 
-    if (!skipReport)
-      this.$report(oldValue);
-    else
-      Coordinator.chainReactionEnded();
+    if (!skipReport) this.$report(oldValue);
+    else Coordinator.chainReactionEnded();
   }
 
   updateValue(value: unknown): void {
@@ -113,16 +105,14 @@ export default class Reactive {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reactiveValue(value: any): unknown {
-    if (value == null)
-      return null;
+    if (value == null) return null;
 
     if (Array.isArray(value)) {
       // If your value is an array, and we've already proxied it,
       // we can just return the value
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      if (value.$$reactiveArray)
-        return value;
+      if (value.$$reactiveArray) return value;
       return new ReactiveArray(value);
     }
 
@@ -135,8 +125,7 @@ export default class Reactive {
   // Reporting
 
   registerHook(object: unknown, hook: (oldValue: unknown) => void): void {
-    if (object !== this)
-      this.listeners.register(object, hook);
+    if (object !== this) this.listeners.register(object, hook);
   }
 
   report(oldValue: unknown): void {
@@ -148,8 +137,7 @@ export default class Reactive {
     this.listeners.forEach((entity, hook) => {
       if (entity instanceof Component)
         Coordinator.trackComponent(entity, hook, oldValue);
-      else
-        hook(oldValue);
+      else hook(oldValue);
     });
 
     Coordinator.chainReactionEnded();

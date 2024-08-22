@@ -34,7 +34,10 @@ export default class DataDirective extends RootDirective {
         if (storageType == null) storageType = 'local';
 
         if (storageType !== 'local' && storageType !== 'session')
-          throw new DirectiveError(`Unknown storage type: ${storageType}`, this);
+          throw new DirectiveError(
+            `Unknown storage type: ${storageType}`,
+            this,
+          );
 
         this.storageParams = { key: camelKey, type: storageType };
       } else
@@ -61,19 +64,19 @@ export default class DataDirective extends RootDirective {
   }
 
   categorizeArray(tree: jsep.ArrayExpression): DataType {
-    const types = tree.elements.map((e) => this.categorize(e));
-    if (types.some((t) => t === DataType.Reference || t === DataType.Computation))
+    const types = tree.elements.map(e => this.categorize(e));
+    if (types.some(t => t === DataType.Reference || t === DataType.Computation))
       return DataType.Computation;
     return DataType.Object;
   }
 
   categorizeObject(tree: ObjectExpression): DataType {
-    const types = tree.properties.flatMap((p) => {
+    const types = tree.properties.flatMap(p => {
       const $types = [this.categorize(p.key)];
       if (p.value) $types.push(this.categorize(p.value));
       return $types;
     });
-    if (types.some((t) => t === DataType.Reference || t === DataType.Computation))
+    if (types.some(t => t === DataType.Reference || t === DataType.Computation))
       return DataType.Computation;
     return DataType.Object;
   }
@@ -101,13 +104,21 @@ export default class DataDirective extends RootDirective {
         break;
       default:
         // Other expressions are interpreted as computed properties
-        component.$set(camelKey, null, () => Evaluator.compute(component, expression), null);
+        component.$set(
+          camelKey,
+          null,
+          () => Evaluator.compute(component, expression),
+          null,
+        );
     }
 
     if (storageParams != null)
       if (type === DataType.Value || type === DataType.Object)
         useStorage(component, storageParams);
       else
-        throw new DirectiveError('You cannot store passed or computed properties', this);
+        throw new DirectiveError(
+          'You cannot store passed or computed properties',
+          this,
+        );
   }
 }

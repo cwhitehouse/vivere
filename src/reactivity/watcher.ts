@@ -15,7 +15,11 @@ export default class Watcher {
 
   static current?: Watcher;
 
-  static watch(context: Directive | Reactive, callback: () => void, watch: () => void): void {
+  static watch(
+    context: Directive | Reactive,
+    callback: () => void,
+    watch: () => void,
+  ): void {
     // Save current Watcher
     const { current } = Watcher;
 

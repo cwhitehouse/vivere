@@ -1,4 +1,4 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 export default class extends Component {
   // ------------------------------------------------
@@ -26,7 +26,7 @@ export default class extends Component {
       // We need to deep copy this object, so we can
       // sync values without saving
       const meta = { ...item.meta };
-      const tags = [ ...item.tags ];
+      const tags = [...item.tags];
       this.editItem = {
         ...item,
         meta,
@@ -41,11 +41,9 @@ export default class extends Component {
 
     if (tagging)
       this.$nextRender(() => {
-        if (tagInput instanceof HTMLInputElement)
-          tagInput.focus();
+        if (tagInput instanceof HTMLInputElement) tagInput.focus();
       });
-    else
-      this.tag = null;
+    else this.tag = null;
   }
 
   // ------------------------------------------------
@@ -56,7 +54,7 @@ export default class extends Component {
     const { editItem } = this;
 
     const meta = { ...editItem.meta };
-    const tags = [ ...editItem.tags ];
+    const tags = [...editItem.tags];
     this.item = {
       ...editItem,
       meta,
@@ -79,7 +77,6 @@ export default class extends Component {
     const { tags } = editItem;
 
     const idx = tags.indexOf(tag);
-    if (idx >= 0)
-      tags.splice(idx, 1);
+    if (idx >= 0) tags.splice(idx, 1);
   }
-};
+}

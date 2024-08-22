@@ -1,4 +1,4 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 const State = {
   SHOW: 'show',
@@ -33,8 +33,7 @@ export default class extends Component {
       this.label = this.toDo.label;
       this.$nextRender(() => {
         const input = this.$refs.input;
-        if (input instanceof Element)
-          input.focus();
+        if (input instanceof Element) input.focus();
       });
     }
   }
@@ -55,4 +54,4 @@ export default class extends Component {
   reset() {
     this.state = State.SHOW;
   }
-};
+}

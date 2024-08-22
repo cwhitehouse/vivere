@@ -29,7 +29,11 @@ export default class Animator {
 
   running = false;
 
-  constructor(element: HTMLElement, vertical: boolean, callback: (showing: boolean) => void) {
+  constructor(
+    element: HTMLElement,
+    vertical: boolean,
+    callback: (showing: boolean) => void,
+  ) {
     this.element = element;
     this.vertical = vertical;
     this.callback = callback;
@@ -45,7 +49,9 @@ export default class Animator {
 
     // Set up the core property we'll be animating
     const property = vertical ? 'height' : 'width';
-    const currentPropertyValue = vertical ? element.offsetHeight : element.offsetWidth;
+    const currentPropertyValue = vertical
+      ? element.offsetHeight
+      : element.offsetWidth;
     this.property = new AnimatableProperty(
       element,
       property,
@@ -115,25 +121,28 @@ export default class Animator {
       opacity,
     } = this;
 
-    return [property, firstMargin, secondMargin, firstPadding, secondPadding, firstBorder, secondBorder, opacity].filter((p) => p != null);
+    return [
+      property,
+      firstMargin,
+      secondMargin,
+      firstPadding,
+      secondPadding,
+      firstBorder,
+      secondBorder,
+      opacity,
+    ].filter(p => p != null);
   }
 
   get properties(): AnimatorProperty[] {
-    const {
-      animatableProperties,
-      overflow,
-      transition,
-    } = this;
+    const { animatableProperties, overflow, transition } = this;
 
-    return [...animatableProperties, overflow, transition].filter((p) => p != null);
+    return [...animatableProperties, overflow, transition].filter(
+      p => p != null,
+    );
   }
 
   #iterate(): void {
-    const {
-      animatableProperties,
-      duration,
-      startTime,
-    } = this;
+    const { animatableProperties, duration, startTime } = this;
 
     // Calculate percentage of animation
     const elapsedTime = new Date().getTime() - startTime;
@@ -144,12 +153,13 @@ export default class Animator {
       const percentageAnimated = this.#animationCurve(percentageElapsed);
 
       // Update our properties based on percentage elapsed
-      animatableProperties.forEach((p) => p.update(percentageAnimated));
+      animatableProperties.forEach(p => p.update(percentageAnimated));
 
       // Wait for our next animation frame
-      this.frameRequest = requestAnimationFrame(() => { this.#iterate(); });
-    } else
-      this.onComplete();
+      this.frameRequest = requestAnimationFrame(() => {
+        this.#iterate();
+      });
+    } else this.onComplete();
   }
 
   #animationCurve(t: number): number {
@@ -157,8 +167,7 @@ export default class Animator {
   }
 
   cancel(): void {
-    if (this.frameRequest)
-      cancelAnimationFrame(this.frameRequest);
+    if (this.frameRequest) cancelAnimationFrame(this.frameRequest);
     this.onComplete();
   }
 
@@ -168,21 +177,17 @@ export default class Animator {
     this.showing = !showing;
 
     // Reverse the directions of all of our animatable properties
-    animatableProperties.forEach((p) => p.reverse());
+    animatableProperties.forEach(p => p.reverse());
 
     // Update our start time, so our animation percentage resets
     this.startTime = new Date().getTime();
   }
 
   onComplete(): void {
-    const {
-      callback,
-      showing,
-      properties,
-    } = this;
+    const { callback, showing, properties } = this;
 
     // Revert all of our properties to their original values
-    properties.forEach((p) => p.revert());
+    properties.forEach(p => p.revert());
 
     // Invoke our completion callback
     this.running = false;

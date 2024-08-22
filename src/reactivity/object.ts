@@ -1,10 +1,14 @@
 import Reactive from './reactive';
 
 export default class ReactiveObject {
-  static makeValueReactive(listeners: Set<Reactive>, object: object, key: string | number | symbol, value: unknown): void {
+  static makeValueReactive(
+    listeners: Set<Reactive>,
+    object: object,
+    key: string | number | symbol,
+    value: unknown,
+  ): void {
     let reactive: Reactive = null;
-    if (value instanceof Reactive)
-      reactive = value;
+    if (value instanceof Reactive) reactive = value;
     else {
       reactive = new Reactive(object, value, null);
       object[key] = reactive;
@@ -15,20 +19,22 @@ export default class ReactiveObject {
       // be notified if any of its children change (this is necessary for repoerting
       // changes to objects nested within objects or arrays)
       reactive.registerHook(object, (oldValue: unknown) => {
-        listeners.forEach((l) => l.report({ ...object, key: oldValue }));
+        listeners.forEach(l => l.report({ ...object, key: oldValue }));
       });
   }
 
-  static setReactiveValue(listeners: Set<Reactive>, target: object, p: string | symbol, value: unknown): boolean {
+  static setReactiveValue(
+    listeners: Set<Reactive>,
+    target: object,
+    p: string | symbol,
+    value: unknown,
+  ): boolean {
     const currentValue = target[p];
 
     // Update value while mainting reactivity
-    if (currentValue instanceof Reactive)
-      currentValue.set(value, true);
-    else if (value instanceof Reactive)
-      target[p] = value;
-    else
-      this.makeValueReactive(listeners, target, p, value);
+    if (currentValue instanceof Reactive) currentValue.set(value, true);
+    else if (value instanceof Reactive) target[p] = value;
+    else this.makeValueReactive(listeners, target, p, value);
 
     return true;
   }
@@ -47,11 +53,9 @@ export default class ReactiveObject {
       get(target, p): unknown {
         const value = target[p];
 
-        if (value instanceof Reactive)
-          return value.get();
+        if (value instanceof Reactive) return value.get();
 
-        if (p === '$reactives')
-          return { ...target };
+        if (p === '$reactives') return { ...target };
 
         switch (p) {
           case '$$registerListener':
@@ -60,7 +64,7 @@ export default class ReactiveObject {
             };
           case '$$report':
             return (oldValue: unknown) => {
-              listeners.forEach((l) => l.report(oldValue));
+              listeners.forEach(l => l.report(oldValue));
             };
           case '$$reactiveObject':
             return true;

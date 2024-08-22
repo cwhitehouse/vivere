@@ -1,4 +1,4 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 export default class extends Component {
   communique = null;

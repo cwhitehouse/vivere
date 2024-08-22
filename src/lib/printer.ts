@@ -16,15 +16,12 @@ class Printer {
   get typeLabel(): string {
     const { value } = this;
 
-    if (value == null)
-      return 'null';
+    if (value == null) return 'null';
 
     if (typeof value === 'object') {
-      if (value.$name != null)
-        return value.$name;
+      if (value.$name != null) return value.$name;
 
-      if (value.constructor != null)
-        return value.constructor.name;
+      if (value.constructor != null) return value.constructor.name;
     }
 
     return typeof value;
@@ -34,22 +31,24 @@ class Printer {
   get properties(): { key: string; value: any }[] {
     const { except, only, value } = this;
 
-    if (value == null)
-      return [];
+    if (value == null) return [];
 
-    return Object.entries(value).sort().map(([k, v]) => {
-      if ((!only || only.includes(k)) && (!except || !except.includes(k)))
-        return { key: k, value: v };
+    return Object.entries(value)
+      .sort()
+      .map(([k, v]) => {
+        if ((!only || only.includes(k)) && (!except || !except.includes(k)))
+          return { key: k, value: v };
 
-      return null;
-    }).filter((v) => v != null);
+        return null;
+      })
+      .filter(v => v != null);
   }
 
   get propertiesString(): string {
     const { properties, valueString } = this;
     return properties
-      .filter((p) => !p.key.startsWith('$'))
-      .map((p) => `  · ${p.key}\n\t  ↳ ${valueString(p.value)}`)
+      .filter(p => !p.key.startsWith('$'))
+      .map(p => `  · ${p.key}\n\t  ↳ ${valueString(p.value)}`)
       .join('\n\t  ');
   }
 
@@ -63,10 +62,8 @@ class Printer {
 
   print(): string {
     const { typeLabel, value } = this;
-    if (typeLabel === 'string')
-      return `↳ "${value}"`;
-    if (typeLabel === 'number' || typeLabel === 'number')
-      return `↳ ${value}`;
+    if (typeLabel === 'string') return `↳ "${value}"`;
+    if (typeLabel === 'number' || typeLabel === 'number') return `↳ ${value}`;
 
     const { propertiesString } = this;
 

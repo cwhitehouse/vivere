@@ -8,7 +8,12 @@ export default class AnimatableProperty extends AnimatorProperty {
   current: number;
   to: number;
 
-  constructor(element: HTMLElement, property: string, from: number, to: number) {
+  constructor(
+    element: HTMLElement,
+    property: string,
+    from: number,
+    to: number,
+  ) {
     super(element, property);
 
     // The from value will also be the origin
@@ -27,12 +32,11 @@ export default class AnimatableProperty extends AnimatorProperty {
     const { element, property, from, to } = this;
 
     // Update the current value based on percentage of animation
-    this.current = ((to - from) * percentage) + from;
+    this.current = (to - from) * percentage + from;
 
     // Convert our number to a style value
     let styleValue = `${this.current}`;
-    if (property !== 'opacity')
-      styleValue += 'px';
+    if (property !== 'opacity') styleValue += 'px';
 
     // Update the elements style
     element.style.setProperty(property, styleValue, 'important');

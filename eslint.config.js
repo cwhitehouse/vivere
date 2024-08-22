@@ -5,12 +5,12 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
-    ignores: ["dist/**/*"],
+    files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
+    ignores: ['dist/**/*'],
     rules: {
       // Customized rules
-      'curly': ['error', 'multi'],
-      'no-param-reassign': ['error', { 'props': false }],
+      curly: ['error', 'multi'],
+      'no-param-reassign': ['error', { props: false }],
 
       // Disabled rules
       'import/no-cycle': 'off',
@@ -20,5 +20,5 @@ export default tseslint.config(
       'nonblock-statement-body-position': 'off',
       'object-curly-newline': 'off',
     },
-  }
+  },
 );

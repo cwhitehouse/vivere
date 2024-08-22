@@ -1,4 +1,4 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 let id = 4;
 
@@ -20,7 +20,7 @@ export default class extends Component {
         return [['label'], ['desc']];
       default:
         return [['id'], ['asc']];
-    };
+    }
   }
 
   get sortedList() {
@@ -37,22 +37,22 @@ export default class extends Component {
   get filteredList() {
     const { filter, lowerText, sortedList } = this;
 
-    return sortedList.filter((toDo) => {
+    return sortedList.filter(toDo => {
       const lowerLabel = toDo.label?.toLowerCase();
-      return (!filter?.length || toDo.tags?.includes(filter)) &&
-        (!lowerText?.length || lowerLabel?.includes(lowerText));
+      return (
+        (!filter?.length || toDo.tags?.includes(filter)) &&
+        (!lowerText?.length || lowerLabel?.includes(lowerText))
+      );
     });
   }
 
   get filtering() {
     const { filter } = this;
-    return filter != null
-      && filter.length > 0;
+    return filter != null && filter.length > 0;
   }
 
   onFilterChanged() {
-    if (this.filter != null)
-      this.text = null;
+    if (this.filter != null) this.text = null;
   }
 
   startCreating() {
@@ -63,7 +63,7 @@ export default class extends Component {
     this.creating = false;
   }
 
-  orderArrayBy(array, keys, directions){
+  orderArrayBy(array, keys, directions) {
     return [...array].sort((a, b) => {
       for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
@@ -90,10 +90,9 @@ export default class extends Component {
   removeItem(toDo) {
     const { toDos } = this;
 
-    const ids = toDos.map((toDo) => toDo.id);
+    const ids = toDos.map(toDo => toDo.id);
     const idx = ids.indexOf(toDo.id);
 
-    if (idx >= 0)
-      toDos.splice(idx, 1);
+    if (idx >= 0) toDos.splice(idx, 1);
   }
-};
+}

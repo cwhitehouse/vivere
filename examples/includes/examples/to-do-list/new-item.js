@@ -1,25 +1,22 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 export default class extends Component {
   label = null;
 
   get hasLabel() {
-    return this.label != null
-      && this.label.length > 0;
+    return this.label != null && this.label.length > 0;
   }
 
   onShowingChanged() {
-    if (this.showing)
-      this.$nextRender(() => this.$refs.input.focus());
+    if (this.showing) this.$nextRender(() => this.$refs.input.focus());
   }
 
   reset() {
-  this.close();
+    this.close();
   }
 
   create() {
-    if (this.hasLabel)
-      this.$parent.create(this.label);
+    if (this.hasLabel) this.$parent.create(this.label);
     this.close();
   }
 
@@ -27,4 +24,4 @@ export default class extends Component {
     this.cancel();
     this.label = null;
   }
-};
+}

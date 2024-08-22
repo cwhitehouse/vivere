@@ -35,8 +35,17 @@ export default class Directive {
 
   // Constructor
 
-  constructor(element: Element, name: string, expression: string, component?: Component, renderController?: RenderController) {
-    if (element instanceof HTMLElement && element.dataset[Directive.DATA_SUSPEND_PARSING] === 'true')
+  constructor(
+    element: Element,
+    name: string,
+    expression: string,
+    component?: Component,
+    renderController?: RenderController,
+  ) {
+    if (
+      element instanceof HTMLElement &&
+      element.dataset[Directive.DATA_SUSPEND_PARSING] === 'true'
+    )
       return;
 
     ErrorHandler.handle(() => {
@@ -57,16 +66,24 @@ export default class Directive {
         [, ...key] = name.split(separator);
         this.rawKey = key?.join(':');
         [this.key, ...this.modifiers] = this.rawKey.split('.');
-      } else
-        [, ...this.modifiers] = name.split('.');
+      } else [, ...this.modifiers] = name.split('.');
 
       if (!this.key && this.requiresKey())
-        throw new DirectiveError(`A key is required for ${this.id()} directives`, this);
+        throw new DirectiveError(
+          `A key is required for ${this.id()} directives`,
+          this,
+        );
 
       // Check the directive if it's valid
-      if (this.id() == null) throw new DirectiveError('Directives must have an identifier', this);
-      if (this.forComponent() && !this.onComponent()) throw new DirectiveError(`${name} only applies to component roots`, this);
-      if (this.requiresComponent() && this.component == null) throw new DirectiveError(`${name} requires a component`, this);
+      if (this.id() == null)
+        throw new DirectiveError('Directives must have an identifier', this);
+      if (this.forComponent() && !this.onComponent())
+        throw new DirectiveError(
+          `${name} only applies to component roots`,
+          this,
+        );
+      if (this.requiresComponent() && this.component == null)
+        throw new DirectiveError(`${name} requires a component`, this);
 
       // Register directive on the component (if necessary)
       if (this.component != null) this.component.$directives.add(this);
@@ -105,8 +122,7 @@ export default class Directive {
 
       let attributeName = `${prefix}${this.id()}`;
 
-      if (this.key)
-        attributeName += `:${this.key}`;
+      if (this.key) attributeName += `:${this.key}`;
 
       if (this.modifiers && this.modifiers.length)
         attributeName += `.${this.modifiers.join('.')}`;

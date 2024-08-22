@@ -11,7 +11,10 @@ import OnDirective from '../directives/on';
 import RefDirective from '../directives/ref';
 import Component from '../components/component';
 import ComponentRegistry from '../components/registry';
-import { RenderController, isRenderController } from '../rendering/render-controller';
+import {
+  RenderController,
+  isRenderController,
+} from '../rendering/render-controller';
 import ElseDirective from '../directives/display/conditional/else';
 import ElseIfDirective from '../directives/display/conditional/else-if';
 import { Vivere } from '../vivere';
@@ -46,17 +49,27 @@ const directives: (typeof Directive)[] = [
 ];
 
 const Walk = {
-  tree(element: Element, component?: Component, renderController?: RenderController): void {
+  tree(
+    element: Element,
+    component?: Component,
+    renderController?: RenderController,
+  ): void {
     Timer.time('Tree parsed', () => {
       // Walk the tree to initialize components
       Walk.element(element, component, renderController);
 
       // Connect any new components
-      ComponentRegistry.components.forEach((c) => { c.$$connect(); });
+      ComponentRegistry.components.forEach(c => {
+        c.$$connect();
+      });
     });
   },
 
-  element(element: Element, component?: Component, renderController?: RenderController): void {
+  element(
+    element: Element,
+    component?: Component,
+    renderController?: RenderController,
+  ): void {
     const { attributes } = element;
     const { options } = Vivere;
     const { prefix } = options;
@@ -70,11 +83,15 @@ const Walk = {
     element.removeAttribute('v-hide');
 
     // Track which directives we've found so we can parse them in order
-    const parsedDirectives: { Dir: typeof Directive, name: string, value: string }[] = [];
+    const parsedDirectives: {
+      Dir: typeof Directive;
+      name: string;
+      value: string;
+    }[] = [];
 
     // Looping through element attributes is way faster then looping
     // through every directive for every element
-    Object.values(element.attributes).forEach((attr) => {
+    Object.values(element.attributes).forEach(attr => {
       const { name, value } = attr;
       // Explicitly break early if we encounter the most
       // common HTML attributes
@@ -109,7 +126,13 @@ const Walk = {
       // Initialize every directive
       parsedDirectives.forEach(({ Dir, name, value }) => {
         // Initialize and parse the directive
-        const directive = new Dir(element, name, value, $component, $renderController);
+        const directive = new Dir(
+          element,
+          name,
+          value,
+          $component,
+          $renderController,
+        );
 
         // Add the directive to the element for tracking
         element.$directives?.push(directive);
@@ -117,17 +140,23 @@ const Walk = {
         // Re-assign component (for v-component directives)
         $component = directive.component;
 
-        if (isRenderController(directive))
-          $renderController = directive;
+        if (isRenderController(directive)) $renderController = directive;
       });
     }
 
-    if (!(element instanceof HTMLElement) || element.dataset[Directive.DATA_SUSPEND_PARSING] !== 'true')
+    if (
+      !(element instanceof HTMLElement) ||
+      element.dataset[Directive.DATA_SUSPEND_PARSING] !== 'true'
+    )
       Walk.children(element, $component, $renderController);
   },
 
-  children(element: Element, component: Component, renderController?: RenderController): void {
-    Object.values(element.children).forEach((child) => {
+  children(
+    element: Element,
+    component: Component,
+    renderController?: RenderController,
+  ): void {
+    Object.values(element.children).forEach(child => {
       // Continue checking the element's children
       Walk.element(child, component, renderController);
     });

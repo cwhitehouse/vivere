@@ -22,19 +22,19 @@ export default class AttributeDirective extends DisplayDirective {
         if (modifiers?.length)
           // If we have a modifiers, parse the value as a boolean for toggling classes
           // (Also parse the key as a dot separated list)
-          modifiers.forEach((className) => {
+          modifiers.forEach(className => {
             DOM.toggleClass(element, className, !!value);
           });
         else {
           if (Array.isArray(lastValue))
             // Otherwise, disable any classes that were turned on as lastValue
-            lastValue.forEach((className) => {
+            lastValue.forEach(className => {
               DOM.toggleClass(element, className, false);
             });
 
           if (Array.isArray(value))
             // Turn on any classes described by the value
-            value.forEach((className) => {
+            value.forEach(className => {
               DOM.toggleClass(element, className, true);
             });
         }
@@ -45,13 +45,13 @@ export default class AttributeDirective extends DisplayDirective {
           if (modifiers?.length)
             // If we have modifiers, assume we're trying to set the value
             // of multiple styles to a text value
-            modifiers.forEach((style) => {
+            modifiers.forEach(style => {
               element.style[style] = value;
             });
           else {
             if (typeof lastValue === 'object')
               // Otherwise, remove any styles set by the last value
-              Object.keys(lastValue).forEach((style) => {
+              Object.keys(lastValue).forEach(style => {
                 element.style[style] = null;
               });
 
@@ -84,19 +84,15 @@ export default class AttributeDirective extends DisplayDirective {
       case 'reversed':
       case 'spellcheck':
       case 'wrap':
-        if (value)
-          element.setAttribute($key, '');
-        else
-          element.removeAttribute($key);
+        if (value) element.setAttribute($key, '');
+        else element.removeAttribute($key);
         break;
       default:
         // eslint-disable-next-line no-case-declarations
         const $value = value?.toString();
 
-        if ($value?.trim().length)
-          element.setAttribute($key, $value);
-        else
-          element.removeAttribute($key);
+        if ($value?.trim().length) element.setAttribute($key, $value);
+        else element.removeAttribute($key);
     }
   }
 }

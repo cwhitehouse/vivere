@@ -1,4 +1,4 @@
-import { Component, useQueryEncoding } from "../../../../src/vivere";
+import { Component, useQueryEncoding } from '../../../../src/vivere';
 
 export default class extends Component {
   value;

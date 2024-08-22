@@ -15,12 +15,11 @@ export default class Accordion extends Component {
 
     if (activeSection == null && !!$children.length) {
       const firstChild = $children[0];
-      if (firstChild instanceof Section)
-        this.activeSection = firstChild.value;
+      if (firstChild instanceof Section) this.activeSection = firstChild.value;
     }
   }
 
   selectSection(value: string): void {
     this.activeSection = value;
   }
-};
+}

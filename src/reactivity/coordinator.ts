@@ -1,6 +1,10 @@
 import Component from '../components/component';
 
-const delayedHooks: { component: Component, hook: (oldValue: unknown) => void, oldValue: unknown }[] = [];
+const delayedHooks: {
+  component: Component;
+  hook: (oldValue: unknown) => void;
+  oldValue: unknown;
+}[] = [];
 let chainReactions = 0;
 
 export default {
@@ -8,7 +12,11 @@ export default {
     chainReactions += 1;
   },
 
-  trackComponent(component: Component, hook: (oldValue: unknown) => void, oldValue: unknown): void {
+  trackComponent(
+    component: Component,
+    hook: (oldValue: unknown) => void,
+    oldValue: unknown,
+  ): void {
     delayedHooks.push({
       component,
       hook,

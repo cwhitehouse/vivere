@@ -1,4 +1,4 @@
-import { Component } from "../../src/vivere";
+import { Component } from '../../src/vivere';
 
 export default class extends Component {
   exampleGroup = {};
@@ -10,7 +10,7 @@ export default class extends Component {
   $passed = {
     filterTag: {},
     filterText: {},
-  }
+  };
 
   get shouldShow() {
     const { exampleGroup, activeTag, filterText, tags } = this;
@@ -20,12 +20,12 @@ export default class extends Component {
     const lowerName = name.toLowerCase();
     const lowerDescription = description.toLowerCase();
 
-    const matchesTag = !activeTag ||
-      tags.includes(activeTag);
-    const matchesText = !filterText ||
+    const matchesTag = !activeTag || tags.includes(activeTag);
+    const matchesText =
+      !filterText ||
       lowerName.includes(lowerText) ||
       lowerDescription.includes(lowerText);
 
     return matchesTag && matchesText;
   }
-};
+}

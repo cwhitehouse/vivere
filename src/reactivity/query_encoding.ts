@@ -16,8 +16,7 @@ const retrieve = (params: QueryEncodingParams): unknown => {
   const queryParams = new URLSearchParams(window.location.search);
   const encodedValue = queryParams.get(encodingKey);
 
-  if (encodedValue == null || encodedValue === 'undefined')
-    return undefined;
+  if (encodedValue == null || encodedValue === 'undefined') return undefined;
   return JSON.parse(encodedValue);
 };
 
@@ -31,12 +30,14 @@ const save = (params: QueryEncodingParams, value: unknown): void => {
   history.replaceState(null, '', `?${queryParams.toString()}`);
 };
 
-const useQueryEncoding = (component: Component, params: QueryEncodingParams): void => {
+const useQueryEncoding = (
+  component: Component,
+  params: QueryEncodingParams,
+): void => {
   const { dataKey } = params;
 
   const encodedValue = retrieve(params);
-  if (encodedValue !== undefined)
-    component.$set(dataKey, encodedValue);
+  if (encodedValue !== undefined) component.$set(dataKey, encodedValue);
 
   component.$watch(dataKey, () => {
     // Save the new value

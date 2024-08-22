@@ -1,70 +1,62 @@
-import resolve from "@rollup/plugin-node-resolve"
-import typescript from "@rollup/plugin-typescript"
-import dts from "rollup-plugin-dts"
+import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
+import dts from 'rollup-plugin-dts';
 
-import pckg from "./package.json" with { type: "json" };
+import pckg from './package.json' with { type: 'json' };
 const version = pckg.version;
-const year = new Date().getFullYear()
-const banner = `/*\nvivere ${version}\nCopyright © ${year} Tiniest Fox, LLC\n */`
+const year = new Date().getFullYear();
+const banner = `/*\nvivere ${version}\nCopyright © ${year} Tiniest Fox, LLC\n */`;
 
 export default [
   {
-    input: "src/vivere.ts",
+    input: 'src/vivere.ts',
     output: [
       {
-        name: "vivere",
-        file: "dist/vivere.es6-umd.js",
-        format: "umd",
+        name: 'vivere',
+        file: 'dist/vivere.es6-umd.js',
+        format: 'umd',
         sourcemap: true,
-        banner
+        banner,
       },
       {
-        file: "dist/vivere.es6-esm.js",
-        format: "es",
+        file: 'dist/vivere.es6-esm.js',
+        format: 'es',
         sourcemap: true,
-        banner
-      }
+        banner,
+      },
     ],
-    plugins: [
-      resolve(),
-      typescript(),
-    ],
+    plugins: [resolve(), typescript()],
     watch: {
-      include: "src/**"
-    }
+      include: 'src/**',
+    },
   },
   {
-    input: "dist/types/src/vivere.d.ts",
+    input: 'dist/types/src/vivere.d.ts',
     output: [
       {
-        file: "dist/types/vivere.d.ts",
-        format: "es",
+        file: 'dist/types/vivere.d.ts',
+        format: 'es',
       },
     ],
-    plugins: [
-      dts(),
-    ],
+    plugins: [dts()],
   },
   {
-    input: "examples/main.ts",
+    input: 'examples/main.ts',
     output: [
       {
-        file: "tmp/main.js",
-        format: "es",
+        file: 'tmp/main.js',
+        format: 'es',
         sourcemap: true,
       },
     ],
-    plugins: [
-      resolve(),
-      typescript(),
-    ],
+    plugins: [resolve(), typescript()],
     watch: {
       include: [
-        "examples/**/*.js",
-        "examples/**/*.ts",
-        "dist/**/*.js",
-        "src/**/*.ts",
-      ]
-    }
+        'examples/**/*.js',
+        'examples/**/*.ts',
+        'dist/**/*.js',
+        'src/**/*.ts',
+      ],
+    },
   },
-]
+];

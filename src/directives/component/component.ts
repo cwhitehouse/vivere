@@ -17,15 +17,22 @@ export default class ComponentDirective extends Directive {
   // Parsing
 
   parse(): void {
-    const { component, element, expression, key, renderController, modifiers } = this;
+    const { component, element, expression, key, renderController, modifiers } =
+      this;
 
     // The previous component is now the parent
     const parent = component;
 
     // Instantiate the new component
     const componentName = Utility.pascalCase(expression || key);
-    const Definition = ComponentDefinitions.getDefinition(componentName) || Component;
-    this.component = new Definition(componentName, element, parent, renderController);
+    const Definition =
+      ComponentDefinitions.getDefinition(componentName) || Component;
+    this.component = new Definition(
+      componentName,
+      element,
+      parent,
+      renderController,
+    );
     this.component.$directives.add(this);
 
     // Handle hydration unless we're defering loading
@@ -38,7 +45,7 @@ export default class ComponentDirective extends Directive {
       this.binding = this.completeParsing.bind(this);
 
       // Attach the event listener so any actions force rendering to finish
-      modifiers?.forEach((event) => {
+      modifiers?.forEach(event => {
         element.addEventListener(event, this.binding, true);
       });
     } else {
@@ -83,7 +90,7 @@ export default class ComponentDirective extends Directive {
     const { binding, element, modifiers } = this;
 
     if (binding != null)
-      modifiers?.forEach((event) => {
+      modifiers?.forEach(event => {
         element.removeEventListener(event, binding, true);
       });
   }

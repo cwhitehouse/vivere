@@ -8,10 +8,8 @@ export default {
       const { options } = Vivere;
       const { suppressErrors, logErrors } = options;
 
-      if (!suppressErrors)
-        throw error;
-      else if (logErrors)
-        console.warn(error.message);
+      if (!suppressErrors) throw error;
+      else if (logErrors) console.warn(error.message);
     }
   },
 };

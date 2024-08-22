@@ -1,4 +1,4 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 export default class extends Component {
   // ------------------------------------------------
@@ -24,8 +24,7 @@ export default class extends Component {
   get isSelected() {
     const { properties, value } = this;
 
-    return properties != null
-      && properties.includes(value);
+    return properties != null && properties.includes(value);
   }
 
   get buttonClass() {
@@ -43,9 +42,7 @@ export default class extends Component {
     const { properties, value } = this;
 
     const idx = properties.indexOf(value);
-    if (idx >= 0)
-      properties.splice(idx, 1);
-    else
-      properties.push(value);
+    if (idx >= 0) properties.splice(idx, 1);
+    else properties.push(value);
   }
-};
+}

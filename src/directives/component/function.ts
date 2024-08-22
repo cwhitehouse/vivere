@@ -10,6 +10,7 @@ export default class FunctionDirective extends RootDirective {
 
   process(): void {
     const { camelKey, component, expression } = this;
-    component[camelKey] = (...args: unknown[]): unknown => Evaluator.execute(component, expression, ...args);
+    component[camelKey] = (...args: unknown[]): unknown =>
+      Evaluator.execute(component, expression, ...args);
   }
 }

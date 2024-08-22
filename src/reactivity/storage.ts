@@ -15,7 +15,9 @@ const getStorage = (params: StorageParams): Storage => {
     case 'session':
       return window.sessionStorage;
     default:
-      throw new VivereError(`Trying to store data in unknown store type: ${type}`);
+      throw new VivereError(
+        `Trying to store data in unknown store type: ${type}`,
+      );
   }
 };
 
@@ -29,8 +31,7 @@ const retrieve = (params: StorageParams): unknown => {
   const storage = getStorage(params);
 
   const storedValue = storage.getItem(storeKey);
-  if (storedValue == null || storedValue === 'undefined')
-    return undefined;
+  if (storedValue == null || storedValue === 'undefined') return undefined;
 
   return JSON.parse(storedValue);
 };
@@ -46,8 +47,7 @@ const useStorage = (component: Component, params: StorageParams): void => {
   const { key } = params;
 
   const storedValue = retrieve(params);
-  if (storedValue !== undefined)
-    component.$set(key, storedValue);
+  if (storedValue !== undefined) component.$set(key, storedValue);
 
   component.$watch(key, () => {
     // Save the new value

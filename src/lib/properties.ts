@@ -1,4 +1,8 @@
-const $parse = (entity: unknown, handler: (key: string, descriptor: PropertyDescriptor) => void, seenKeys: string[]): void => {
+const $parse = (
+  entity: unknown,
+  handler: (key: string, descriptor: PropertyDescriptor) => void,
+  seenKeys: string[],
+): void => {
   const propertyDescriptors = Object.getOwnPropertyDescriptors(entity);
   const propertyDescriptorEntries = Object.entries(propertyDescriptors);
   propertyDescriptorEntries.forEach(([key, descriptor]) => {
@@ -10,7 +14,10 @@ const $parse = (entity: unknown, handler: (key: string, descriptor: PropertyDesc
 };
 
 export default {
-  parse(object: unknown, handler: (key: string, descriptor: PropertyDescriptor) => void): void {
+  parse(
+    object: unknown,
+    handler: (key: string, descriptor: PropertyDescriptor) => void,
+  ): void {
     const seenKeys: string[] = [];
 
     // Parse all the object's own properties

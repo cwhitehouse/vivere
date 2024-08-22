@@ -208,7 +208,7 @@ const exampleGroups = [
         id: 'object-list',
         name: 'Object List',
         width: 1,
-      }
+      },
     ],
   },
   {
@@ -248,14 +248,17 @@ const exampleGroups = [
         id: 'advanced-search',
         name: 'Advanced Search',
         width: 1,
-      }
+      },
     ],
   },
 ];
 
 exampleGroups.forEach(eg => {
   eg.examples.forEach(e => {
-    const { directives, scripts, partials, properties } = fileParser.parseDirectives(`examples/includes/examples/${eg.id}/${e.id}.ejs`);
+    const { directives, scripts, partials, properties } =
+      fileParser.parseDirectives(
+        `examples/includes/examples/${eg.id}/${e.id}.ejs`,
+      );
     e.tags = directives.concat(properties);
     e.scripts = scripts;
     e.partials = partials;

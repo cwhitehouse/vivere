@@ -19,9 +19,7 @@ declare global {
   }
 }
 
-const reservedKeywords = [
-  'constructor',
-];
+const reservedKeywords = ['constructor'];
 
 export default class Component extends ReactiveHost {
   #dataKeys: Set<string> = new Set();
@@ -34,7 +32,7 @@ export default class Component extends ReactiveHost {
 
   $renderController?: RenderController;
   $directives: Set<Directive> = new Set();
-  $refs: { [key: string]: (Element | Component) } = {};
+  $refs: { [key: string]: Element | Component } = {};
 
   #listeners: { [key: string]: Func[] } = {};
 
@@ -57,7 +55,12 @@ export default class Component extends ReactiveHost {
   // CONSTRUCTOR
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  constructor(name: string, element: Element, parent?: Component, renderController?: RenderController) {
+  constructor(
+    name: string,
+    element: Element,
+    parent?: Component,
+    renderController?: RenderController,
+  ) {
     super();
 
     // Internals
@@ -70,8 +73,7 @@ export default class Component extends ReactiveHost {
     element.$component = this;
 
     // Track this component as a child of its parent
-    if (parent != null)
-      parent.$children.push(this);
+    if (parent != null) parent.$children.push(this);
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,8 +100,7 @@ export default class Component extends ReactiveHost {
   $navigate(url: string, includeQueryString = false): void {
     if (includeQueryString)
       window.location.href = `${url}${window.location.search}`;
-    else
-      window.location.href = url;
+    else window.location.href = url;
   }
 
   /**
@@ -118,8 +119,7 @@ export default class Component extends ReactiveHost {
     // Set up reactivity for all properties
     Properties.parse(this, (key, descriptor) => {
       // Ignore reserved keys, like constructor
-      if (reservedKeywords.includes(key))
-        return;
+      if (reservedKeywords.includes(key)) return;
 
       // Make everything reactive
       const { get, set, value } = descriptor;
@@ -127,7 +127,13 @@ export default class Component extends ReactiveHost {
     });
   }
 
-  $set(key: string, value: unknown, getter: () => unknown = null, setter: (value: unknown) => void = null, override = false): Reactive {
+  $set(
+    key: string,
+    value: unknown,
+    getter: () => unknown = null,
+    setter: (value: unknown) => void = null,
+    override = false,
+  ): Reactive {
     // Functions need not be reactive, and will fail at JSON.stringify
     if (typeof value === 'function') return null;
 
@@ -135,32 +141,38 @@ export default class Component extends ReactiveHost {
     if (override) delete this.$reactives[key];
 
     // Internal properties might not be safe to pass to JSON.stringify
-    if (key.startsWith('$') || key.startsWith('#'))
-      return null;
+    if (key.startsWith('$') || key.startsWith('#')) return null;
 
     // Turn on reactivity for properties
     const reactive = super.$set(key, Utility.jsonCopy(value), getter, setter);
 
     // If this is normal data, we need to remember it in #dataKeys
-    if (getter == null)
-      this.#dataKeys.add(key);
+    if (getter == null) this.#dataKeys.add(key);
 
     // Methods and non-reactive properties will return null
     if (reactive == null) return null;
 
     // Listen for changes to this reactive property
-    reactive.registerHook(this, (oldValue: unknown) => this.#react(key, oldValue));
+    reactive.registerHook(this, (oldValue: unknown) =>
+      this.#react(key, oldValue),
+    );
 
     // Return reactive
     return reactive;
   }
 
   $proxy(key: string, expression: string): void {
-    this.$set(key, null, () => {
-      return Evaluator.parse(this, expression);
-    }, (value: unknown) => {
-      Evaluator.assign(this, expression, value);
-    }, true);
+    this.$set(
+      key,
+      null,
+      () => {
+        return Evaluator.parse(this, expression);
+      },
+      (value: unknown) => {
+        Evaluator.assign(this, expression, value);
+      },
+      true,
+    );
   }
 
   #react(key: string, oldValue: unknown): void {
@@ -171,8 +183,7 @@ export default class Component extends ReactiveHost {
       const newValue = this[key];
 
       // All null like values we'll consider the same
-      if (newValue == null && oldValue == null)
-        return;
+      if (newValue == null && oldValue == null) return;
 
       // Check if our property actually changed
       if (newValue !== oldValue)
@@ -191,8 +202,7 @@ export default class Component extends ReactiveHost {
         // never otherwise forces the comptued value to compute, therefore
         // we need to kickstart reactivity for the value
         const listenerName = this.#listenerForKey(key);
-        if (this.#hasListeners(listenerName))
-          reactive.computeValue();
+        if (this.#hasListeners(listenerName)) reactive.computeValue();
       }
     });
   }
@@ -214,13 +224,14 @@ export default class Component extends ReactiveHost {
     if ($name?.length) {
       const kebabName = Utility.kebabCase($name);
       eventName = `${kebabName}--${event}`;
-    } else
-      eventName = event;
+    } else eventName = event;
 
-    $element.dispatchEvent(new CustomEvent(eventName, {
-      bubbles: true,
-      detail,
-    }));
+    $element.dispatchEvent(
+      new CustomEvent(eventName, {
+        bubbles: true,
+        detail,
+      }),
+    );
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -239,15 +250,13 @@ export default class Component extends ReactiveHost {
         throw new ComponentError(`No reference named ${ref} found`, this);
 
       let element: Element;
-      if ($ref instanceof Element)
-        element = $ref;
-      else
-        element = $ref.$element;
+      if ($ref instanceof Element) element = $ref;
+      else element = $ref.$element;
 
       const tempNode = document.createElement('div');
       tempNode.innerHTML = html;
 
-      Object.values(tempNode.children).forEach((child) => {
+      Object.values(tempNode.children).forEach(child => {
         element.appendChild(child);
 
         if (child instanceof HTMLElement)
@@ -266,11 +275,14 @@ export default class Component extends ReactiveHost {
    * @param before And optional `Node` to control where in the parents children the element apepars
    * @param renderController An optional `RenderController` to control rendering of the new element
    */
-  $attachElement(element: HTMLElement, parent: HTMLElement, before?: Node, renderController?: RenderController): void {
-    if (before != null)
-      parent.insertBefore(element, before);
-    else
-      parent.appendChild(element);
+  $attachElement(
+    element: HTMLElement,
+    parent: HTMLElement,
+    before?: Node,
+    renderController?: RenderController,
+  ): void {
+    if (before != null) parent.insertBefore(element, before);
+    else parent.appendChild(element);
 
     // Allow passing a render controller for more control, otherwise pass
     // the components RenderController as we walk the tree
@@ -284,7 +296,9 @@ export default class Component extends ReactiveHost {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   get $displayDirectives(): DisplayDirective[] {
-    return Array.from(this.$directives).filter((d): d is DisplayDirective => d instanceof DisplayDirective);
+    return Array.from(this.$directives).filter(
+      (d): d is DisplayDirective => d instanceof DisplayDirective,
+    );
   }
 
   /**
@@ -300,8 +314,8 @@ export default class Component extends ReactiveHost {
    * @param shallow Controls whether we should force this component's children to re-render as well
    */
   $forceRender(self = true, children = true): void {
-    if (self) this.$displayDirectives.forEach((d) => this.$queueRender(d));
-    if (children) this.$children.forEach((child) => child.$forceRender());
+    if (self) this.$displayDirectives.forEach(d => this.$queueRender(d));
+    if (children) this.$children.forEach(child => child.$forceRender());
   }
 
   /**
@@ -356,7 +370,9 @@ export default class Component extends ReactiveHost {
   }
 
   $removeCallbackListener(callback: string, listener: Func): void {
-    this.#listeners[callback] = this.#listeners[callback]?.filter((l) => l !== listener);
+    this.#listeners[callback] = this.#listeners[callback]?.filter(
+      l => l !== listener,
+    );
   }
 
   #listenerForKey(key: string): string {
@@ -364,13 +380,12 @@ export default class Component extends ReactiveHost {
   }
 
   #hasListeners(callback: string): boolean {
-    return this[callback] != null
-      || this.#listeners[callback]?.length > 0;
+    return this[callback] != null || this.#listeners[callback]?.length > 0;
   }
 
   #reportCallback(callback: string): void {
     this[callback]?.call(this);
-    this.#listeners[callback]?.forEach((listener) => {
+    this.#listeners[callback]?.forEach(listener => {
       listener();
     });
   }
@@ -393,8 +408,7 @@ export default class Component extends ReactiveHost {
   $$connect(): void {
     // If this has already been connected, then we don't need to
     // run through all of these commands (because we already have)
-    if (this.#isConnected)
-      return;
+    if (this.#isConnected) return;
 
     this.#precomputeValues();
 
@@ -419,23 +433,21 @@ export default class Component extends ReactiveHost {
 
     // If this has already been destroyed (likely because a parent was destroyed), then we
     // don't need to run through all of these commands (because we already have)
-    if (this.#isDestroyed)
-      return;
+    if (this.#isDestroyed) return;
 
     // Callback hook
     this.#reportCallback('beforeDestroyed');
 
     // Destroy directives
-    $directives.forEach((d) => d.destroy());
+    $directives.forEach(d => d.destroy());
 
     // Destroy all children (recusive)
-    $children.forEach((c) => c.$$destroy());
+    $children.forEach(c => c.$$destroy());
 
     if ($parent != null) {
       // Remove from parent's children
       const childIdx = $parent.$children.indexOf(this);
-      if (childIdx >= 0)
-        $parent.$children.splice(childIdx, 1);
+      if (childIdx >= 0) $parent.$children.splice(childIdx, 1);
     }
 
     // Remove from global component registry
@@ -455,7 +467,7 @@ export default class Component extends ReactiveHost {
   // DEHYDRATION
 
   #dehydrateData(): void {
-    this.#dataKeys.forEach((key) => {
+    this.#dataKeys.forEach(key => {
       const kebabKey = Utility.kebabCase(key);
       const value = this[key];
       const jsonValue = JSON.stringify(value);
@@ -467,8 +479,7 @@ export default class Component extends ReactiveHost {
     const { $children, $directives, $parent } = this;
 
     // If this has already dehydrated, ignore
-    if (this.#isDehydrated)
-      return;
+    if (this.#isDehydrated) return;
 
     // Callback hook
     this.#reportCallback('beforeDehydrated');
@@ -476,17 +487,19 @@ export default class Component extends ReactiveHost {
 
     // Dehydrate this component
     this.#dehydrateData.call(this);
-    $directives.forEach((d) => { d.dehydrate(); d.destroy(); });
+    $directives.forEach(d => {
+      d.dehydrate();
+      d.destroy();
+    });
 
     if (!shallow)
       // Dehydrate children
-      $children.forEach((c) => c.$$dehydrate());
+      $children.forEach(c => c.$$dehydrate());
 
     // Remove from parent's children
     if ($parent != null) {
       const childIdx = $parent.$children.indexOf(this);
-      if (childIdx >= 0)
-        $parent.$children.splice(childIdx, 1);
+      if (childIdx >= 0) $parent.$children.splice(childIdx, 1);
     }
 
     // Remove from global component registry

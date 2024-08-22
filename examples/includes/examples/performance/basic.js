@@ -1,11 +1,11 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 export default class extends Component {
   data;
 
-  filter = "";
+  filter = '';
 
-  color = "text-black";
+  color = 'text-black';
 
   limitText = 256;
 
@@ -21,16 +21,15 @@ export default class extends Component {
 
   get slicedData() {
     const { data, limit } = this;
-    return data.slice(0, (limit / 2 / 2));
+    return data.slice(0, limit / 2 / 2);
   }
 
   get filteredList() {
     const { lowerFilter, slicedData } = this;
 
-    if (!lowerFilter?.length)
-      return slicedData;
+    if (!lowerFilter?.length) return slicedData;
 
-    return slicedData.filter((e) => {
+    return slicedData.filter(e => {
       if (this.doesEntryMatch(e, lowerFilter)) return true;
 
       if (e && e.data)
@@ -69,9 +68,7 @@ export default class extends Component {
   toggleColor() {
     const { color } = this;
 
-    if (color == 'text-blue-600')
-      this.color = 'text-black';
-    else
-      this.color = 'text-blue-600';
+    if (color == 'text-blue-600') this.color = 'text-black';
+    else this.color = 'text-blue-600';
   }
 }

@@ -1,4 +1,4 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 export default class extends Component {
   announcement = 'The window resized!';
@@ -16,4 +16,4 @@ export default class extends Component {
       $element.style.height = `${$element.scrollHeight}px`;
     }
   }
-};
+}

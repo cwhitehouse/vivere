@@ -1,9 +1,9 @@
 export default {
   plugins: {
-    "posthtml-include": {
+    'posthtml-include': {
       root: './examples',
     },
-    "posthtml-expressions": {
+    'posthtml-expressions': {
       root: './examples',
     },
   },

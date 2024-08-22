@@ -13,17 +13,17 @@ import { useQueryEncoding } from './reactivity/query_encoding';
 const DEFAULT_ANIMATION_DURATION = 150;
 
 interface VivereConfiguration {
-  prefix: string,
-  animationDuration: number,
-  profiling: boolean,
-  suppressErrors: boolean,
-  logErrors: boolean,
+  prefix: string;
+  animationDuration: number;
+  profiling: boolean;
+  suppressErrors: boolean;
+  logErrors: boolean;
 }
 interface VivereOptions {
-  animationDuration?: number,
-  profiling?: boolean,
-  suppressErrors?: boolean,
-  logErrors?: boolean,
+  animationDuration?: number;
+  profiling?: boolean;
+  suppressErrors?: boolean;
+  logErrors?: boolean;
 }
 let config: VivereConfiguration = {
   prefix: 'v-',
@@ -40,7 +40,7 @@ const Vivere = {
 
   // Track components and definitions
 
-  register(name: string, definition: (typeof Component)): void {
+  register(name: string, definition: typeof Component): void {
     ComponentDefinitions.register(name, definition);
   },
 
@@ -68,7 +68,9 @@ const $setup = (element: HTMLElement): void => {
     Walk.element(element);
 
     // Finalize connecting our components
-    ComponentRegistry.components.forEach((c) => { c.$$connect(); });
+    ComponentRegistry.components.forEach(c => {
+      c.$$connect();
+    });
   });
 };
 
@@ -84,7 +86,7 @@ const $setupDocument = (): void => {
 // Dehydrate Vivere
 
 const dehydrate = (): void => {
-  ComponentRegistry.components.forEach((c) => c.$$dehydrate.call(c, true));
+  ComponentRegistry.components.forEach(c => c.$$dehydrate.call(c, true));
 };
 
 // SETUP VIVERE AUTOMATICALLY
@@ -97,16 +99,19 @@ document.addEventListener('turbo:before-cache', () => {
   dehydrate();
 });
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-document.addEventListener('turbo:before-render', (event: Record<string, any>) => {
-  const { newBody } = event.detail;
+document.addEventListener(
+  'turbo:before-render',
+  (event: Record<string, any>) => {
+    const { newBody } = event.detail;
 
-  $setup(newBody);
+    $setup(newBody);
 
-  // Force an initial render on the main thread (but don't tick!)
-  // - Want the DOM to be in the correct state before turbo has rendered the new DOM
-  // - But things waiting for rendering should wait until turbo has rendered the new DOM
-  // - Our ticks will be invoked when `requestAnimationFrame` resolves
-  Renderer.$forceRender(false);
-});
+    // Force an initial render on the main thread (but don't tick!)
+    // - Want the DOM to be in the correct state before turbo has rendered the new DOM
+    // - But things waiting for rendering should wait until turbo has rendered the new DOM
+    // - Our ticks will be invoked when `requestAnimationFrame` resolves
+    Renderer.$forceRender(false);
+  },
+);
 
 export { Vivere, Component, useStorage, useQueryEncoding };

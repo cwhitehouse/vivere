@@ -7,10 +7,8 @@ export default {
     const time = performance.now() - start;
 
     let method: string;
-    if (time >= 100)
-      method = 'warn';
-    else
-      method = 'log';
+    if (time >= 100) method = 'warn';
+    else method = 'log';
 
     if (Vivere.options.profiling)
       console[method](`Vivere | ${message}: ${time.toFixed(2)}ms`);

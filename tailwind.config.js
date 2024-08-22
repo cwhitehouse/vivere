@@ -15,16 +15,32 @@ export default {
     },
 
     flex: {
-      '1': '1 1 0%',
-      '2': '2 2 0%',
-      '3': '2 2 0%',
-      '4': '2 2 0%',
-      '5': '2 2 0%',
+      1: '1 1 0%',
+      2: '2 2 0%',
+      3: '2 2 0%',
+      4: '2 2 0%',
+      5: '2 2 0%',
     },
 
     extend: {
       fontFamily: {
-        display: ['Secular One', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', "Segoe UI", 'Roboto', "Helvetica Neue", 'Arial', "Noto Sans", 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
+        display: [
+          'Secular One',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'Noto Sans',
+          'sans-serif',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol',
+          'Noto Color Emoji',
+        ],
       },
     },
   },

@@ -11,6 +11,7 @@ interface RenderController {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const isRenderController = (arg: any): arg is RenderController => 'shouldRender' in arg;
+const isRenderController = (arg: any): arg is RenderController =>
+  'shouldRender' in arg;
 
 export { RenderController, isRenderController };

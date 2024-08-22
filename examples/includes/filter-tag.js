@@ -22,4 +22,4 @@ export default class extends Component {
     this.$dispatch('updateFilter', newFilter);
     this.$element.blur();
   }
-};
+}

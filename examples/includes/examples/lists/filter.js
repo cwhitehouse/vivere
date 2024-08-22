@@ -1,4 +1,4 @@
-import { Component } from "../../../../src/vivere";
+import { Component } from '../../../../src/vivere';
 
 export default class extends Component {
   items;
@@ -7,11 +7,9 @@ export default class extends Component {
   get buttonLabel() {
     const { toggleMode } = this;
 
-    if (toggleMode === 'even')
-      return 'Even Items';
+    if (toggleMode === 'even') return 'Even Items';
 
-    if (toggleMode === 'odd')
-      return 'Odd Items';
+    if (toggleMode === 'odd') return 'Odd Items';
 
     return 'All Items';
   }
@@ -19,12 +17,10 @@ export default class extends Component {
   get filteredItems() {
     const { items, toggleMode } = this;
 
-    return items.filter((item) => {
-      if (toggleMode === 'even')
-        return item.id % 2 === 0;
+    return items.filter(item => {
+      if (toggleMode === 'even') return item.id % 2 === 0;
 
-      if (toggleMode === 'odd')
-        return item.id % 2 !== 0;
+      if (toggleMode === 'odd') return item.id % 2 !== 0;
 
       return true;
     });
@@ -33,11 +29,8 @@ export default class extends Component {
   toggleFilter() {
     const { toggleMode } = this;
 
-    if (toggleMode === 'all')
-      this.toggleMode = 'even';
-    else if (toggleMode === 'even')
-      this.toggleMode = 'odd';
-    else
-      this.toggleMode = 'all';
+    if (toggleMode === 'all') this.toggleMode = 'even';
+    else if (toggleMode === 'even') this.toggleMode = 'odd';
+    else this.toggleMode = 'all';
   }
 }
