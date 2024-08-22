@@ -98,9 +98,10 @@ document.addEventListener('DOMContentLoaded', $setupDocument);
 document.addEventListener('turbo:before-cache', () => {
   dehydrate();
 });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 document.addEventListener(
   'turbo:before-render',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (event: Record<string, any>) => {
     const { newBody } = event.detail;
 
